@@ -8,7 +8,50 @@
 #include <array>
 #include <algorithm>
 
-template <typename T> class grid {
+template <typename T> class simple_grid {
+
+    protected:
+    const int n_cells_;
+    std::vector<T> cells_;
+    std::vector<T*> rows_;
+
+    public:
+    typedef typename std::vector<T>::iterator iterator;
+    const int width;
+    const int height;
+
+    simple_grid(const int width, const int height) :
+        n_cells_(width * height),
+        width(width), height(height) 
+    {
+        /* Create cells */
+        for (int i = 0; i < height; ++i) {
+            for (int j = 0; j < width; ++j) {
+                cells_.push_back(T(j, i));
+            }
+        }
+ 
+        /* Populate pointer array */
+        for (int i = 0; i < height; ++i) {
+            rows_.push_back(&cells_[i*width]);
+        }
+    }
+
+
+    T * const operator[](const unsigned int idx) const {
+        return rows_[idx];
+    }
+
+    iterator begin() {
+        return cells_.begin();
+    }
+    iterator end() {
+        return cells_.end();
+    }
+
+};
+
+template <typename T> class grid : public simple_grid<T> {
 
     private:
     class cell_internal {
@@ -71,45 +114,25 @@ template <typename T> class grid {
         }
     };
 
-    const int n_cells_;
-
     std::vector<cell_internal> cell_internals_;
-    std::vector<T> cells_;
-    
-    std::vector<T*> rows_;
-
     std::vector<T*> border_;
 
     cell_internal &get_cell_internal(const unsigned int j, const unsigned int i) {
-        return cell_internals_[j + i * width];
+        return cell_internals_[j + i * this->width];
     }
 
     typedef typename std::vector<cell_internal>::iterator iterator_internal;
     
     public:
-    const int width;
-    const int height;
-
-    typedef typename std::vector<T>::iterator iterator;
    
+    typedef typename simple_grid<T>::iterator iterator;
+
     grid(const int width, const int height) :
-        n_cells_(width * height),
-        width(width), height(height)
+        simple_grid<T>(width, height)
     {
         
-        /* Create cells */
-        for (int i = 0; i < height; ++i) {
-            for (int j = 0; j < width; ++j) {
-                cells_.push_back(T(j, i));
-            }
-        }
-        for (iterator it = cells_.begin(); it != cells_.end(); ++it) {
+        for (iterator it = this->cells_.begin(); it != this->cells_.end(); ++it) {
             cell_internals_.push_back(*it);
-        }
-
-        /* Populate pointer array */
-        for (int i = 0; i < height; ++i) {
-            rows_.push_back(&cells_[i*width]);
         }
 
         /* Link neighbours */
@@ -142,10 +165,6 @@ template <typename T> class grid {
 
     }
 
-    T * const operator[](const unsigned int idx) const {
-        return rows_[idx];
-    }
-
     const std::vector<T* const> & get_border() {return border_;}
 
     typedef dereference_iterator<typename std::vector<T*>::iterator, T> border_iterator;
@@ -155,13 +174,6 @@ template <typename T> class grid {
     }
     border_iterator border_end() {
         return border_iterator(border_.end());
-    }
-
-    iterator begin() {
-        return cells_.begin();
-    }
-    iterator end() {
-        return cells_.end();
     }
 
     typedef typename cell_internal::neighbour_iterator neighbour_iterator;
@@ -174,8 +186,8 @@ template <typename T> class grid {
 
     int get_distance_to_edge(T &cell) {
         return std::min(
-            std::min(cell.x_coord, width - cell.x_coord - 1),
-            std::min(cell.y_coord, height - cell.y_coord - 1)
+            std::min(cell.x_coord, this->width - cell.x_coord - 1),
+            std::min(cell.y_coord, this->height - cell.y_coord - 1)
         );
     }
 };
