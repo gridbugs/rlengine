@@ -12,7 +12,7 @@ class int_cell : public cell {
 
 int main(int argc, char *argv[]) {
     
-    grid<int_cell> g(10, 10);
+    grid<int_cell> g(20, 10);
     
     int i = 0;
     for (grid<int_cell>::iterator it = g.begin();
@@ -20,6 +20,7 @@ int main(int argc, char *argv[]) {
         ++it)
 
     {
+        std::cout<< std::endl<< i << std::endl;
         int n = 0;
         for (grid<int_cell>::neighbour_iterator n_it = g.neighbour_begin(*it);
             n_it != g.neighbour_end(*it);
@@ -41,7 +42,7 @@ int main(int argc, char *argv[]) {
 
     for (int i = 0; i < g.height; ++i) {
         for (int j = 0; j < g.width; ++j) {
-            cout << g.get_distance_to_edge(g[j][i]) << " ";
+            cout << g.get_distance_to_edge(g[i][j]) << " ";
         }
         cout << endl;
     }

@@ -32,7 +32,8 @@ $(OBJDIR)/%.o: %.cpp
 
 tests: $(CXX_TEST_BIN)
 runtests: tests
-	find $(TEST_DIR) -type f -executable -exec test -x {} \; -print
+	find $(TEST_DIR) -type f -executable | while read p; do echo $$p ; ./$$p ; echo ; done
+	stty sane
 
 $(TEST_DIR)/%.o: $(TEST_DIR)/%.cpp
 	$(CXX) -c $(CXXFLAGS) $< -o $@
@@ -44,3 +45,4 @@ clean:
 	rm -rf $(OBJDIR) $(TARGET)
 	find tests/ -not -name '*.[ch]pp' -type f -delete
 	find -name '*.swp' -delete
+

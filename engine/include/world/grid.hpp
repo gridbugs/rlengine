@@ -64,7 +64,7 @@ template <typename T> class grid : public simple_grid<T> {
         {}
 
 
-        typedef non_null_iterator<std::array<T*, directions::n_directions>, cell_internal> neighbour_iterator;
+        typedef non_null_iterator<std::array<T*, directions::n_directions>, T> neighbour_iterator;
 
         neighbour_iterator neighbour_begin() {
             return neighbour_iterator(neighbours, directions::n_directions);
@@ -117,8 +117,8 @@ template <typename T> class grid : public simple_grid<T> {
     std::vector<cell_internal> cell_internals_;
     std::vector<T*> border_;
 
-    cell_internal &get_cell_internal(const unsigned int j, const unsigned int i) {
-        return cell_internals_[j + i * this->width];
+    cell_internal &get_cell_internal(const unsigned int x_coord, const unsigned int y_coord) {
+        return cell_internals_[x_coord + y_coord * this->width];
     }
 
     typedef typename std::vector<cell_internal>::iterator iterator_internal;
@@ -178,10 +178,16 @@ template <typename T> class grid : public simple_grid<T> {
 
     typedef typename cell_internal::neighbour_iterator neighbour_iterator;
     neighbour_iterator neighbour_begin(T &cell) {
-        return get_cell_internal(cell.y_coord, cell.x_coord).neighbour_begin();
+        return get_cell_internal(cell.x_coord, cell.y_coord).neighbour_begin();
     }
     neighbour_iterator neighbour_end(T &cell) {
-        return get_cell_internal(cell.y_coord, cell.x_coord).neighbour_end();
+        return get_cell_internal(cell.y_coord, cell.y_coord).neighbour_end();
+    }
+    neighbour_iterator cardinal_neighbour_begin(T &cell) {
+        return get_cell_internal(cell.x_coord, cell.y_coord).cardinal_neighbour_begin();
+    }
+    neighbour_iterator cardinal_neighbour_end(T &cell) {
+        return get_cell_internal(cell.x_coord, cell.y_coord).cardinal_neighbour_end();
     }
 
     int get_distance_to_edge(T &cell) {
@@ -191,5 +197,20 @@ template <typename T> class grid : public simple_grid<T> {
         );
     }
 };
+
+template <typename T>
+std::ostream& operator<<(std::ostream &out, const grid<T> &g) {
+    for (int i = 0;i<g.height;i++) {
+        for (int j = 0;j<g.width;j++) {
+            out << g[i][j];
+        }
+        if (i < g.height - 1) {
+            out << std::endl;
+        }
+    }
+    return out;
+}
+
+
 
 #endif
