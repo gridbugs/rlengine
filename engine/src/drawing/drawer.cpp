@@ -7,3 +7,7 @@ void drawer::draw_grid(grid<game_cell> &g) {
         }
     }
 }
+
+void drawer::draw_world(world &w) {
+    draw_grid(w.map);
+}

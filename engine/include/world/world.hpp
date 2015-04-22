@@ -7,7 +7,7 @@
 class world {
     public:
     grid<game_cell> map;
-    world() : map(100, 40) {}
+    world(const int width, const int height) : map(width, height) {}
 };
 
 #endif

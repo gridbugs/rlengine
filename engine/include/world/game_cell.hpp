@@ -8,7 +8,7 @@ class game_cell_data  {
     virtual bool is_opaque() = 0;
     virtual bool is_solid() = 0;
 
-    virtual ~game_cell_data() {};
+    virtual ~game_cell_data() {}
 };
 
 class game_wall : public game_cell_data {
@@ -39,6 +39,9 @@ class game_cell : public cell {
     }
 
     void set_data(game_cell_data *data) {
+        if (data_ != nullptr) {
+            delete data_;
+        }
         data_ = data;
     }
 

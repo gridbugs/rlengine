@@ -4,34 +4,34 @@
 #include <iostream>
 #include <array>
 
-template <typename T=double> class Vec2 {
+template <typename T=double> class vec2 {
     public:
-    Vec2(const T x, const T y) : arr { {x, y} }, x(arr[0]), y(arr[1]) {}
-    Vec2(const Vec2<T> &v) : Vec2(v.x, v.y) {}
-    Vec2() : Vec2(0, 0) {}
+    vec2(const T x, const T y) : arr { {x, y} }, x(arr[0]), y(arr[1]) {}
+    vec2(const vec2<T> &v) : vec2(v.x, v.y) {}
+    vec2() : vec2(0, 0) {}
 
 
     std::array<T, 2> arr;
     T &x;
     T &y;
 
-    Vec2<T> operator+(const Vec2<T> &v) const {
-        return Vec2(x+v.x, y+v.y);
+    vec2<T> operator+(const vec2<T> &v) const {
+        return vec2(x+v.x, y+v.y);
     }
-    Vec2<T> operator-(const Vec2<T> &v) const {
-        return Vec2(x-v.x, y-v.y);
+    vec2<T> operator-(const vec2<T> &v) const {
+        return vec2(x-v.x, y-v.y);
     }
-    friend Vec2<T> operator*(const Vec2<T> &v, const T &s) {
-        return Vec2(v.x*s, v.y*s);
+    friend vec2<T> operator*(const vec2<T> &v, const T &s) {
+        return vec2(v.x*s, v.y*s);
     }
-    friend Vec2<T> operator*(const T &s, const Vec2<T> &v) {
-        return Vec2(v.x*s, v.y*s);
+    friend vec2<T> operator*(const T &s, const vec2<T> &v) {
+        return vec2(v.x*s, v.y*s);
     }
-    friend Vec2<T> operator/(const Vec2<T> &v, const T &s) {
-        return Vec2(v.x/s, v.y/s);
+    friend vec2<T> operator/(const vec2<T> &v, const T &s) {
+        return vec2(v.x/s, v.y/s);
     }
 
-    T dot(const Vec2<T> &v) const {
+    T dot(const vec2<T> &v) const {
         return x*v.x+y*v.y;
     }
 
@@ -43,7 +43,7 @@ template <typename T=double> class Vec2 {
         return arr[idx];
     }
     
-    friend std::ostream &operator<<(std::ostream &out, const Vec2<T> &v) {
+    friend std::ostream &operator<<(std::ostream &out, const vec2<T> &v) {
         return out << "(" << v.x << ", " << v.y << ")";
     }
 
