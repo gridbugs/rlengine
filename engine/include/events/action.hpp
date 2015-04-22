@@ -7,7 +7,12 @@
 
 class action {
     public:
-    virtual void apply(world &w) = 0;
+    virtual void apply(world &w) const = 0;
+    virtual ~action() {}
+};
+
+class empty_action : public action {
+    void apply(world &w) const {}
 };
 
 class move_action : public action {
@@ -19,7 +24,7 @@ class move_action : public action {
         character_(c), direction_(d)
     {};
 
-    void apply(world &w);
+    void apply(world &w) const;
 };
 
 #endif

@@ -2,6 +2,7 @@
 #define _GRID_HPP_
 
 #include "geometry/directions.hpp"
+#include "geometry/vec2.hpp"
 #include "util/non_null_iterator.hpp"
 #include "util/dereference_iterator.hpp"
 #include <vector>
@@ -40,6 +41,14 @@ template <typename T> class simple_grid {
 
     T * const operator[](const unsigned int idx) const {
         return rows_[idx];
+    }
+
+    T& get_cell(const unsigned int x_coord, const unsigned int y_coord) {
+        return (*this)[y_coord][x_coord];
+    }
+
+    T& get_cell(const vec2<unsigned int> &v) {
+        return (*this)[v.y][v.x];
     }
 
     iterator begin() {
@@ -117,7 +126,8 @@ template <typename T> class grid : public simple_grid<T> {
     std::vector<cell_internal> cell_internals_;
     std::vector<T*> border_;
 
-    cell_internal &get_cell_internal(const unsigned int x_coord, const unsigned int y_coord) {
+    cell_internal &get_cell_internal(const unsigned int x_coord, 
+                                     const unsigned int y_coord) {
         return cell_internals_[x_coord + y_coord * this->width];
     }
 
@@ -195,6 +205,10 @@ template <typename T> class grid : public simple_grid<T> {
             std::min(cell.x_coord, this->width - cell.x_coord - 1),
             std::min(cell.y_coord, this->height - cell.y_coord - 1)
         );
+    }
+
+    T* get_neighbour(T &cell, directions::direction_t direction) {
+        return get_cell_internal(cell.x_coord, cell.y_coord).neighbours[direction];
     }
 };
 
