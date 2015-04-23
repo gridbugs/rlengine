@@ -1,4 +1,4 @@
-#include "drawing/curses.hpp"
+#include "io/curses.hpp"
 
 #include <ncurses.h>
 

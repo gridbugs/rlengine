@@ -3,7 +3,7 @@
 #include <iostream>
 
 #include "world/game_cell.hpp"
-#include "drawing/curses.hpp"
+#include "io/curses.hpp"
 #include "drawing/curses_drawer.hpp"
 
 class conway_cell : public cell {

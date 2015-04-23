@@ -1,4 +1,4 @@
-#include "drawing/curses.hpp"
+#include "io/curses.hpp"
 #include "drawing/curses_drawer.hpp"
 #include "world/world.hpp"
 #include "world/generator.hpp"

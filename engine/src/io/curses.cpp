@@ -1,4 +1,4 @@
-#include "drawing/curses.hpp"
+#include "io/curses.hpp"
 #include <stdlib.h>
 
 void curses::simple_start() {
