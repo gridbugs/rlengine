@@ -3,16 +3,17 @@
 #include "world/world.hpp"
 #include "world/generator.hpp"
 #include "io/curses.hpp"
-#include "control/ncurses_controller.hpp"
+#include "control/curses_controller.hpp"
 #include "drawing/curses_drawer.hpp"
 
 int main(int argc, char *argv[]) {
     curses::simple_start();
 
     curses_drawer dr;
-    ncurses_controller c;
+    curses_controller c;
     character ch(c, 20, 20);
     c.init_dvorak();
+    c.init_arrows();
     world w(100, 40);
     border_generator g;
     g.generate(w);
