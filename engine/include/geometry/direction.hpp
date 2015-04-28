@@ -3,7 +3,7 @@
 
 #include <iostream>
 
-namespace directions {
+namespace direction {
 
     typedef enum {
         north = 0,
@@ -50,6 +50,6 @@ namespace directions {
 
 };
 
-std::ostream &operator<<(std::ostream &out, const directions::direction_t dir);
+std::ostream &operator<<(std::ostream &out, const direction::direction_t dir);
 
 #endif

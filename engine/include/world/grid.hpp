@@ -1,7 +1,7 @@
 #ifndef _GRID_HPP_
 #define _GRID_HPP_
 
-#include "geometry/directions.hpp"
+#include "geometry/direction.hpp"
 #include "geometry/vec2.hpp"
 #include "util/non_null_iterator.hpp"
 #include "util/dereference_iterator.hpp"
@@ -39,15 +39,15 @@ template <typename T> class simple_grid {
     }
 
 
-    T * const operator[](const unsigned int idx) const {
+    T * const operator[](const int idx) const {
         return rows_[idx];
     }
 
-    T& get_cell(const unsigned int x_coord, const unsigned int y_coord) {
+    T& get_cell(const int x_coord, const int y_coord) {
         return (*this)[y_coord][x_coord];
     }
 
-    T& get_cell(const vec2<unsigned int> &v) {
+    T& get_cell(const vec2<int> &v) {
         return (*this)[v.y][v.x];
     }
 
@@ -66,58 +66,58 @@ template <typename T> class grid : public simple_grid<T> {
     class cell_internal {
         public:
         T& cell;
-        std::array<T*, directions::n_directions> neighbours;
+        std::array<T*, direction::n_directions> neighbours;
 
         cell_internal(T &cell) :
             cell(cell) 
         {}
 
 
-        typedef non_null_iterator<std::array<T*, directions::n_directions>, T> neighbour_iterator;
+        typedef non_null_iterator<std::array<T*, direction::n_directions>, T> neighbour_iterator;
 
         neighbour_iterator neighbour_begin() {
-            return neighbour_iterator(neighbours, directions::n_directions);
+            return neighbour_iterator(neighbours, direction::n_directions);
         }
         neighbour_iterator neighbour_end() {
-            return neighbour_iterator(neighbours, directions::n_directions, directions::n_directions);
+            return neighbour_iterator(neighbours, direction::n_directions, direction::n_directions);
         }
         neighbour_iterator cardinal_neighbour_begin() {
-            return neighbour_iterator(neighbours, directions::n_cardinal_directions);
+            return neighbour_iterator(neighbours, direction::n_cardinal_directions);
         }
         neighbour_iterator cardinal_neighbour_end() {
-            return neighbour_iterator(neighbours, directions::n_cardinal_directions, directions::n_cardinal_directions);
+            return neighbour_iterator(neighbours, direction::n_cardinal_directions, direction::n_cardinal_directions);
         }
 
 
         void link_neighbours(grid<T> &g) {
 
-            for (int i = 0;i<directions::n_directions;i++) {
+            for (int i = 0;i<direction::n_directions;i++) {
                 neighbours[i] = nullptr;
             }
 
             if (cell.x_coord > 0) {
-                neighbours[directions::west] = &g[cell.y_coord][cell.x_coord-1];
+                neighbours[direction::west] = &g[cell.y_coord][cell.x_coord-1];
                 if (cell.y_coord > 0) {
-                    neighbours[directions::northwest] = &g[cell.y_coord-1][cell.x_coord-1];
+                    neighbours[direction::northwest] = &g[cell.y_coord-1][cell.x_coord-1];
                 }
                 if (cell.y_coord < g.height-1) {
-                    neighbours[directions::southwest] = &g[cell.y_coord+1][cell.x_coord-1];
+                    neighbours[direction::southwest] = &g[cell.y_coord+1][cell.x_coord-1];
                 }
             }
             if (cell.x_coord < g.width-1) {
-                neighbours[directions::east] = &g[cell.y_coord][cell.x_coord+1];
+                neighbours[direction::east] = &g[cell.y_coord][cell.x_coord+1];
                 if (cell.y_coord > 0) {
-                    neighbours[directions::northeast] = &g[cell.y_coord-1][cell.x_coord+1];
+                    neighbours[direction::northeast] = &g[cell.y_coord-1][cell.x_coord+1];
                 }
                 if (cell.y_coord < g.height-1) {
-                    neighbours[directions::southeast] = &g[cell.y_coord+1][cell.x_coord+1];
+                    neighbours[direction::southeast] = &g[cell.y_coord+1][cell.x_coord+1];
                 }
             }
             if (cell.y_coord > 0) {
-                neighbours[directions::north] = &g[cell.y_coord-1][cell.x_coord];
+                neighbours[direction::north] = &g[cell.y_coord-1][cell.x_coord];
             }
             if (cell.y_coord < g.height-1) {
-                neighbours[directions::south] = &g[cell.y_coord+1][cell.x_coord];
+                neighbours[direction::south] = &g[cell.y_coord+1][cell.x_coord];
             }
 
         }
@@ -126,8 +126,8 @@ template <typename T> class grid : public simple_grid<T> {
     std::vector<cell_internal> cell_internals_;
     std::vector<T*> border_;
 
-    cell_internal &get_cell_internal(const unsigned int x_coord, 
-                                     const unsigned int y_coord) {
+    cell_internal &get_cell_internal(const int x_coord, 
+                                     const int y_coord) {
         return cell_internals_[x_coord + y_coord * this->width];
     }
 
@@ -207,7 +207,7 @@ template <typename T> class grid : public simple_grid<T> {
         );
     }
 
-    T* get_neighbour(T &cell, directions::direction_t direction) {
+    T* get_neighbour(T &cell, direction::direction_t direction) {
         return get_cell_internal(cell.x_coord, cell.y_coord).neighbours[direction];
     }
 };

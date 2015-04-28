@@ -5,13 +5,18 @@
 #include <array>
 
 template <typename T=double> class vec2 {
+    protected:
+    std::array<T, 2> arr;
+
     public:
+    
+    static const unsigned int X_IDX = 0;
+    static const unsigned int Y_IDX = 1;
+    
     vec2(const T x, const T y) : arr { {x, y} }, x(arr[0]), y(arr[1]) {}
     vec2(const vec2<T> &v) : vec2(v.x, v.y) {}
     vec2() : vec2(0, 0) {}
 
-
-    std::array<T, 2> arr;
     T &x;
     T &y;
 
@@ -42,13 +47,16 @@ template <typename T=double> class vec2 {
     T &operator[](const unsigned int idx) {
         return arr[idx];
     }
-    
+ 
+    vec2<T>& operator=(const vec2<T>& v) {
+        arr = v.arr;
+        return *this;
+    }
+
     friend std::ostream &operator<<(std::ostream &out, const vec2<T> &v) {
         return out << "(" << v.x << ", " << v.y << ")";
     }
 
-    static const unsigned int X_IDX = 0;
-    static const unsigned int Y_IDX = 1;
 };
 
 #endif

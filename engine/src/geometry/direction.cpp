@@ -1,10 +1,10 @@
-#include "geometry/directions.hpp"
+#include "geometry/direction.hpp"
 
 #include <iostream>
 #include <string>
 
 
-using namespace directions;
+using namespace direction;
 
 static const direction_t ordinal_table[n_directions][n_directions] = {
     [north] = {
@@ -41,14 +41,14 @@ static const direction_t cardinal_table[n_directions - n_cardinal_directions][2]
 };
 
 
-bool directions::is_cardinal(direction_t d) {
+bool direction::is_cardinal(direction_t d) {
     return d < n_cardinal_directions;
 }
-bool directions::is_ordinal(direction_t d) {
+bool direction::is_ordinal(direction_t d) {
     return d >= n_cardinal_directions && d != none;
 }
 
-direction_t directions::combine_cardinal_directions(direction_t a, direction_t b) {
+direction_t direction::combine_cardinal_directions(direction_t a, direction_t b) {
     if (a == none || b == none) {
         return none;
     }
@@ -58,7 +58,7 @@ direction_t directions::combine_cardinal_directions(direction_t a, direction_t b
     return ordinal_table[a][b];
 }
 
-void directions::split_ordinal_direction(const direction_t ordinal,
+void direction::split_ordinal_direction(const direction_t ordinal,
                                         direction_t *c0,
                                         direction_t *c1) {
     if (is_ordinal(ordinal)) {   
