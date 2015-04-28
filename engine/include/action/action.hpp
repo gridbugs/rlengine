@@ -1,6 +1,7 @@
 #ifndef _ACTION_HPP_
 #define _ACTION_HPP_
 
+
 class world;
 class actor;
 

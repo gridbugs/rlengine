@@ -7,4 +7,6 @@ void move_action::on_complete(world &w) {
     if (destination != nullptr && !destination->is_solid()) {
         character_->position = destination->coord;
     }
+
+    
 }

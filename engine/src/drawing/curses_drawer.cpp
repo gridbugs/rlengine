@@ -27,7 +27,7 @@ void curses_drawer::draw_cell(game_cell &c) {
         wattroff(stdscr, COLOR_PAIR(PAIR_WALL));
     } else {
         wattron(stdscr, COLOR_PAIR(PAIR_FLOOR));
-        waddch(stdscr, ' ');
+        waddch(stdscr, '.');
         wattroff(stdscr, COLOR_PAIR(PAIR_FLOOR));
     }
 }
