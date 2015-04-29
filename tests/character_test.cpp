@@ -10,8 +10,9 @@ int main(int argc, char *argv[]) {
     curses::simple_start();
 
     curses_drawer dr;
-    curses_controller c;
-    character ch(c, 20, 20);
+    character ch(20, 20);
+    curses_controller c(ch);
+    ch.set_behaviour(c);
     c.init_dvorak();
     c.init_arrows();
     world w(100, 40);

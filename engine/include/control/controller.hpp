@@ -21,10 +21,18 @@ class controller : public behaviour {
     move_action move_southwest_;
 
     public:
-
-    virtual bool register_character(character &c);
-
-    bool can_act() {return true;}
+    controller(character &c) :
+        behaviour(c),
+        move_north_(c, direction::north),
+        move_south_(c, direction::south),
+        move_east_(c, direction::east),
+        move_west_(c, direction::west),
+        move_northeast_(c, direction::northeast),
+        move_northwest_(c, direction::northwest),
+        move_southeast_(c, direction::southeast),
+        move_southwest_(c, direction::southwest)
+    {}
+    virtual bool can_act() {return true;}
 };
 
 #endif

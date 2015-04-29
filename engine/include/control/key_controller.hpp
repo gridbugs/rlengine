@@ -4,6 +4,8 @@
 #include "control/controller.hpp"
 #include <array>
 
+class character;
+
 class key_controller : public controller {
  
     protected:
@@ -13,7 +15,9 @@ class key_controller : public controller {
     virtual unsigned int get_key() = 0;   
 
     public:
-    key_controller();
+    key_controller(character &c) :
+        controller(c)
+    {}
     action& get_action(world &w);
     void init_dvorak();
 };

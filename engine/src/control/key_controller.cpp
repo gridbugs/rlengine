@@ -1,11 +1,5 @@
 #include "control/key_controller.hpp"
 
-key_controller::key_controller() {
-    for (unsigned int i = 0; i < N_KEY_BINDINGS_; ++i) {
-        key_bindings_[i] = nullptr;
-    }
-}
-
 action& key_controller::get_action(world &w) {
     action *a = nullptr;
     while (a == nullptr) {

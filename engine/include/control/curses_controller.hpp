@@ -9,7 +9,14 @@ class curses_controller : public key_controller {
     unsigned int get_key();
 
     public:
-    curses_controller() : key_controller() {}
+    curses_controller(character &c) : 
+        key_controller(c) 
+    {
+        for (unsigned int i = 0; i < N_KEY_BINDINGS_; ++i) {
+            key_bindings_[i] = nullptr;
+        }
+    }
+
     void init_arrows();
 };
 

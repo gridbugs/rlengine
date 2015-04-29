@@ -12,18 +12,6 @@ class character : public actor {
     public:
     vec2<int> position;
 
-    character(behaviour &b, int x, int y) :
-        position(x, y)
-    {
-        set_behaviour(b);
-    }
-
-    character(behaviour &b, vec2<int> v) : 
-        position(v)
-    {
-        set_behaviour(b);
-    }
-
     character(int x, int y) :
         behaviour_(nullptr),
         position(x, y)
@@ -33,7 +21,7 @@ class character : public actor {
         position(v)
     {}
 
-    bool set_behaviour(behaviour &b);
+    void set_behaviour(behaviour &b);
     bool has_behaviour() {return behaviour_ != nullptr;}
 
     action& get_action(world &w) {
