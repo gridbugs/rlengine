@@ -5,6 +5,7 @@
 #include "io/curses.hpp"
 #include "control/curses_controller.hpp"
 #include "drawing/curses_drawer.hpp"
+#include "action/init_action.hpp"
 
 int main(int argc, char *argv[]) {
     curses::simple_start();
@@ -18,16 +19,22 @@ int main(int argc, char *argv[]) {
     world w(100, 40);
     border_generator g;
     g.generate(w);
+
+    w.schedule.register_action(init_action(ch));
     
-    dr.draw_world(w);
-    wmove(stdscr, ch.position.y, ch.position.x);
-    waddch(stdscr, '@');
     for(;;) {
-        action &a = ch.get_action(w);
-        a.on_complete(w);
+        
+        const action* a = w.schedule.get_next_action();
+        if (a == nullptr) {
+            break;
+        }
+        a->apply(w);
+
         dr.draw_world(w);
         wmove(stdscr, ch.position.y, ch.position.x);
         waddch(stdscr, '@');
+        
+        a->on_complete(w);
     }
     
     curses::simple_stop();

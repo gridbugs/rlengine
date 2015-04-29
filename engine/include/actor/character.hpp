@@ -4,8 +4,9 @@
 #include "geometry/vec2.hpp"
 #include "actor/actor.hpp"
 #include "behaviour/behaviour.hpp"
+#include "actor/character_statistics.hpp"
 
-class character : public actor {
+class character : public actor, public character_statistics {
     protected:
     behaviour *behaviour_;
 
@@ -30,6 +31,8 @@ class character : public actor {
     bool can_act() {
         return behaviour_->can_act();
     }
+
+    int get_agility() {return 1;}
 };
 
 #endif

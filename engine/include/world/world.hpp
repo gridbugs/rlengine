@@ -9,7 +9,10 @@ class world {
     public:
     grid<game_cell> map;
     action_schedule schedule;
-    world(const int width, const int height) : map(width, height) {}
+    world(const int width, const int height) : 
+        map(width, height),
+        schedule(*this)
+    {}
 };
 
 #endif

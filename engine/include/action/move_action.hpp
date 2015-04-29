@@ -14,11 +14,14 @@ class move_action : public action {
     public:
     move_action(){}
     move_action(character &c, direction::direction_t d) :
+        action(),
         character_(&c),
         direction_(d)
     {}
 
-    void on_complete(world &w);
+    void apply(world &w) const;
+    void on_complete(world &w) const;
+    int get_duration() const;
 };
 
 #endif

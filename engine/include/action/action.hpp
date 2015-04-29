@@ -6,33 +6,18 @@ class world;
 class actor;
 
 class action {
-    public:
-    virtual void on_start(world &w){}
-    virtual void on_complete(world &w){}
-};
-
-class sync_action : public action {
     protected:
-    actor *actor_;
+    bool active_;
 
     public:
-    sync_action(actor &a) :
-        actor_(&a)
-    {}
-    
-    virtual void sync_on_complete(world &w){}
-    void on_complete(world &w);
-};
+    virtual void on_start(world &w) const {}
+    virtual void apply(world &w) const {}
+    virtual void on_complete(world &w) const {}
+    virtual int get_duration() const {return 0;}
 
-class chain_action : public action {
-    protected:
-    chain_action *next_action_;
-    public:
-    chain_action(chain_action &next) : next_action_(&next) {}
-    chain_action() {}
-
-    virtual void chain_on_complete(world &w){}
-    void on_complete(world &w);
+    action() : active_(true) {}
+    void cancel() {active_ = false;}
+    bool is_active() const {return active_;}
 };
 
 #endif
