@@ -15,6 +15,7 @@ class conway_cell : public cell {
         cell(x_coord, y_coord)
     {
         alive = rand()%2;
+        alive_next_ = alive;
     }
 
     void will_die();
@@ -52,11 +53,13 @@ class conway_grid : public grid<conway_cell> {
 
     void progress(const int live_min, const int live_max,
                   const int resurrect_min, const int resurrect_max);
+    void clean();
 };
 
 
-void conway_grid::progress(const int live_min, const int live_max,
-                  const int resurrect_min, const int resurrect_max) {
+
+void conway_grid::progress(const int live_min_, const int live_max_,
+                  const int resurrect_min_, const int resurrect_max_) {
 
     for (iterator it = begin(); it != end(); ++it) {
         int alive_neighbour_count = 0;
@@ -68,6 +71,21 @@ void conway_grid::progress(const int live_min, const int live_max,
                 ++alive_neighbour_count;
             }
         }
+
+        int live_min = live_min_;
+        int live_max = live_max_;
+        int resurrect_min = resurrect_min_;
+        int resurrect_max = resurrect_max_;
+        
+        if (get_distance_to_edge(*it) == 0) {
+//            std::cout << it->x_coord << ", " << it->y_coord << std::endl;
+            live_min = 0;
+            live_max = 8;
+            resurrect_min = 0;
+            resurrect_max = 8;
+            
+        }
+
         if (it->alive) {
             if (alive_neighbour_count < live_min ||
                 alive_neighbour_count > live_max) 
@@ -88,6 +106,8 @@ void conway_grid::progress(const int live_min, const int live_max,
     }
 }
 
+
+
 class conway_cell_wrapper : public game_cell_data {
     
     private:
@@ -102,6 +122,29 @@ class conway_cell_wrapper : public game_cell_data {
     ~conway_cell_wrapper() {}
 };
 
+
+
+void conway_grid::clean() {
+    for (iterator it = begin(); it != end(); ++it) {
+        int count = 0;
+        for (neighbour_iterator n_it = neighbour_begin(*it);
+            n_it != neighbour_end(*it); ++n_it) {
+            if (n_it->alive) {
+                ++count;
+            }
+
+        }
+
+        if (count > 5) {
+            it->alive = true;
+        }
+
+        if (count < 2) {
+            it->alive = false;
+        }
+    }
+}
+
 int main(int argc, char *argv[]) {
     curses::simple_start();
     srand(time(NULL));
@@ -115,13 +158,18 @@ int main(int argc, char *argv[]) {
         }
     }
     
+//    for (int i = 0; i < 5; ++i) {
+//        g.progress(5, 8, 6, 6);
+//    }
+
     curses_drawer dr;
 
     std::string str;
     while(true) {
         dr.draw_grid(game_grid);
-        g.progress(2, 3, 3, 3);
+        g.progress(4, 8, 5, 5);
         getch();
+//        g.clean();
     }
 
 

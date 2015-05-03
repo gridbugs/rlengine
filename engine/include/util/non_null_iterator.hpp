@@ -65,7 +65,7 @@ template <typename A, typename B> non_null_iterator<A,B> non_null_iterator<A,B>:
 }
 
 template <typename A, typename B> B& non_null_iterator<A,B>::operator*() {
-    return &container[idx];
+    return *container[idx];
 }
 
 template <typename A, typename B> bool non_null_iterator<A,B>::operator==(const non_null_iterator<A,B> &it) const {

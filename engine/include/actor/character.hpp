@@ -17,7 +17,7 @@ class character : public actor, public character_statistics {
         behaviour_(nullptr),
         position(x, y)
     {}
-    character(vec2<int> v) :
+    character(const vec2<int> &v) :
         behaviour_(nullptr),
         position(v)
     {}
