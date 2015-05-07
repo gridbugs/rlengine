@@ -21,8 +21,8 @@ class controller : public behaviour {
     move_action move_southwest_;
 
     public:
-    controller(character &c) :
-        behaviour(c),
+    controller(character &c, world &w) :
+        behaviour(c, w),
         move_north_(c, direction::north),
         move_south_(c, direction::south),
         move_east_(c, direction::east),

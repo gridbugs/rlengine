@@ -19,7 +19,7 @@ int main(int argc, char *argv[]) {
     g.generate(w);
     
     character player(w.get_random_empty_cell().coord);
-    curses_controller ctrl(player);
+    curses_controller ctrl(player, w);
     player.set_behaviour(ctrl);
     ctrl.init_dvorak();
     ctrl.init_arrows();

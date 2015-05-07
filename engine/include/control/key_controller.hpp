@@ -15,8 +15,8 @@ class key_controller : public controller {
     virtual unsigned int get_key() = 0;   
 
     public:
-    key_controller(character &c) :
-        controller(c)
+    key_controller(character &c, world &w) :
+        controller(c, w)
     {}
     action& get_action(world &w);
     void init_dvorak();

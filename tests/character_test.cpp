@@ -11,12 +11,12 @@ int main(int argc, char *argv[]) {
     curses::simple_start();
 
     curses_drawer dr;
+    world w(100, 40);
     character ch(20, 20);
-    curses_controller c(ch);
+    curses_controller c(ch, w);
     ch.set_behaviour(c);
     c.init_dvorak();
     c.init_arrows();
-    world w(100, 40);
     border_generator g;
     g.generate(w);
 
