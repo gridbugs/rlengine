@@ -21,6 +21,11 @@ class behaviour : public actor {
         knowledge_grid_(w.width, w.height)
     {}
 
+    const grid<knowledge_cell> &get_knowledge_grid() const {
+        return knowledge_grid_;
+    }
+
+    void observe_world();
 };
 
 #endif

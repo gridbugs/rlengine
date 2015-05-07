@@ -35,8 +35,9 @@ int main(int argc, char *argv[]) {
             break;
         }
         a->apply(w);
+        ctrl.observe_world();
 
-        dr.draw_world(w);
+        dr.draw_world(w, ctrl);
         wmove(stdscr, player.position.y, player.position.x);
         waddch(stdscr, '@');
         

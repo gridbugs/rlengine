@@ -7,6 +7,7 @@ class curses_drawer : public drawer {
     public:
     curses_drawer();
     void draw_cell(game_cell &c);
+    void draw_cell(game_cell &c, knowledge_cell &k);
 };
 
 #endif

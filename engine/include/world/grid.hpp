@@ -43,11 +43,11 @@ template <typename T> class simple_grid {
         return rows_[idx];
     }
 
-    T& get_cell(const int x_coord, const int y_coord) {
+    T& get_cell(const int x_coord, const int y_coord) const {
         return (*this)[y_coord][x_coord];
     }
 
-    T& get_cell(const vec2<int> &v) {
+    T& get_cell(const vec2<int> &v) const {
         return (*this)[v.y][v.x];
     }
 
