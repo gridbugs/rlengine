@@ -1,6 +1,8 @@
 #include "world/fov.hpp"
 
 static void unsee_all(grid<knowledge_cell> &k) {
+    k.for_each([](knowledge_cell &c){ c.unsee(); });
+
     for (grid<knowledge_cell>::iterator it = k.begin(); it != k.end(); ++it) {
         it->unsee();
     }
@@ -26,11 +28,7 @@ void fov::compute_fov(const vec2<int> &eye_coord, const grid<game_cell> &g, grid
     unsee_all(k);
     
     knowledge_cell &kc = k.get_cell(eye_coord);
-    for (grid<knowledge_cell>::neighbour_iterator it = k.neighbour_begin(kc); 
-        it != k.neighbour_end(kc); ++it) {
-        it->see();
-    }
-    kc.see();
+    k.for_each_neighbour(kc, [](knowledge_cell &c){ c.see(); });
     
     octant_compute_fov(eye_coord, g.get_cell(eye_coord).centre, g, k, 0, -1,
         direction::ordinal::southwest, direction::ordinal::northwest, 

@@ -8,6 +8,7 @@
 #include <vector>
 #include <array>
 #include <algorithm>
+#include <functional>
 
 template <typename T> class simple_grid {
 
@@ -58,6 +59,9 @@ template <typename T> class simple_grid {
         return cells_.end();
     }
 
+    void for_each(const std::function<void(T&)> &f) {
+        std::for_each(begin(), end(), f);
+    }
 };
 
 template <typename T> class grid : public simple_grid<T> {
@@ -187,16 +191,16 @@ template <typename T> class grid : public simple_grid<T> {
     }
 
     typedef typename cell_internal::neighbour_iterator neighbour_iterator;
-    neighbour_iterator neighbour_begin(T &cell) {
+    neighbour_iterator neighbour_begin(const T &cell) {
         return get_cell_internal(cell.x_coord, cell.y_coord).neighbour_begin();
     }
-    neighbour_iterator neighbour_end(T &cell) {
+    neighbour_iterator neighbour_end(const T &cell) {
         return get_cell_internal(cell.y_coord, cell.y_coord).neighbour_end();
     }
-    neighbour_iterator cardinal_neighbour_begin(T &cell) {
+    neighbour_iterator cardinal_neighbour_begin(const T &cell) {
         return get_cell_internal(cell.x_coord, cell.y_coord).cardinal_neighbour_begin();
     }
-    neighbour_iterator cardinal_neighbour_end(T &cell) {
+    neighbour_iterator cardinal_neighbour_end(const T &cell) {
         return get_cell_internal(cell.x_coord, cell.y_coord).cardinal_neighbour_end();
     }
 
@@ -209,6 +213,16 @@ template <typename T> class grid : public simple_grid<T> {
 
     T* get_neighbour(T &cell, direction::direction_t direction) {
         return get_cell_internal(cell.x_coord, cell.y_coord).neighbours[direction];
+    }
+    
+    void for_each_neighbour(const T& cell, const std::function<void(T&)> &f) {
+        std::for_each(neighbour_begin(cell), neighbour_end(cell), f);
+    }
+    void for_each_cardinal_neighbour(const T& cell, const std::function<void(T&)> &f) {
+        std::for_each(cardinal_neighbour_begin(cell), cardinal_neighbour_end(cell), f);
+    }
+    void for_each_border(const std::function<void(T&)> &f) {
+        std::for_each(border_begin(), border_end(), f);
     }
 };
 
