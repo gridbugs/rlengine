@@ -1,6 +1,6 @@
 #include "control/key_controller.hpp"
 
-action& key_controller::get_action(world &w) {
+action& key_controller::get_action(const world &w) {
     action *a = nullptr;
     while (a == nullptr) {
         unsigned int key_code = get_key();

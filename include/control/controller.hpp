@@ -21,8 +21,8 @@ class controller : public behaviour {
     move_action move_southwest_;
 
     public:
-    controller(character &c, world &w) :
-        behaviour(c, w),
+    controller(character &c, world &w, fov_detector &f) :
+        behaviour(c, w, f),
         move_north_(c, direction::north),
         move_south_(c, direction::south),
         move_east_(c, direction::east),

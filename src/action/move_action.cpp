@@ -11,6 +11,7 @@ void move_action::apply(world &w) const {
 
 void move_action::on_complete(world &w) const {
     w.schedule.register_action(character_->get_action(w));
+    character_->observe_world(w);
 }
 
 int move_action::get_duration() const {

@@ -3,21 +3,24 @@
 
 #include "actor/actor.hpp"
 #include "actor/knowledge.hpp"
+#include <vector>
 
+class fov_detector;
 class character;
 
 class behaviour : public actor {
 
     protected:
     character &character_;
-    world &world_;
+    fov_detector &fov_;
     grid<knowledge_cell> knowledge_grid_;
+    std::vector<game_cell*> visible_cells_;
 
     public:
 
-    behaviour(character &c, world &w) : 
+    behaviour(character &c, world &w, fov_detector &f) : 
         character_(c),
-        world_(w),
+        fov_(f),
         knowledge_grid_(w.width, w.height)
     {}
 
@@ -25,7 +28,8 @@ class behaviour : public actor {
         return knowledge_grid_;
     }
 
-    void observe_world();
+    virtual void observe_world(const world &w);
+
 };
 
 #endif

@@ -6,8 +6,9 @@
 
 class actor {
     public:
-    virtual action& get_action(world &w) = 0;
+    virtual action& get_action(const world &w) = 0;
     virtual bool can_act() = 0;
+    virtual void observe_world(const world &w) = 0;
 };
 
 #endif

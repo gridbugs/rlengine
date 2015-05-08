@@ -15,10 +15,10 @@ class key_controller : public controller {
     virtual unsigned int get_key() = 0;   
 
     public:
-    key_controller(character &c, world &w) :
-        controller(c, w)
+    key_controller(character &c, world &w, fov_detector &f) :
+        controller(c, w, f)
     {}
-    action& get_action(world &w);
+    action& get_action(const world &w);
     void init_dvorak();
 };
 

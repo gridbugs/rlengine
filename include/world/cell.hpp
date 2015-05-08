@@ -29,4 +29,10 @@ class cell {
     }
 };
 
+template <typename T> class generic_cell : public cell {
+    public:
+    T data;
+    generic_cell(const int j, const int i) : cell(j, i) {};
+};
+
 #endif

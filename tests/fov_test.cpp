@@ -9,17 +9,19 @@
 #include "actor/character.hpp"
 #include "action/init_action.hpp"
 #include "control/curses_controller.hpp"
+#include "world/fov.hpp"
 
 int main(int argc, char *argv[]) {
     curses::simple_start();
     srand(time(NULL));
     
     world w(100, 40);
+    fov_detector f(w.map);
     conway_generator g;
     g.generate(w);
     
     character player(w.get_random_empty_cell().coord);
-    curses_controller ctrl(player, w);
+    curses_controller ctrl(player, w, f);
     player.set_behaviour(ctrl);
     ctrl.init_dvorak();
     ctrl.init_arrows();
@@ -35,7 +37,7 @@ int main(int argc, char *argv[]) {
             break;
         }
         a->apply(w);
-        ctrl.observe_world();
+        ctrl.observe_world(w);
 
         dr.draw_world(w, ctrl);
         wmove(stdscr, player.position.y, player.position.x);

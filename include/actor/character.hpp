@@ -25,11 +25,14 @@ class character : public actor, public character_statistics {
     void set_behaviour(behaviour &b);
     bool has_behaviour() {return behaviour_ != nullptr;}
 
-    action& get_action(world &w) {
+    action& get_action(const world &w) {
         return behaviour_->get_action(w);
     }
     bool can_act() {
         return behaviour_->can_act();
+    }
+    void observe_world(const world &w) {
+        behaviour_->observe_world(w);
     }
 
     int get_agility() {return 1;}
