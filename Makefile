@@ -1,12 +1,12 @@
 TARGET=game
-CXX_COMMON_SRC=$(wildcard engine/src/*/*.cpp)
+CXX_COMMON_SRC=$(wildcard src/*/*.cpp)
 
 TEST_DIR=tests
 CXX_TEST_SRC=$(wildcard $(TEST_DIR)/*.cpp)
 CXX_TEST_OBJ=$(CXX_TEST_SRC:.cpp=.o)
 CXX_TEST_BIN=$(CXX_TEST_OBJ:.o=)
 CXX=g++
-CXXFLAGS=-g -Werror -Wall -std=c++11 -Iengine/include
+CXXFLAGS=-g -Werror -Wall -std=c++11 -Iinclude
 LDLIBS=-lncurses
 
 OBJDIR=build
