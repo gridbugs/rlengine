@@ -8,24 +8,13 @@
 
 #include <functional>
 #include <vector>
+#include <iostream>
 
 class fov_detector {
     protected:
 
     grid<game_cell> &game_grid_;
     grid<generic_cell<bool>> visibility_cache_;
-
-    void compute_octant_fov(const vec2<int> &eye_coord,
-                            const vec2<double> &eye_centre,
-                            double max_slope,
-                            double min_slope,
-                            direction::ordinal::direction_t transparent_corner,
-                            direction::ordinal::direction_t opaque_corner,
-                            const int lateral_max,
-                            const int depth_max,
-                            const int depth_direction,
-                            const unsigned int lateral_index,
-                            const std::function<void(game_cell&)> &fn);
 
     void compute_fov(const vec2<int> &eye_coord, 
                      const std::function<void(game_cell&)> &fn);

@@ -11,9 +11,18 @@
 #include "control/curses_controller.hpp"
 #include "world/fov.hpp"
 
+#define RANDOM 0
+#define DRAWING 1
+
 int main(int argc, char *argv[]) {
+#if DRAWING
     curses::simple_start();
+#endif
+#if RANDOM
     srand(time(NULL));
+#else
+    srand(0);
+#endif
     
     world w(100, 40);
     fov_detector f(w.map);
@@ -38,15 +47,16 @@ int main(int argc, char *argv[]) {
         }
         a->apply(w);
         ctrl.observe_world(w);
-
+#if DRAWING
         dr.draw_world(w, ctrl);
         wmove(stdscr, player.position.y, player.position.x);
         waddch(stdscr, '@');
-        
+#endif        
         a->on_complete(w);
     }
 
-
+#if DRAWING
     curses::simple_stop();
+#endif
     return 0;
 }
