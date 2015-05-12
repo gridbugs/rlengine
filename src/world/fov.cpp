@@ -1,108 +1,97 @@
+#include <cmath>
+#include <iostream>
+using namespace std;
 #include "world/fov.hpp"
 #include "util/arith.hpp"
-
-static double compute_slope(const vec2<double> &v, const vec2<double> &eye,
-                            const unsigned int lateral_axis, const unsigned int depth_axis) {
-    return (v[lateral_axis] - eye[lateral_axis]) /
-           ((v[depth_axis] - eye[depth_axis]) * -1);
+/*
+static double compute_slope(const vec2<double> &from, const vec2<double> &to) {
+    return (to.x - from.x) / (to.y - from.y);
 }
+*/
 
 static void compute_octant_fov(grid<game_cell> &grid,
-                               const std::function<void(game_cell&)> &fn, 
-                               const vec2<int> &eye_coord,
-                               const vec2<double> &eye_position,
-                               const int start_offset,
-                               const int max_offset,
+                               const std::function<void(game_cell&)> &completely_visible_fn, 
+                               const std::function<void(game_cell&)> &partially_visible_fn, 
+                               const game_cell &eye_cell,
+                               const int depth_relative_index,
                                double min_slope,
                                double max_slope) {
 
+    const int depth_absolute_index = eye_cell.coord.y - depth_relative_index;
 
-    vec2<int> coord;
-    const unsigned int lateral_axis = vec2<int>::X_IDX;
-    const unsigned int depth_axis = 1 - lateral_axis;
-    for (int i = start_offset; i <= max_offset; ++i) {
-
-        coord[depth_axis] = eye_coord[depth_axis] - i;
-
-        /* Range to scan for visible cells. A cell is visible if there is a direct
-         * line of site from the eye position (centre of cell containing eye) to the
-         * centre of that cell.
-         */
-        const double visible_min_scan = eye_position[lateral_axis] + (min_slope * i) + 0.4999999;
-        const double visible_max_scan = eye_position[lateral_axis] + (max_slope * i) - 0.5;
-
-        /* Total range to scan. This is different from the visible scan range. A line of
-         * sight may pass through a cell without that cell being visible.
-         */
-        const double check_min_scan = eye_position[lateral_axis] + (min_slope * (i+0.5));
-        const double check_max_scan = eye_position[lateral_axis] + (max_slope * (i+0.5));
-
-        /* Convert the scan ranges into integer indices. */
-        int visible_min_scan_idx = arithmetic::constrain(0, 
-            static_cast<int>(std::floor(visible_min_scan)), grid.width);
-        int visible_max_scan_idx = arithmetic::constrain(0, 
-            static_cast<int>(std::floor(visible_max_scan)), grid.width);
-        int check_min_scan_idx = arithmetic::constrain(0, 
-            static_cast<int>(std::floor(check_min_scan)), grid.width);
-        int check_max_scan_idx = arithmetic::constrain(0, 
-            static_cast<int>(std::floor(check_max_scan)), grid.width);
-
-        coord[lateral_axis] = visible_min_scan_idx;
-        
-        if (visible_min_scan_idx != check_min_scan_idx) {
-
-        }
-        
-        while (true) {
-
-            while (coord[lateral_axis] <= visible_max_scan_idx &&
-                   !grid.get_cell(coord).is_opaque()) {
-                
-                fn(grid.get_cell(coord));
-                ++coord[lateral_axis];
-            }
-
-            if (coord[lateral_axis] > visible_max_scan_idx) {
-                break;
-            }
-
-            const vec2<double> &v = grid.get_cell(coord).corners[direction::southwest];
-            (void)v;
-
-        }
-
-        if (visible_max_scan_idx != check_max_scan_idx) {
-
-        }
+    if (depth_absolute_index < 0) {
+        return;
     }
+    
+    const double inner_depth_offset = depth_relative_index - 0.5;
+    const double outer_depth_offset = inner_depth_offset + 1;
+    const double min_inner_lateral_offset = min_slope * inner_depth_offset;
+    const double min_outer_lateral_offset = min_slope * outer_depth_offset;
+    const int partial_start_index = std::floor(min_outer_lateral_offset + eye_cell.centre.x);
+    const int complete_start_index = std::ceil(min_inner_lateral_offset + eye_cell.centre.x);
+    const double max_inner_lateral_offset = max_slope * inner_depth_offset;
+    const double max_outer_lateral_offset = max_slope * outer_depth_offset;
+    const int partial_stop_index = std::floor(max_outer_lateral_offset + eye_cell.centre.x);
+    const int complete_stop_index = std::floor(max_inner_lateral_offset + eye_cell.centre.x) - 1;
+    
+    const int start_index = arithmetic::constrain(0, partial_start_index, grid.width);
+    const int stop_index = arithmetic::constrain(0, partial_stop_index, grid.width);
+
+    bool first_iteration = true;
+    bool previous_opaque = false;
+    for (int i = start_index; i <= stop_index; ++i) {
+        const bool last_iteration = i == partial_stop_index;
+
+        game_cell &c = grid[depth_absolute_index][i];
+        if (i >= complete_start_index && i <= complete_stop_index) {
+            completely_visible_fn(c);
+        } else {
+            partially_visible_fn(c);
+        }
+
+        bool current_opaque = c.is_opaque();
+        if (previous_opaque && !current_opaque) {
+            /* First transparent cell in transparent strip. */
+            // set min off current cell
+        }
+        
+        if (current_opaque && !previous_opaque && !first_iteration) {
+            /* First opaque cell in opaque strip. */
+            // recurse with current min and max computed from the current cell
+        }
+
+        if (!current_opaque && last_iteration) {
+            /* Last cell in strip and it happens to be transparent. */
+            // recurse with current min and max
+        }
+
+        previous_opaque = current_opaque;
+        first_iteration = false;
+    }
+
 }
 
 void fov_detector::compute_fov(const vec2<int> &eye_coord, 
-                 const std::function<void(game_cell&)> &fn) {
+                 const std::function<void(game_cell&)> &completely_visible_fn, 
+                 const std::function<void(game_cell&)> &partially_visible_fn) {
     
-//    game_cell &c = game_grid_.get_cell(eye_coord);
-//    fn(c);
-//    game_grid_.for_each_neighbour(c, fn);
-
-    const vec2<double> &eye_position = game_grid_.get_cell(eye_coord).centre;
-
-    compute_octant_fov(game_grid_ ,fn, eye_coord, eye_position, 1, eye_coord.y, -1, 0);
+    compute_octant_fov(game_grid_, completely_visible_fn, partially_visible_fn, game_grid_.get_cell(eye_coord), 1, -1, 0);
 }
 
 
 void fov_detector::push_visible_cells(const vec2<int> &eye_coord, std::vector<game_cell*> &visible_cells) {
     grid<generic_cell<bool>> &visibility_cache = visibility_cache_;
 
-    compute_fov(eye_coord, [&visible_cells, &visibility_cache](game_cell &c) {
-
-        
+    std::function<void(game_cell&)> fn = [&visible_cells, &visibility_cache](game_cell &c) {
 
         generic_cell<bool> &b = visibility_cache.get_cell(c.coord);
         if (b.data == false) {
             b.data = true;
             visible_cells.push_back(&c);
         }
-    });
+    };
+
+    compute_fov(eye_coord, fn, fn);
 
     for (std::vector<game_cell*>::iterator it = visible_cells.begin();
         it != visible_cells.end(); ++it) {

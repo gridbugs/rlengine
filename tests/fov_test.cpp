@@ -12,7 +12,7 @@
 #include "world/fov.hpp"
 
 #define RANDOM 0
-#define DRAWING 1
+#define DRAWING 0
 
 int main(int argc, char *argv[]) {
 #if DRAWING

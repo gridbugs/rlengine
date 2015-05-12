@@ -17,7 +17,8 @@ class fov_detector {
     grid<generic_cell<bool>> visibility_cache_;
 
     void compute_fov(const vec2<int> &eye_coord, 
-                     const std::function<void(game_cell&)> &fn);
+                     const std::function<void(game_cell&)> &fn,
+                     const std::function<void(game_cell&)> &fn2);
 
     public:
     fov_detector(grid<game_cell> &g) :
