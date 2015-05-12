@@ -3,11 +3,11 @@
 using namespace std;
 #include "world/fov.hpp"
 #include "util/arith.hpp"
-/*
+
 static double compute_slope(const vec2<double> &from, const vec2<double> &to) {
     return (to.x - from.x) / (to.y - from.y);
 }
-*/
+
 
 static void compute_octant_fov(grid<game_cell> &grid,
                                const std::function<void(game_cell&)> &completely_visible_fn, 
@@ -52,23 +52,30 @@ static void compute_octant_fov(grid<game_cell> &grid,
         bool current_opaque = c.is_opaque();
         if (previous_opaque && !current_opaque) {
             /* First transparent cell in transparent strip. */
-            // set min off current cell
+            min_slope = -compute_slope(eye_cell.centre, c.corners[direction::ordinal::northwest]);
         }
         
         if (current_opaque && !previous_opaque && !first_iteration) {
             /* First opaque cell in opaque strip. */
             // recurse with current min and max computed from the current cell
+            const double new_max_slope = -compute_slope(eye_cell.centre, c.corners[direction::ordinal::southwest]);
+            compute_octant_fov(grid, completely_visible_fn, partially_visible_fn, 
+                               eye_cell, depth_relative_index + 1, min_slope, new_max_slope);
         }
 
         if (!current_opaque && last_iteration) {
             /* Last cell in strip and it happens to be transparent. */
             // recurse with current min and max
+//            cout << depth_relative_index << ": last iteration" <<  endl;
+//            cout << "min slope: " << min_slope << endl;
+//            cout << "max slope: " << max_slope << endl;
+            compute_octant_fov(grid, completely_visible_fn, partially_visible_fn, 
+                               eye_cell, depth_relative_index + 1, min_slope, max_slope);
         }
 
         previous_opaque = current_opaque;
         first_iteration = false;
     }
-
 }
 
 void fov_detector::compute_fov(const vec2<int> &eye_coord, 

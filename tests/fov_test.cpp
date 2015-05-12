@@ -12,7 +12,7 @@
 #include "world/fov.hpp"
 
 #define RANDOM 0
-#define DRAWING 0
+#define DRAWING 1
 
 int main(int argc, char *argv[]) {
 #if DRAWING
@@ -30,6 +30,8 @@ int main(int argc, char *argv[]) {
     g.generate(w);
     
     character player(w.get_random_empty_cell().coord);
+//    character player(vec2<int>(23, 21));
+//    std::cout << player.position << std::endl;
     curses_controller ctrl(player, w, f);
     player.set_behaviour(ctrl);
     ctrl.init_dvorak();
