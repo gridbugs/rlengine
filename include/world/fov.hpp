@@ -6,7 +6,6 @@
 #include "actor/knowledge.hpp"
 #include "geometry/vec2.hpp"
 
-#include <functional>
 #include <vector>
 #include <iostream>
 
@@ -36,18 +35,16 @@ class fov_detector {
     grid<game_cell> &game_grid_;
     grid<generic_cell<bool>> visibility_cache_;
 
-    void compute_fov(const vec2<int> &eye_coord, 
-                     const std::function<void(game_cell&)> &fn,
-                     const std::function<void(game_cell&)> &fn2);
+    void compute_fov(const vec2<int> &eye_coord);
 
-    void compute_octant_fov(   const std::function<void(game_cell&)> &completely_visible_fn, 
-                               const std::function<void(game_cell&)> &partially_visible_fn, 
-                               const game_cell &eye_cell,
+    void compute_octant_fov(   const game_cell &eye_cell,
                                const int depth_relative_index,
                                double min_slope,
                                double max_slope);
 
-
+    void mark_cell_completely_visible(game_cell &c);
+    void mark_cell_partially_visible(game_cell &c);
+    std::vector<game_cell*> *current_vector_;
 
     public:
     fov_detector(grid<game_cell> &g) :

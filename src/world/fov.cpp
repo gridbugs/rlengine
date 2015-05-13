@@ -9,13 +9,10 @@ static double compute_slope(const vec2<double> &from, const vec2<double> &to) {
 }
 
 
-void fov_detector::compute_octant_fov(
-                               const std::function<void(game_cell&)> &completely_visible_fn, 
-                               const std::function<void(game_cell&)> &partially_visible_fn, 
-                               const game_cell &eye_cell,
-                               const int depth_relative_index_initial,
-                               double min_slope_initial,
-                               double max_slope_initial) {
+void fov_detector::compute_octant_fov(  const game_cell &eye_cell,
+                                        const int depth_relative_index_initial,
+                                        double min_slope_initial,
+                                        double max_slope_initial) {
 
     recursion_stack_.push_back(stack_parameters(
         min_slope_initial, 
@@ -57,9 +54,9 @@ void fov_detector::compute_octant_fov(
 
             game_cell &c = game_grid_[depth_absolute_index][i];
             if (i >= complete_start_index && i <= complete_stop_index) {
-                completely_visible_fn(c);
+                mark_cell_completely_visible(c);
             } else {
-                partially_visible_fn(c);
+                mark_cell_partially_visible(c);
             }
 
             bool current_opaque = c.is_opaque();
@@ -89,40 +86,40 @@ void fov_detector::compute_octant_fov(
 
             previous_opaque = current_opaque;
             first_iteration = false;
-
         }
     }
 }
 
-void fov_detector::compute_fov(const vec2<int> &eye_coord, 
-                 const std::function<void(game_cell&)> &completely_visible_fn, 
-                 const std::function<void(game_cell&)> &partially_visible_fn) {
+void fov_detector::compute_fov(const vec2<int> &eye_coord) {
     
-    compute_octant_fov(completely_visible_fn, partially_visible_fn, game_grid_.get_cell(eye_coord), 1, -1, 0);
+    game_cell &c = game_grid_.get_cell(eye_coord);
+    compute_octant_fov(c, 1, -1, 0);
 }
 
-
-void fov_detector::push_visible_cells(const vec2<int> &eye_coord, std::vector<game_cell*> &visible_cells) {
-    grid<generic_cell<bool>> &visibility_cache = visibility_cache_;
-
-    std::function<void(game_cell&)> fn = [&visible_cells, &visibility_cache](game_cell &c) {
-
-        generic_cell<bool> &b = visibility_cache.get_cell(c.coord);
+void fov_detector::mark_cell_completely_visible(game_cell &c) {
+        generic_cell<bool> &b = visibility_cache_.get_cell(c.coord);
         if (b.data == false) {
             b.data = true;
-            visible_cells.push_back(&c);
+            current_vector_->push_back(&c);
         }
-    };
+}
+void fov_detector::mark_cell_partially_visible(game_cell &c) {
+    mark_cell_completely_visible(c);
+}
 
-    compute_fov(eye_coord, fn, fn);
+void fov_detector::push_visible_cells(const vec2<int> &eye_coord, std::vector<game_cell*> &visible_cells) {
 
-    for (std::vector<game_cell*>::iterator it = visible_cells.begin();
-        it != visible_cells.end(); ++it) {
+    current_vector_ = &visible_cells;
+
+    compute_fov(eye_coord);
+
+    for (std::vector<game_cell*>::iterator it = current_vector_->begin();
+        it != current_vector_->end(); ++it) {
         
         game_cell *c = *it;
 
 
-        visibility_cache.get_cell(c->coord).data = false;
+        visibility_cache_.get_cell(c->coord).data = false;
     }
 }
 
