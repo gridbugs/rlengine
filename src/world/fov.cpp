@@ -10,14 +10,19 @@ static double compute_slope(const vec2<double> &from, const vec2<double> &to) {
 
 
 void fov_detector::compute_octant_fov(  const game_cell &eye_cell,
-                                        const int depth_relative_index_initial,
                                         double min_slope_initial,
-                                        double max_slope_initial) {
+                                        double max_slope_initial,
+
+                                        const direction::ordinal::direction_t inner_direction,
+                                        const direction::ordinal::direction_t outer_direction,
+                                        const int depth_direction
+                                        
+                                    ) {
 
     recursion_stack_.push_back(stack_parameters(
         min_slope_initial, 
         max_slope_initial, 
-        depth_relative_index_initial
+        1
     ));
 
     while (!recursion_stack_.empty()) {
@@ -27,7 +32,7 @@ void fov_detector::compute_octant_fov(  const game_cell &eye_cell,
         
         recursion_stack_.pop_back();
 
-        const int depth_absolute_index = eye_cell.coord.y - depth_relative_index;
+        const int depth_absolute_index = eye_cell.coord.y + depth_relative_index * depth_direction;
 
         if (depth_absolute_index < 0) {
             continue;
@@ -62,12 +67,12 @@ void fov_detector::compute_octant_fov(  const game_cell &eye_cell,
             bool current_opaque = c.is_opaque();
             if (previous_opaque && !current_opaque) {
                 /* First transparent cell in transparent strip. */
-                min_slope = -compute_slope(eye_cell.centre, c.corners[direction::ordinal::northwest]);
+                min_slope = compute_slope(eye_cell.centre, c.corners[outer_direction]) * depth_direction;
             }
             
             if (current_opaque && !previous_opaque && !first_iteration) {
                 /* First opaque cell in opaque strip. */
-                const double new_max_slope = -compute_slope(eye_cell.centre, c.corners[direction::ordinal::southwest]);
+                const double new_max_slope = compute_slope(eye_cell.centre, c.corners[inner_direction]) * depth_direction;
                 recursion_stack_.push_back(stack_parameters(
                     min_slope,
                     new_max_slope,
@@ -93,7 +98,10 @@ void fov_detector::compute_octant_fov(  const game_cell &eye_cell,
 void fov_detector::compute_fov(const vec2<int> &eye_coord) {
     
     game_cell &c = game_grid_.get_cell(eye_coord);
-    compute_octant_fov(c, 1, -1, 0);
+    compute_octant_fov(c, -1, 0, direction::ordinal::southwest, direction::ordinal::northwest, -1);
+    compute_octant_fov(c,  0, 1, direction::ordinal::northwest, direction::ordinal::southwest, -1);
+    compute_octant_fov(c,  -1, 0, direction::ordinal::northwest, direction::ordinal::southwest, 1);
+    compute_octant_fov(c,  0, 1, direction::ordinal::southwest, direction::ordinal::northwest, 1);
 }
 
 void fov_detector::mark_cell_completely_visible(game_cell &c) {

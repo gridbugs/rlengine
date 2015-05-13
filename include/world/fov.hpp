@@ -38,9 +38,12 @@ class fov_detector {
     void compute_fov(const vec2<int> &eye_coord);
 
     void compute_octant_fov(   const game_cell &eye_cell,
-                               const int depth_relative_index,
                                double min_slope,
-                               double max_slope);
+                               double max_slope,
+                               const direction::ordinal::direction_t inner_direction,
+                               const direction::ordinal::direction_t outer_direction,
+                               const int depth_direction
+                            );
 
     void mark_cell_completely_visible(game_cell &c);
     void mark_cell_partially_visible(game_cell &c);
