@@ -7,7 +7,7 @@ class player_character : public character {
     protected:
     action test_action_;
     public:
-    action& get_action(world &w);
+    action& get_action(const world &w);
     bool can_act() {return true;}
 
     player_character(int x, int y) :
