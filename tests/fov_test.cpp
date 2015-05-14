@@ -11,7 +11,7 @@
 #include "control/curses_controller.hpp"
 #include "world/fov.hpp"
 
-#define RANDOM 0
+#define RANDOM 1
 #define DRAWING 1
 
 int main(int argc, char *argv[]) {
