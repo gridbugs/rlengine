@@ -42,7 +42,9 @@ class fov_detector {
                                double max_slope,
                                const direction::ordinal::direction_t inner_direction,
                                const direction::ordinal::direction_t outer_direction,
-                               const int depth_direction
+                               const int depth_direction,
+                               const unsigned int lateral_index,
+                               const int lateral_max
                             );
 
     void mark_cell_completely_visible(game_cell &c);

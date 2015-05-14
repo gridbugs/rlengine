@@ -30,7 +30,7 @@ int main(int argc, char *argv[]) {
     g.generate(w);
     
 //    character player(w.get_random_empty_cell().coord);
-    character player(vec2<int>(22, 21));
+    character player(vec2<int>(14, 26));
 //    std::cout << player.position << std::endl;
     curses_controller ctrl(player, w, f);
     player.set_behaviour(ctrl);
