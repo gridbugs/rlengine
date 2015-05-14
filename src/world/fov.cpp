@@ -29,7 +29,7 @@ void fov_detector::compute_octant_fov(  const game_cell &eye_cell,
         double min_slope = recursion_stack_.back().min_slope;
         double max_slope = recursion_stack_.back().max_slope;
         int depth_relative_index = recursion_stack_.back().depth_relative_index; 
-        
+//        cout << min_slope << " " << max_slope << endl;
         recursion_stack_.pop_back();
 
         const int depth_absolute_index = eye_cell.coord.y + depth_relative_index * depth_direction;
@@ -40,18 +40,35 @@ void fov_detector::compute_octant_fov(  const game_cell &eye_cell,
         
         const double inner_depth_offset = depth_relative_index - 0.5;
         const double outer_depth_offset = inner_depth_offset + 1;
+
         const double min_inner_lateral_offset = min_slope * inner_depth_offset;
         const double min_outer_lateral_offset = min_slope * outer_depth_offset;
-        const int partial_start_index = std::floor(min_outer_lateral_offset + eye_cell.centre.x);
-        const int complete_start_index = std::ceil(min_inner_lateral_offset + eye_cell.centre.x);
+        
+        const double min_inner_lateral_position = min_inner_lateral_offset + eye_cell.centre.x;
+        const double min_outer_lateral_position = min_outer_lateral_offset + eye_cell.centre.x;
+
+        const int partial_start_index = std::floor(std::min(min_inner_lateral_position, min_outer_lateral_position));
+        const int complete_start_index = std::ceil(std::max(min_inner_lateral_position, min_outer_lateral_position));
+        
         const double max_inner_lateral_offset = max_slope * inner_depth_offset;
         const double max_outer_lateral_offset = max_slope * outer_depth_offset;
-        const int partial_stop_index = std::floor(max_outer_lateral_offset + eye_cell.centre.x);
-        const int complete_stop_index = std::floor(max_inner_lateral_offset + eye_cell.centre.x) - 1;
+        
+        const double max_inner_lateral_position = max_inner_lateral_offset + eye_cell.centre.x - 1;
+        const double max_outer_lateral_position = max_outer_lateral_offset + eye_cell.centre.x - 1;
+
+        const int partial_stop_index = std::ceil(std::max(max_inner_lateral_position, max_outer_lateral_position));
+        const int complete_stop_index = std::floor(std::min(max_inner_lateral_position, max_outer_lateral_position));
         
         const int start_index = arithmetic::constrain(0, partial_start_index, game_grid_.width);
         const int stop_index = arithmetic::constrain(0, partial_stop_index, game_grid_.width);
-
+#if 0
+        cout << (inner_depth_offset) << " " << (outer_depth_offset) << endl;
+        cout << (max_inner_lateral_offset) << " " << (max_outer_lateral_offset) << endl;
+        cout << (max_inner_lateral_offset + eye_cell.centre.x) << " " << (max_outer_lateral_offset + eye_cell.centre.x) << endl;
+        cout << complete_stop_index << " " << partial_stop_index << endl;
+        cout << start_index << " " << stop_index << endl;
+#endif
+        
         bool first_iteration = true;
         bool previous_opaque = false;
         for (int i = start_index; i <= stop_index; ++i) {
@@ -67,7 +84,9 @@ void fov_detector::compute_octant_fov(  const game_cell &eye_cell,
             bool current_opaque = c.is_opaque();
             if (previous_opaque && !current_opaque) {
                 /* First transparent cell in transparent strip. */
+//                cout << "min slope " << min_slope << " -> ";
                 min_slope = compute_slope(eye_cell.centre, c.corners[outer_direction]) * depth_direction;
+//                cout << min_slope << eye_cell.centre << c.centre << c.corners[outer_direction] << endl;
             }
             
             if (current_opaque && !previous_opaque && !first_iteration) {
@@ -78,10 +97,12 @@ void fov_detector::compute_octant_fov(  const game_cell &eye_cell,
                     new_max_slope,
                     depth_relative_index + 1
                 ));
+//                cout << "max slope " << max_slope << " -> " << new_max_slope << endl;
             }
 
             if (!current_opaque && last_iteration) {
                 /* Last cell in strip and it happens to be transparent. */
+     //           cout << "last iteration " << min_slope << " " << max_slope << endl;
                 recursion_stack_.push_back(stack_parameters(
                     min_slope,
                     max_slope,
@@ -92,6 +113,9 @@ void fov_detector::compute_octant_fov(  const game_cell &eye_cell,
             previous_opaque = current_opaque;
             first_iteration = false;
         }
+
+        //recursion_stack_.clear();
+        //return;
     }
 }
 

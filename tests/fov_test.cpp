@@ -29,8 +29,8 @@ int main(int argc, char *argv[]) {
     conway_generator g;
     g.generate(w);
     
-    character player(w.get_random_empty_cell().coord);
-//    character player(vec2<int>(23, 21));
+//    character player(w.get_random_empty_cell().coord);
+    character player(vec2<int>(22, 21));
 //    std::cout << player.position << std::endl;
     curses_controller ctrl(player, w, f);
     player.set_behaviour(ctrl);
