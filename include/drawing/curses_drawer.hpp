@@ -9,6 +9,7 @@ class curses_drawer : public drawer {
     void draw_cell(game_cell &c);
     void draw_cell(game_cell &c, knowledge_cell &k);
     void draw_world(world &w, behaviour &b);
+    void draw_world(world &w);
 };
 
 #endif

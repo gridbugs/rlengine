@@ -78,3 +78,8 @@ void curses_drawer::draw_world(world &w, behaviour &b) {
     drawer::draw_world(w, b);
     wrefresh(curses::game_window);
 }
+
+void curses_drawer::draw_world(world &w) {
+    drawer::draw_world(w);
+    wrefresh(curses::game_window);
+}
