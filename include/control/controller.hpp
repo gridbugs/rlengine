@@ -7,7 +7,6 @@
 #include "geometry/direction.hpp"
 #include "behaviour/behaviour.hpp"
 
-
 class controller : public behaviour {
     protected:
 

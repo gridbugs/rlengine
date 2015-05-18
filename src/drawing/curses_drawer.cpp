@@ -1,5 +1,6 @@
 #include "drawing/curses_drawer.hpp"
 #include <ncurses.h>
+#include "io/curses.hpp"
 
 typedef enum {
     COL_WHITE = 16,
@@ -18,9 +19,9 @@ typedef enum {
 } pair_t;
 
 static void add_char(char ch, int pair) {
-    wattron(stdscr, COLOR_PAIR(pair));
-    waddch(stdscr, ch);
-    wattroff(stdscr, COLOR_PAIR(pair));
+    wattron(curses::game_window, COLOR_PAIR(pair));
+    waddch(curses::game_window, ch);
+    wattroff(curses::game_window, COLOR_PAIR(pair));
 }
 
 curses_drawer::curses_drawer() {
@@ -38,21 +39,21 @@ curses_drawer::curses_drawer() {
 }
 
 void curses_drawer::draw_cell(game_cell &c) {
-    wmove(stdscr, c.y_coord, c.x_coord);
+    wmove(curses::game_window, c.y_coord, c.x_coord);
     if (c.is_opaque()) {
-        wattron(stdscr, COLOR_PAIR(PAIR_WALL));
-        waddch(stdscr, '#');
-        wattroff(stdscr, COLOR_PAIR(PAIR_WALL));
+        wattron(curses::game_window, COLOR_PAIR(PAIR_WALL));
+        waddch(curses::game_window, '#');
+        wattroff(curses::game_window, COLOR_PAIR(PAIR_WALL));
     } else {
-        wattron(stdscr, COLOR_PAIR(PAIR_FLOOR));
-        waddch(stdscr, '.');
-        wattroff(stdscr, COLOR_PAIR(PAIR_FLOOR));
+        wattron(curses::game_window, COLOR_PAIR(PAIR_FLOOR));
+        waddch(curses::game_window, '.');
+        wattroff(curses::game_window, COLOR_PAIR(PAIR_FLOOR));
     }
 }
 
 void curses_drawer::draw_cell(game_cell &c, knowledge_cell &k) {
 
-    wmove(stdscr, c.y_coord, c.x_coord);
+    wmove(curses::game_window, c.y_coord, c.x_coord);
 
     if (k.is_unknown()) {
         add_char(' ', PAIR_UNKNOWN);
@@ -71,4 +72,9 @@ void curses_drawer::draw_cell(game_cell &c, knowledge_cell &k) {
     }
 
 
+}
+
+void curses_drawer::draw_world(world &w, behaviour &b) {
+    drawer::draw_world(w, b);
+    wrefresh(curses::game_window);
 }

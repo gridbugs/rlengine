@@ -1,8 +1,9 @@
 #include "control/curses_controller.hpp"
+#include "io/curses.hpp"
 #include <ncurses.h>
 
 unsigned int curses_controller::get_key() {
-    return getch();
+    return wgetch(curses::game_window);
 }
 
 void curses_controller::init_arrows() {
