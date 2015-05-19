@@ -12,11 +12,13 @@
 #include "action/init_action.hpp"
 #include "control/curses_controller.hpp"
 #include "world/fov.hpp"
+#include "debug/fifo.hpp"
 
 #define RANDOM 0
 #define DRAWING 1
 
 int main(int argc, char *argv[]) {
+    fifo::start();
 #if DRAWING
     curses::simple_start();
 #endif
@@ -55,7 +57,8 @@ int main(int argc, char *argv[]) {
         wmove(curses::game_window, player.position.y, player.position.x);
         waddch(curses::game_window, '@');
         wrefresh(curses::game_window);
-        curses::cout << "test " << i++ << curses::endl;
+        curses::cout << "test " << i << curses::endl;
+    fifo::cout << "test " << i++ << fifo::endl;
         wrefresh(curses::console_window);
 #endif        
         a->on_complete(w);
@@ -64,5 +67,6 @@ int main(int argc, char *argv[]) {
 #if DRAWING
     curses::simple_stop();
 #endif
+    fifo::stop();
     return 0;
 }
