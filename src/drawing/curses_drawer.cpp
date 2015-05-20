@@ -3,6 +3,9 @@
 #include "io/curses.hpp"
 #include <vector>
 #include "util/arith.hpp"
+#include <assert.h>
+
+#define STEPS 32
 
 typedef enum {
     COL_WHITE = 16,
@@ -27,8 +30,8 @@ static void add_char(char ch, int pair) {
 }
 
 curses_drawer::curses_drawer() :
-    floor_range(32, curses_col(0, 0, 800), curses_col(0, 0, 200)),
-    wall_range(32, curses_col(900, 900, 900), curses_col(200, 200, 200))
+    floor_range(STEPS, curses_col(600, 300, 200), curses_col(0, 0, 0)),
+    wall_range(STEPS, curses_col(900, 900, 900), curses_col(0, 0, 0))
 {
     init_color(COL_WHITE, 1000, 1000, 1000);
     init_color(COL_BLACK, 0, 0, 0);
@@ -69,16 +72,16 @@ void curses_drawer::draw_cell(game_cell &c, knowledge_cell &k, character &ch) {
     char fg = ' ';
     if (ch.position == c.coord) {
         fg = '@';
-    }
-
-
-    if (k.is_unknown()) {
+        add_char(fg, 64);
+    } else if (k.is_unknown()) {
         add_char(fg, PAIR_UNKNOWN);
     } else if (k.is_visible()) {
         
         vec2<int> delta = ch.position - c.coord;
-        int dist = std::max(abs(delta.x), abs(delta.y));
-        int col_idx = arithmetic::constrain(0, dist, 31);
+        //int dist = std::max(abs(delta.x), abs(delta.y));
+        int dist = static_cast<int>(delta.length());
+
+        int col_idx = arithmetic::constrain(0, dist, STEPS-1);
         if (c.is_opaque()) {
             add_char(fg, 128 + col_idx);
         } else {
@@ -86,9 +89,9 @@ void curses_drawer::draw_cell(game_cell &c, knowledge_cell &k, character &ch) {
         }
     } else {
         if (c.is_opaque()) {
-            add_char(fg, PAIR_WALL_REMEMBERED);
+            add_char(fg, PAIR_UNKNOWN);
         } else {
-            add_char(fg, PAIR_FLOOR_REMEMBERED);
+            add_char(fg, PAIR_UNKNOWN);
         }
     }  
 }
