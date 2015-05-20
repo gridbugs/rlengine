@@ -1,6 +1,7 @@
 #include "drawing/curses_drawer.hpp"
 #include <ncurses.h>
 #include "io/curses.hpp"
+#include <vector>
 
 typedef enum {
     COL_WHITE = 16,
@@ -24,7 +25,10 @@ static void add_char(char ch, int pair) {
     wattroff(curses::game_window, COLOR_PAIR(pair));
 }
 
-curses_drawer::curses_drawer() {
+curses_drawer::curses_drawer() :
+    floor_range(64, curses_col(0, 0, 800), curses_col(0, 0, 200)),
+    wall_range(64, curses_col(900, 900, 900), curses_col(200, 200, 200))
+{
     init_color(COL_WHITE, 1000, 1000, 1000);
     init_color(COL_BLACK, 0, 0, 0);
     init_color(COL_DARK_BLUE, 0, 0, 200);
@@ -36,6 +40,9 @@ curses_drawer::curses_drawer() {
     init_pair(PAIR_UNKNOWN, COL_BLACK, COL_BLACK);
     init_pair(PAIR_WALL_REMEMBERED, COL_DARK_GREY, COL_LIGHT_GREY);
     init_pair(PAIR_FLOOR_REMEMBERED, COL_LIGHT_GREY, COL_DARK_BLUE);
+
+    col_table.map_range(64, floor_range);
+    col_table.map_range(128, wall_range);
 }
 
 void curses_drawer::draw_cell(game_cell &c) {
@@ -49,6 +56,10 @@ void curses_drawer::draw_cell(game_cell &c) {
         waddch(curses::game_window, '.');
         wattroff(curses::game_window, COLOR_PAIR(PAIR_FLOOR));
     }
+}
+
+void curses_drawer::draw_cell(game_cell &c, knowledge_cell &k, character &ch) {
+    
 }
 
 void curses_drawer::draw_cell(game_cell &c, knowledge_cell &k) {
@@ -82,4 +93,14 @@ void curses_drawer::draw_world(world &w, behaviour &b) {
 void curses_drawer::draw_world(world &w) {
     drawer::draw_world(w);
     wrefresh(curses::game_window);
+}
+
+void curses_drawer::draw_world(world &w, behaviour &b, character &ch) {
+    grid<game_cell> &g = w.map;
+    const grid<knowledge_cell> &k = b.get_knowledge_grid();
+    for (int i = 0; i < g.height; ++i) {
+        for (int j = 0; j < g.width; ++j) {
+            draw_cell(g[i][j], k[i][j], ch);
+        }
+    }
 }

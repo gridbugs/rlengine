@@ -53,12 +53,14 @@ int main(int argc, char *argv[]) {
         a->apply(w);
         ctrl.observe_world(w);
 #if DRAWING
-        dr.draw_world(w, ctrl);
+        dr.draw_world(w, ctrl, player);
+        /*
         wmove(curses::game_window, player.position.y, player.position.x);
         waddch(curses::game_window, '@');
         wrefresh(curses::game_window);
+        */
         curses::cout << "test " << i << curses::endl;
-    fifo::cout << "test " << i++ << fifo::endl;
+        fifo::cout << "test " << i++ << fifo::endl;
         wrefresh(curses::console_window);
 #endif        
         a->on_complete(w);

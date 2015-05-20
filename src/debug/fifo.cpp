@@ -7,7 +7,6 @@ std::ostream &(&fifo::endl)(std::ostream &os) = std::endl;
 
 void fifo::start() {
     fifo::cout.open("/tmp/debugfifo", std::ios::out | std::ios::app);
-    //fifo::cout << "test" << fifo::endl;
 }
 
 void fifo::stop() {
