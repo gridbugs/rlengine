@@ -2,6 +2,7 @@
 #include <ncurses.h>
 #include "io/curses.hpp"
 #include <vector>
+#include "util/arith.hpp"
 
 typedef enum {
     COL_WHITE = 16,
@@ -26,8 +27,8 @@ static void add_char(char ch, int pair) {
 }
 
 curses_drawer::curses_drawer() :
-    floor_range(64, curses_col(0, 0, 800), curses_col(0, 0, 200)),
-    wall_range(64, curses_col(900, 900, 900), curses_col(200, 200, 200))
+    floor_range(32, curses_col(0, 0, 800), curses_col(0, 0, 200)),
+    wall_range(32, curses_col(900, 900, 900), curses_col(200, 200, 200))
 {
     init_color(COL_WHITE, 1000, 1000, 1000);
     init_color(COL_BLACK, 0, 0, 0);
@@ -36,13 +37,17 @@ curses_drawer::curses_drawer() :
     init_color(COL_LIGHT_GREY, 750, 750, 750);
 
     init_pair(PAIR_WALL, COL_BLACK, COL_WHITE);
-    init_pair(PAIR_FLOOR, COL_WHITE, COL_DARK_GREY);
+    init_pair(PAIR_FLOOR, COL_WHITE, COL_DARK_BLUE);
     init_pair(PAIR_UNKNOWN, COL_BLACK, COL_BLACK);
     init_pair(PAIR_WALL_REMEMBERED, COL_DARK_GREY, COL_LIGHT_GREY);
-    init_pair(PAIR_FLOOR_REMEMBERED, COL_LIGHT_GREY, COL_DARK_BLUE);
+    init_pair(PAIR_FLOOR_REMEMBERED, COL_LIGHT_GREY, COL_DARK_GREY);
 
     col_table.map_range(64, floor_range);
     col_table.map_range(128, wall_range);
+
+    for (int i = 64; i < 256; ++i) {
+        init_pair(i, COL_WHITE, i);
+    }
 }
 
 void curses_drawer::draw_cell(game_cell &c) {
@@ -59,7 +64,33 @@ void curses_drawer::draw_cell(game_cell &c) {
 }
 
 void curses_drawer::draw_cell(game_cell &c, knowledge_cell &k, character &ch) {
-    
+    wmove(curses::game_window, c.y_coord, c.x_coord);
+  
+    char fg = ' ';
+    if (ch.position == c.coord) {
+        fg = '@';
+    }
+
+
+    if (k.is_unknown()) {
+        add_char(fg, PAIR_UNKNOWN);
+    } else if (k.is_visible()) {
+        
+        vec2<int> delta = ch.position - c.coord;
+        int dist = std::max(abs(delta.x), abs(delta.y));
+        int col_idx = arithmetic::constrain(0, dist, 31);
+        if (c.is_opaque()) {
+            add_char(fg, 128 + col_idx);
+        } else {
+            add_char(fg, 64 + col_idx);
+        }
+    } else {
+        if (c.is_opaque()) {
+            add_char(fg, PAIR_WALL_REMEMBERED);
+        } else {
+            add_char(fg, PAIR_FLOOR_REMEMBERED);
+        }
+    }  
 }
 
 void curses_drawer::draw_cell(game_cell &c, knowledge_cell &k) {
@@ -103,4 +134,26 @@ void curses_drawer::draw_world(world &w, behaviour &b, character &ch) {
             draw_cell(g[i][j], k[i][j], ch);
         }
     }
+}
+
+void curses_drawer::test() {
+    int base = 8;
+    for (int i = 0; i < 64; ++i) {
+        init_pair(base + i, 128 + i, 64 + i);
+    }
+    
+    for (int i = 0; i < 64; ++i) {
+        wmove(curses::game_window, 0, i);
+        wattron(curses::game_window, COLOR_PAIR(base + i));
+        waddch(curses::game_window, '#');
+        wattroff(curses::game_window, COLOR_PAIR(base + i));
+    }
+
+    init_pair(base, 128+63, 64+63);
+    wmove(curses::game_window, 1, 0);
+    wattron(curses::game_window, COLOR_PAIR(base));
+    waddch(curses::game_window, '#');
+    wattroff(curses::game_window, COLOR_PAIR(base));
+
+    wrefresh(curses::game_window);
 }

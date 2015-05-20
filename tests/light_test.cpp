@@ -40,7 +40,9 @@ int main(int argc, char *argv[]) {
     ctrl.init_arrows();
 
     curses_drawer dr;
-
+    //dr.test();
+    //for(;;);
+#if 1
     w.schedule.register_action(init_action(player));
     int i = 0;
         
@@ -65,7 +67,7 @@ int main(int argc, char *argv[]) {
 #endif        
         a->on_complete(w);
     }
-
+#endif
 #if DRAWING
     curses::simple_stop();
 #endif

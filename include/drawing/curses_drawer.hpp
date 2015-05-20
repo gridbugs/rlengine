@@ -3,6 +3,8 @@
 #include <ncurses.h>
 #include "drawing/drawer.hpp"
 #include "actor/character.hpp"
+#include <iostream>
+#include "debug/fifo.hpp"
 
 #define N_COLS 256
 
@@ -12,12 +14,15 @@ class curses_col {
     curses_col(const unsigned int r, const unsigned int g, const unsigned int b) :
         r(r), g(g), b(b)
     {}
+    friend std::ostream &operator<<(std::ostream &out, const curses_col &c) {
+        return out << "(" << c.r << ", " << c.g << ", " << c.b << ")";
+    }
 };
 
 class curses_col_range {
     public:
     std::vector<curses_col> cols;
-    curses_col_range(unsigned int n_cols, 
+    curses_col_range(int n_cols, 
                      const curses_col &start, 
                      const curses_col &end)
     {
@@ -27,12 +32,13 @@ class curses_col_range {
 
         const int steps = n_cols - 1;
         
-        for (unsigned int i = 0; i < n_cols; ++i) {
+        for (int i = 0; i < n_cols; ++i) {
             const int r = start.r + (dr * i) / steps;
             const int g = start.g + (dg * i) / steps;
             const int b = start.b + (db * i) / steps;
-            
-            cols.push_back(curses_col(r, g, b));
+            curses_col c(r, g, b);
+            fifo::cout << c << " " << start.b << " " << db << " " << steps << " " << (db * i) / steps <<  fifo::endl;
+            cols.push_back(c);
         }
     }
 };
@@ -60,6 +66,10 @@ class curses_col_table {
             map_col(idx + i, range.cols[i]);
         }
     }
+
+    const curses_col& operator[](unsigned int idx) {
+        return *table[idx];
+    }
 };
 
 
@@ -72,6 +82,7 @@ class curses_drawer : public drawer {
     curses_col_range wall_range;
     public:
     curses_drawer();
+    void test();
     void draw_cell(game_cell &c);
     void draw_cell(game_cell &c, knowledge_cell &k);
     void draw_cell(game_cell &c, knowledge_cell &k, character &ch);

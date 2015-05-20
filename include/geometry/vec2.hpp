@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <array>
+#include <cmath>
 
 template <typename T=double> class vec2 {
     protected:
@@ -37,6 +38,13 @@ template <typename T=double> class vec2 {
     }
     friend vec2<T> operator/(const vec2<T> &v, const T &s) {
         return vec2(v.x/s, v.y/s);
+    }
+    bool operator==(const vec2<T> &v) const {
+        return x == v.x && y == v.y;
+    }
+
+    double length() const {
+        return std::sqrt(dot(*this));
     }
 
     T dot(const vec2<T> &v) const {
