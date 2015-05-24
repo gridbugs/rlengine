@@ -5,7 +5,7 @@
 #define VISIBLE     BIT(1)
 #define MAGIC       BIT(2)
 
-bool knowledge_cell::is_known() {
+bool knowledge_cell::is_known() const {
     return knowledge_ != 0;
 }
 
@@ -33,18 +33,18 @@ void knowledge_cell::unmagic() {
     knowledge_ &= ~MAGIC;
 }
 
-bool knowledge_cell::is_unknown() {
+bool knowledge_cell::is_unknown() const {
     return knowledge_ == 0;
 }
 
-bool knowledge_cell::is_remembered() {
+bool knowledge_cell::is_remembered() const {
     return knowledge_ & REMEMBERED;
 }
 
-bool knowledge_cell::is_visible() {
+bool knowledge_cell::is_visible() const {
     return knowledge_ & VISIBLE;
 }
 
-bool knowledge_cell::is_magic() {
+bool knowledge_cell::is_magic() const {
     return knowledge_ & MAGIC;
 }

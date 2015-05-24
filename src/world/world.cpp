@@ -13,3 +13,9 @@ game_cell& world::get_random_empty_cell() {
 
     return map[0][0];
 }
+    
+void world::move_character(character &c, vec2<int> coord) {
+    if (!map.get_cell(coord).is_solid()) {
+        c.position = coord;
+    }
+}

@@ -13,7 +13,7 @@ class conway_generator : public generator {
     public:
     conway_generator() : generator() {}
     ~conway_generator(){}
-    void generate(world &w);
+    generator* generate(world &w);
 };
 
 #endif

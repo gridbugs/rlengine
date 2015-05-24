@@ -1,14 +1,29 @@
 #ifndef _ACTOR_HPP_
 #define _ACTOR_HPP_
 
-#include "world/world.hpp"
-#include "action/action.hpp"
+#include "character/character.hpp"
+#include "schedule/schedule.hpp"
 
-class actor {
+class actor : public schedule_callback {};
+
+class character_actor : public actor {
+    protected:
+    character &character_;
+    virtual int act(world &w) = 0;
+    virtual bool can_act() const = 0;
+    
     public:
-    virtual action& get_action(const world &w) = 0;
-    virtual bool can_act() = 0;
-    virtual void observe_world(const world &w) = 0;
+    character_actor(character &c) : character_(c) {}
+
+    void operator()(world& w, callback_registry& cr) {
+        if (can_act()) {
+            int cooldown = act(w);
+            if (can_act()) {
+                cr.register_callback(*this, cooldown);
+            }
+        }
+    }
 };
+
 
 #endif

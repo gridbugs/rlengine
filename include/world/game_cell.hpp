@@ -5,24 +5,24 @@
 
 class game_cell_data  {
     public:
-    virtual bool is_opaque() = 0;
-    virtual bool is_solid() = 0;
+    virtual bool is_opaque() const = 0;
+    virtual bool is_solid() const = 0;
 
     virtual ~game_cell_data() {}
 };
 
 class game_wall : public game_cell_data {
     public:
-    bool is_opaque() {return true;}
-    bool is_solid() {return true;}
+    bool is_opaque() const {return true;}
+    bool is_solid() const {return true;}
 
     ~game_wall() {}
 };
 
 class game_floor : public game_cell_data {
     public:
-    bool is_opaque() {return false;}
-    bool is_solid() {return false;}
+    bool is_opaque() const {return false;}
+    bool is_solid() const {return false;}
     ~game_floor() {}
 };
 
@@ -45,8 +45,8 @@ class game_cell : public cell {
         data_ = data;
     }
 
-    bool is_opaque() {return data_->is_opaque();}
-    bool is_solid() {return data_->is_solid();}
+    bool is_opaque() const {return data_->is_opaque();}
+    bool is_solid() const {return data_->is_solid();}
 
     ~game_cell() {
         if (data_ != nullptr) {

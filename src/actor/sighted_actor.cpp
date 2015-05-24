@@ -1,8 +1,7 @@
-#include "behaviour/behaviour.hpp"
-#include "world/fov.hpp"
-#include "actor/character.hpp"
+#include "actor/sighted_actor.hpp"
 
-void behaviour::observe_world(const world &w) {
+
+void sighted_actor::observe_world(world &w) {
     for (std::vector<game_cell*>::iterator it = visible_cells_.begin(); 
         it != visible_cells_.end(); ++it) {
         game_cell *c = *it;
@@ -19,4 +18,18 @@ void behaviour::observe_world(const world &w) {
 
         knowledge_grid_.get_cell(c->coord).see();
     }
+}
+
+int sighted_actor::act(world &w) {
+    observe_world(w);
+    return act_after_seeing(w);
+}
+
+
+const grid<knowledge_cell> &sighted_actor::get_knowledge_grid() const {
+    return knowledge_grid_;
+}
+
+const character &sighted_actor::get_character() const {
+    return character_;
 }

@@ -3,7 +3,6 @@
 
 #include "world/grid.hpp"
 #include "world/game_cell.hpp"
-#include "actor/knowledge.hpp"
 #include "geometry/vec2.hpp"
 
 #include <vector>

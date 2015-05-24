@@ -1,20 +1,15 @@
 #ifndef _DRAWER_HPP
 #define _DRAWER_HPP
 
-#include "world/grid.hpp"
-#include "world/game_cell.hpp"
 #include "world/world.hpp"
-#include "behaviour/behaviour.hpp"
+#include "character/character.hpp"
+#include "actor/knowledge.hpp"
+#include "drawing/actor_drawing_interface.hpp"
 
 class drawer {
-
     public:
-    virtual void draw_grid(grid<game_cell> &g);
-    virtual void draw_grid(grid<game_cell> &g, const grid<knowledge_cell> &k);
-    virtual void draw_cell(game_cell &c) = 0;
-    virtual void draw_cell(game_cell &c, knowledge_cell &k) = 0;
-    virtual void draw_world(world &w, behaviour &b);
-    virtual void draw_world(world &w);
+    virtual void draw_world_from_actor(world &w, const actor_drawing_interface &a) = 0;
+    virtual void draw_world(world &w) = 0;
 };
 
 #endif

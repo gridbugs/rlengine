@@ -202,7 +202,7 @@ int conway_generator::generate_attempt(conway_grid &cg) {
     return count;
 }
 
-void conway_generator::generate(world &w) {
+generator* conway_generator::generate(world &w) {
     for (;;) {
         conway_grid cg(w.width, w.height);
 
@@ -221,4 +221,6 @@ void conway_generator::generate(world &w) {
 
         break;
     }
+    
+    return this;
 }

@@ -16,13 +16,13 @@ class knowledge_cell : public cell {
     {}
 
     /* Cell is not unknown */
-    bool is_known();
+    bool is_known() const;
 
     /* Determine how a cell is known */
-    bool is_unknown();
-    bool is_remembered();
-    bool is_visible();
-    bool is_magic();
+    bool is_unknown() const;
+    bool is_remembered() const;
+    bool is_visible() const;
+    bool is_magic() const;
     
     /* Gaining knowledge */
     void see();

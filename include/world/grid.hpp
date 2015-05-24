@@ -62,6 +62,10 @@ template <typename T> class simple_grid {
     void for_each(const std::function<void(T&)> &f) {
         std::for_each(begin(), end(), f);
     }
+    
+    void for_each(const std::function<void(const T&)> &f) const {
+        std::for_each(cells_.cbegin(), cells_.cend(), f);
+    }
 };
 
 template <typename T> class grid : public simple_grid<T> {

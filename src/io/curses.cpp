@@ -16,7 +16,6 @@ void curses::simple_start() {
     cbreak();
     noecho();
     curs_set(0);
-    keypad(curses::game_window, TRUE);
     start_color();
 
     curses::game_window = newwin(
@@ -31,6 +30,8 @@ void curses::simple_start() {
         CONSOLE_WINDOW_STARTY,
         CONSOLE_WINDOW_STARTX
     );
+    
+    keypad(curses::game_window, TRUE);
 
     scrollok(curses::console_window, true);
     buf.set_window(curses::console_window);
