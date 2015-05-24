@@ -6,6 +6,7 @@
 #include "actor/sighted_actor.hpp"
 #include "geometry/direction.hpp"
 #include "drawing/drawer.hpp"
+#include "ui/hud.hpp"
 
 class player_actor : public sighted_actor {
 
@@ -13,6 +14,7 @@ class player_actor : public sighted_actor {
     int act_after_seeing(world &w);
     bool can_act() const {return true;}
     drawer &drawer_; // XXX separate this into a different class
+    hud &hud_;
 
     class action {
         public:
@@ -41,9 +43,10 @@ class player_actor : public sighted_actor {
 
     public:
     
-    player_actor(character &c, world &w, fov_detector &f, drawer &d) :
+    player_actor(character &c, world &w, fov_detector &f, drawer &d, hud &h) :
         sighted_actor(c, w, f),
         drawer_(d),
+        hud_(h),
         move_north_(direction::north),
         move_south_(direction::south),
         move_east_(direction::east),

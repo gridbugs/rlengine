@@ -48,7 +48,7 @@ class schedule : public callback_registry, public callback_loop {
 
     public:
 
-    schedule() : absolute_time_(10) {}
+    schedule() : absolute_time_(0) {}
 
     void register_callback(schedule_callback &fn, const time_t relative_time) {
         pq_.push(event(fn, relative_time + absolute_time_));

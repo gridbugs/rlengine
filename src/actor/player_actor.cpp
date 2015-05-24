@@ -22,6 +22,7 @@ void player_actor::init_dvorak() {
 int player_actor::act_after_seeing(world &w) {
  
     drawer_.draw_world_from_actor(w, *this);
+    drawer_.draw_hud(w, hud_);
 
     action *a = nullptr;
     while (a == nullptr) {
@@ -41,5 +42,5 @@ int player_actor::move_action::operator()(character &c, world &w) {
         w.move_character(c, cell_ptr->coord);
     }
 
-    return 4; // TODO base this off character's stats
+    return 1; // TODO base this off character's stats
 }

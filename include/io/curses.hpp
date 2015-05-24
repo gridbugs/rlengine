@@ -14,6 +14,10 @@
 #define CONSOLE_WINDOW_STARTX 2
 #define CONSOLE_WINDOW_STARTY 42
 
+#define HUD_WINDOW_WIDTH 20
+#define HUD_WINDOW_HEIGHT 20
+#define HUD_WINDOW_STARTX 104
+#define HUD_WINDOW_STARTY 2
 
 
 namespace curses {
@@ -56,6 +60,7 @@ namespace curses {
 
     extern WINDOW *game_window;
     extern WINDOW *console_window;
+    extern WINDOW *hud_window;
     extern std::ostream cout;
     extern std::ostream &(&endl)(std::ostream &os);
 };

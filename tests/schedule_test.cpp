@@ -3,6 +3,7 @@
 #include "io/curses.hpp"
 #include "drawing/curses_drawer.hpp"
 #include "actor/player_actor.hpp"
+#include "ui/hud.hpp"
 #include <ncurses.h>
 
 int main(int argc, char *argv[]) {
@@ -13,12 +14,12 @@ int main(int argc, char *argv[]) {
     delete (new conway_generator())->generate(w);
     fov_detector fov(w.map);
     curses_drawer dr;
-
+    schedule s;
+    hud h(s);
     character player(w.get_random_empty_cell().coord);
-    player_actor actor(player, w, fov, dr);
+    player_actor actor(player, w, fov, dr, h);
     actor.init_dvorak();
 
-    schedule s;
 
     s.register_callback(actor, 0);
 

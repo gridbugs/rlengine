@@ -82,3 +82,9 @@ void curses_drawer::draw_world_from_actor(world &w, const actor_drawing_interfac
 void curses_drawer::draw_world(world &w) {
     w.map.for_each(draw_cell);
 }
+
+void curses_drawer::draw_hud(world &w, const hud &h) {
+    werase(curses::hud_window);
+    wprintw(curses::hud_window, "Time: %lld\n", h.get_time());
+    wrefresh(curses::hud_window);
+}

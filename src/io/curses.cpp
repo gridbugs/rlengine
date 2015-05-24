@@ -3,6 +3,7 @@
 
 WINDOW *curses::game_window = nullptr;
 WINDOW *curses::console_window = nullptr;
+WINDOW *curses::hud_window = nullptr;
 
 static curses::streambuf buf;
 std::ostream curses::cout(&buf);
@@ -29,6 +30,12 @@ void curses::simple_start() {
         CONSOLE_WINDOW_WIDTH,
         CONSOLE_WINDOW_STARTY,
         CONSOLE_WINDOW_STARTX
+    );
+    curses::hud_window = newwin(
+        HUD_WINDOW_HEIGHT,
+        HUD_WINDOW_WIDTH,
+        HUD_WINDOW_STARTY,
+        HUD_WINDOW_STARTX
     );
     
     keypad(curses::game_window, TRUE);
