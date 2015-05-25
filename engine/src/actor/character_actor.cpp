@@ -1,9 +1,9 @@
 #include "actor/character_actor.hpp"
 
 void character_actor::observe_world(world &w) {
-    for (std::vector<game_cell*>::iterator it = visible_cells_.begin(); 
+    for (std::vector<game_cell_interface*>::iterator it = visible_cells_.begin(); 
         it != visible_cells_.end(); ++it) {
-        game_cell *c = *it;
+        game_cell_interface *c = *it;
         
         knowledge_grid_.get_cell(c->coord).unsee();
     }
@@ -11,9 +11,9 @@ void character_actor::observe_world(world &w) {
     visible_cells_.clear();
     fov_.push_visible_cells(character_.position, visible_cells_);
 
-    for (std::vector<game_cell*>::iterator it = visible_cells_.begin(); 
+    for (std::vector<game_cell_interface*>::iterator it = visible_cells_.begin(); 
         it != visible_cells_.end(); ++it) {
-        game_cell *c = *it;
+        game_cell_interface *c = *it;
 
         knowledge_grid_.get_cell(c->coord).see();
     }

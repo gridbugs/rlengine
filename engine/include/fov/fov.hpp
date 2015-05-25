@@ -2,12 +2,12 @@
 #define _FOV_HPP_
 
 #include "geometry/vec2.hpp"
-#include "world/game_cell.hpp"
+#include "world/game_grid.hpp"
 #include <vector>
 
 class fov {
     public:
-    virtual void push_visible_cells(const vec2<int> &eye_coord, std::vector<game_cell*> &visible_cells) = 0;
+    virtual void push_visible_cells(const vec2<int> &eye_coord, std::vector<game_cell_interface*> &visible_cells) = 0;
 };
 
 #endif

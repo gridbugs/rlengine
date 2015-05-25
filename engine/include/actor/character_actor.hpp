@@ -16,7 +16,7 @@ class character_actor : public actor, public actor_drawing_interface {
     
     fov &fov_;
     grid<knowledge_cell> knowledge_grid_;
-    std::vector<game_cell*> visible_cells_; // optimization for fast interface with fov_detector
+    std::vector<game_cell_interface*> visible_cells_; // optimization for fast interface with fov_detector
 
     void observe_world(world &w);
 

@@ -8,7 +8,7 @@ static inline double compute_slope(const vec2<double> &from, const vec2<double> 
 }
 
 
-void shadow_cast_fov::compute_octant_fov(  const game_cell &eye_cell,
+void shadow_cast_fov::compute_octant_fov(  const game_cell_interface &eye_cell,
                                         double min_slope_initial,
                                         double max_slope_initial,
                                         const direction::ordinal::direction_t inner_direction,
@@ -70,7 +70,7 @@ void shadow_cast_fov::compute_octant_fov(  const game_cell &eye_cell,
             const bool last_iteration = i == partial_stop_index;
             
             coord_idx[lateral_index] = i;
-            game_cell &c = game_grid_.get_cell(coord_idx);
+            game_cell_interface &c = game_grid_.get_game_cell(coord_idx);
 
             if (i >= complete_start_index && i <= complete_stop_index) {
                 mark_cell_completely_visible(c);
@@ -115,10 +115,10 @@ void shadow_cast_fov::compute_octant_fov(  const game_cell &eye_cell,
 
 void shadow_cast_fov::compute_fov(const vec2<int> &eye_coord) {
     
-    int width = game_grid_.width;
-    int height = game_grid_.height;
+    int width = game_grid_.get_width();
+    int height = game_grid_.get_height();
 
-    game_cell &c = game_grid_.get_cell(eye_coord);
+    game_cell_interface &c = game_grid_.get_game_cell(eye_coord);
     
     compute_octant_fov(c, -1, 0, direction::ordinal::southwest, direction::ordinal::northwest, -1, vec2<>::X_IDX, width);
     compute_octant_fov(c,  0, 1, direction::ordinal::northwest, direction::ordinal::southwest, -1, vec2<>::X_IDX, width);
@@ -130,27 +130,27 @@ void shadow_cast_fov::compute_fov(const vec2<int> &eye_coord) {
     compute_octant_fov(c,  0, 1, direction::ordinal::northeast, direction::ordinal::northwest, 1, vec2<>::Y_IDX, height);
 }
 
-void shadow_cast_fov::mark_cell_completely_visible(game_cell &c) {
+void shadow_cast_fov::mark_cell_completely_visible(game_cell_interface &c) {
         generic_cell<bool> &b = visibility_cache_.get_cell(c.coord);
         if (b.data == false) {
             b.data = true;
             current_vector_->push_back(&c);
         }
 }
-void shadow_cast_fov::mark_cell_partially_visible(game_cell &c) {
+void shadow_cast_fov::mark_cell_partially_visible(game_cell_interface &c) {
     mark_cell_completely_visible(c);
 }
 
-void shadow_cast_fov::push_visible_cells(const vec2<int> &eye_coord, std::vector<game_cell*> &visible_cells) {
+void shadow_cast_fov::push_visible_cells(const vec2<int> &eye_coord, std::vector<game_cell_interface*> &visible_cells) {
 
     current_vector_ = &visible_cells;
 
     compute_fov(eye_coord);
 
-    for (std::vector<game_cell*>::iterator it = current_vector_->begin();
+    for (std::vector<game_cell_interface*>::iterator it = current_vector_->begin();
         it != current_vector_->end(); ++it) {
         
-        game_cell *c = *it;
+        game_cell_interface *c = *it;
 
 
         visibility_cache_.get_cell(c->coord).data = false;

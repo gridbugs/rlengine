@@ -3,16 +3,16 @@
 
 #include "fov/fov.hpp"
 #include "world/grid.hpp"
-#include "world/game_cell.hpp"
+#include "world/game_grid.hpp"
 
 class omniscient_fov : public fov {
     protected:
-    grid<game_cell> &game_grid_;
+    game_grid_interface &game_grid_;
     public:
-    omniscient_fov(grid<game_cell> &g) :
+    omniscient_fov(game_grid_interface &g) :
         game_grid_(g)
     {}
-    void push_visible_cells(const vec2<int> &eye_coord, std::vector<game_cell*> &visible_cells);
+    void push_visible_cells(const vec2<int> &eye_coord, std::vector<game_cell_interface*> &visible_cells);
 };
 
 #endif

@@ -2,6 +2,7 @@
 #define _GAME_CELL_HPP_
 
 #include "world/cell.hpp"
+#include "world/game_grid.hpp"
 
 class game_cell_data  {
     public:
@@ -26,14 +27,14 @@ class game_floor : public game_cell_data {
     ~game_floor() {}
 };
 
-class game_cell : public cell {
+class game_cell : public game_cell_interface {
 
     protected:
     game_cell_data *data_;
 
     public:
     game_cell(const int x, const int y) :
-        cell(x, y), data_(nullptr)
+        game_cell_interface(x, y), data_(nullptr)
     {
 
     }

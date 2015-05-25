@@ -1,14 +1,14 @@
 #ifndef _WORLD_HPP_
 #define _WORLD_HPP_
 
-#include "world/grid.hpp"
+#include "world/game_grid.hpp"
 #include "world/game_cell.hpp"
 #include "geometry/vec2.hpp"
 #include "character/character.hpp"
 
 class world {
     public:
-    grid<game_cell> map;
+    game_grid<game_cell> map;
     const int width;
     const int height;
     world(const int width, const int height) : 
