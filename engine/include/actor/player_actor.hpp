@@ -3,15 +3,15 @@
 
 #include <array>
 #include <functional>
-#include "actor/sighted_actor.hpp"
+#include "actor/actor.hpp"
 #include "geometry/direction.hpp"
 #include "drawing/drawer.hpp"
 #include "ui/hud.hpp"
 
-class player_actor : public sighted_actor {
+class player_actor : public character_actor {
 
     protected:
-    int act_after_seeing(world &w);
+    int act(world &w);
     bool can_act() const {return true;}
     drawer &drawer_; // XXX separate this into a different class
     hud &hud_;
@@ -44,7 +44,7 @@ class player_actor : public sighted_actor {
     public:
     
     player_actor(character &c, world &w, fov_detector &f, drawer &d, hud &h) :
-        sighted_actor(c, w, f),
+        character_actor(c, w, f),
         drawer_(d),
         hud_(h),
         move_north_(direction::north),

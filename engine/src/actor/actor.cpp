@@ -1,7 +1,7 @@
-#include "actor/sighted_actor.hpp"
+#include "actor/actor.hpp"
 
 
-void sighted_actor::observe_world(world &w) {
+void character_actor::observe_world(world &w) {
     for (std::vector<game_cell*>::iterator it = visible_cells_.begin(); 
         it != visible_cells_.end(); ++it) {
         game_cell *c = *it;
@@ -20,16 +20,10 @@ void sighted_actor::observe_world(world &w) {
     }
 }
 
-int sighted_actor::act(world &w) {
-    observe_world(w);
-    return act_after_seeing(w);
-}
-
-
-const grid<knowledge_cell> &sighted_actor::get_knowledge_grid() const {
+const grid<knowledge_cell> &character_actor::get_knowledge_grid() const {
     return knowledge_grid_;
 }
 
-const character &sighted_actor::get_character() const {
+const character &character_actor::get_character() const {
     return character_;
 }

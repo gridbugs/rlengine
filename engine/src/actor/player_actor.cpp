@@ -19,7 +19,7 @@ void player_actor::init_dvorak() {
 
 }
 
-int player_actor::act_after_seeing(world &w) {
+int player_actor::act(world &w) {
  
     drawer_.draw_world_from_actor(w, *this);
     drawer_.draw_hud(w, hud_);
