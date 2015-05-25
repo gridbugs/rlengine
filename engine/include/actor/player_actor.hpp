@@ -3,7 +3,7 @@
 
 #include <array>
 #include <functional>
-#include "actor/actor.hpp"
+#include "actor/character_actor.hpp"
 #include "geometry/direction.hpp"
 #include "drawing/drawer.hpp"
 #include "ui/hud.hpp"

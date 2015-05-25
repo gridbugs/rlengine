@@ -1,5 +1,4 @@
-#include "actor/actor.hpp"
-
+#include "actor/character_actor.hpp"
 
 void character_actor::observe_world(world &w) {
     for (std::vector<game_cell*>::iterator it = visible_cells_.begin(); 
