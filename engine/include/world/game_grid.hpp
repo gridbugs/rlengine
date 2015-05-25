@@ -2,14 +2,7 @@
 #define _GAME_GRID_HPP_
 
 #include "world/grid.hpp"
-#include "world/cell.hpp"
-
-class game_cell_interface : public cell {
-    public:
-    game_cell_interface(const int j, const int i) : cell(j, i) {}
-    virtual bool is_opaque() const = 0;
-    virtual bool is_solid() const = 0;
-};
+#include "world/game_cell.hpp"
 
 class game_grid_interface {
     public:
