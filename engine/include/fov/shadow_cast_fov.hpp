@@ -1,14 +1,14 @@
-#ifndef _FOV_HPP_
-#define _FOV_HPP_
+#ifndef _SHADOW_CAST_FOV_HPP_
+#define _SHADOW_CAST_FOV_HPP_
 
 #include "world/grid.hpp"
 #include "world/game_cell.hpp"
 #include "geometry/vec2.hpp"
+#include "fov/fov.hpp"
 
 #include <vector>
-#include <iostream>
 
-class fov_detector {
+class shadow_cast_fov : public fov {
     protected:
     
     typedef struct {
@@ -51,7 +51,7 @@ class fov_detector {
     std::vector<game_cell*> *current_vector_;
 
     public:
-    fov_detector(grid<game_cell> &g) :
+    shadow_cast_fov(grid<game_cell> &g) :
         game_grid_(g),
         visibility_cache_(g.width, g.height)
     {

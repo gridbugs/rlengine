@@ -5,6 +5,7 @@
 #include <actor/player_actor.hpp>
 #include <ui/hud.hpp>
 #include <ncurses.h>
+#include <fov/shadow_cast_fov.hpp>
 
 int main(int argc, char *argv[]) {
     curses::simple_start();
@@ -12,7 +13,7 @@ int main(int argc, char *argv[]) {
 
     world w(100, 40);
     delete (new conway_generator())->generate(w);
-    fov_detector fov(w.map);
+    shadow_cast_fov fov(w.map);
     curses_drawer dr;
     schedule s;
     hud h(s);

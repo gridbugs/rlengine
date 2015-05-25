@@ -4,7 +4,7 @@
 #include "character/character.hpp"
 #include "schedule/schedule.hpp"
 #include "world/world.hpp"
-#include "world/fov.hpp"
+#include "fov/fov.hpp"
 #include "actor/knowledge.hpp"
 #include "drawing/actor_drawing_interface.hpp"
 
@@ -16,14 +16,14 @@ class character_actor : public actor, public actor_drawing_interface {
     virtual int act(world &w) = 0;
     virtual bool can_act() const = 0;
     
-    fov_detector &fov_;
+    fov &fov_;
     grid<knowledge_cell> knowledge_grid_;
     std::vector<game_cell*> visible_cells_; // optimization for fast interface with fov_detector
 
     void observe_world(world &w);
 
     public:
-    character_actor(character &c, world &w, fov_detector &f) : 
+    character_actor(character &c, world &w, fov &f) : 
         character_(c),
         fov_(f),
         knowledge_grid_(w.width, w.height)

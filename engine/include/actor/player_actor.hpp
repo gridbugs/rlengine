@@ -43,7 +43,7 @@ class player_actor : public character_actor {
 
     public:
     
-    player_actor(character &c, world &w, fov_detector &f, drawer &d, hud &h) :
+    player_actor(character &c, world &w, fov &f, drawer &d, hud &h) :
         character_actor(c, w, f),
         drawer_(d),
         hud_(h),

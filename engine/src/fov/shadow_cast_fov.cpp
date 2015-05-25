@@ -1,7 +1,5 @@
 #include <cmath>
-#include <iostream>
-using namespace std;
-#include "world/fov.hpp"
+#include "fov/shadow_cast_fov.hpp"
 #include "util/arith.hpp"
 
 static inline double compute_slope(const vec2<double> &from, const vec2<double> &to, 
@@ -10,7 +8,7 @@ static inline double compute_slope(const vec2<double> &from, const vec2<double> 
 }
 
 
-void fov_detector::compute_octant_fov(  const game_cell &eye_cell,
+void shadow_cast_fov::compute_octant_fov(  const game_cell &eye_cell,
                                         double min_slope_initial,
                                         double max_slope_initial,
                                         const direction::ordinal::direction_t inner_direction,
@@ -91,7 +89,6 @@ void fov_detector::compute_octant_fov(  const game_cell &eye_cell,
                 /* First opaque cell in opaque strip. */
                 const double new_max_slope = compute_slope(eye_cell.centre, c.corners[inner_direction],
                                                 lateral_index, depth_index) * depth_direction;
-//                cout << "recurse (solid start)" << depth << " " << min_slope << " " << new_max_slope << c.coord << endl;
                 recursion_stack_.push_back(stack_parameters(
                     min_slope,
                     new_max_slope,
@@ -100,7 +97,6 @@ void fov_detector::compute_octant_fov(  const game_cell &eye_cell,
             }
 
             if (!current_opaque && last_iteration) {
-//                cout << "recurse (last iteration)" << depth << " " << min_slope << " " << max_slope << c.coord << endl;
                 /* Last cell in strip and it happens to be transparent. */
                 recursion_stack_.push_back(stack_parameters(
                     min_slope,
@@ -114,45 +110,38 @@ void fov_detector::compute_octant_fov(  const game_cell &eye_cell,
         }
 
         ++depth;
-        /*
-        if (depth == 4) {
-            recursion_stack_.clear();
-            return;
-        }
-        */
     }
 }
 
-void fov_detector::compute_fov(const vec2<int> &eye_coord) {
+void shadow_cast_fov::compute_fov(const vec2<int> &eye_coord) {
     
     int width = game_grid_.width;
     int height = game_grid_.height;
 
     game_cell &c = game_grid_.get_cell(eye_coord);
-#if 1
+    
     compute_octant_fov(c, -1, 0, direction::ordinal::southwest, direction::ordinal::northwest, -1, vec2<>::X_IDX, width);
     compute_octant_fov(c,  0, 1, direction::ordinal::northwest, direction::ordinal::southwest, -1, vec2<>::X_IDX, width);
     compute_octant_fov(c,  -1, 0, direction::ordinal::northwest, direction::ordinal::southwest, 1, vec2<>::X_IDX, width);
     compute_octant_fov(c,  0, 1, direction::ordinal::southwest, direction::ordinal::northwest, 1, vec2<>::X_IDX, width);
-#endif
     compute_octant_fov(c,  -1, 0, direction::ordinal::northeast, direction::ordinal::northwest, -1, vec2<>::Y_IDX, height);
     compute_octant_fov(c,  0, 1, direction::ordinal::northwest, direction::ordinal::northeast, -1, vec2<>::Y_IDX, height);
     compute_octant_fov(c,  -1, 0, direction::ordinal::northwest, direction::ordinal::northeast, 1, vec2<>::Y_IDX, height);
     compute_octant_fov(c,  0, 1, direction::ordinal::northeast, direction::ordinal::northwest, 1, vec2<>::Y_IDX, height);
 }
 
-void fov_detector::mark_cell_completely_visible(game_cell &c) {
+void shadow_cast_fov::mark_cell_completely_visible(game_cell &c) {
         generic_cell<bool> &b = visibility_cache_.get_cell(c.coord);
         if (b.data == false) {
             b.data = true;
             current_vector_->push_back(&c);
         }
 }
-void fov_detector::mark_cell_partially_visible(game_cell &c) {
+void shadow_cast_fov::mark_cell_partially_visible(game_cell &c) {
     mark_cell_completely_visible(c);
 }
 
-void fov_detector::push_visible_cells(const vec2<int> &eye_coord, std::vector<game_cell*> &visible_cells) {
+void shadow_cast_fov::push_visible_cells(const vec2<int> &eye_coord, std::vector<game_cell*> &visible_cells) {
 
     current_vector_ = &visible_cells;
 
