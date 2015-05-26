@@ -8,7 +8,7 @@
 #include "drawing/drawer.hpp"
 #include "ui/hud.hpp"
 
-class player_actor : public character_actor<game_cell> {
+class player_actor : public character_actor<character, game_cell, knowledge_cell> {
 
     protected:
     int act(world<game_cell> &w);
@@ -43,8 +43,8 @@ class player_actor : public character_actor<game_cell> {
 
     public:
     
-    player_actor(character &c, world<game_cell> &w, fov &f, drawer &d, hud &h) :
-        character_actor(c, w, f),
+    player_actor(character &c, world<game_cell> &w, observer<character, game_cell, knowledge_cell> &o, drawer &d, hud &h) :
+        character_actor(c, w, o),
         drawer_(d),
         hud_(h),
         move_north_(direction::north),

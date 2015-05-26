@@ -1,14 +1,16 @@
-#ifndef _SHADOW_CAST_FOV_HPP_
-#define _SHADOW_CAST_FOV_HPP_
+#ifndef _SHADOW_CASW_FOV_HPP_
+#define _SHADOW_CASW_FOV_HPP_
 
 #include "geometry/vec2.hpp"
-#include "fov/fov.hpp"
+#include "observer/observer.hpp"
 
 #include <vector>
 #include <cmath>
 #include "util/arith.hpp"
+#include "actor/knowledge.hpp"
+#include "character/character.hpp"
 
-template <typename T> class shadow_cast_fov : public fov {
+template <typename W> class shadow_cast_fov : public observer <character, W, knowledge_cell> {
     protected:
     
     typedef struct {
@@ -31,34 +33,38 @@ template <typename T> class shadow_cast_fov : public fov {
 
     std::vector<stack_parameters> recursion_stack_;
     
-    grid<T> &game_grid_;
-    grid<generic_cell<bool>> visibility_cache_;
-
-    void compute_fov(const vec2<int> &eye_coord);
-
-    void compute_octant_fov(   const T &eye_cell,
+    void compute_octant_fov(   const W &eye_cell,
                                double min_slope,
                                double max_slope,
                                const direction::ordinal::direction_t inner_direction,
                                const direction::ordinal::direction_t outer_direction,
                                const int depth_direction,
                                const unsigned int lateral_index,
-                               const int lateral_max
+                               const int lateral_max,
+                               const grid<W>&,
+                               grid<knowledge_cell>&
                             );
 
-    void mark_cell_completely_visible(T &c);
-    void mark_cell_partially_visible(T &c);
-    std::vector<const vec2<int>*> *current_vector_;
+    void mark_cell_completely_visible(const W &c, knowledge_cell &k);
+    void mark_cell_partially_visible(const W &c, knowledge_cell &k);
 
     public:
-    shadow_cast_fov(grid<T> &g) :
-        game_grid_(g),
-        visibility_cache_(g.width, g.height)
-    {
-        visibility_cache_.for_each([](generic_cell<bool> &c) { c.data = false; });       
-    }
 
-    void push_visible_cells(const vec2<int> &eye_coord, std::vector<const vec2<int>*> &visible_cells);
+    void observe(const character &ch, const grid<W> &w_grid, grid<knowledge_cell> &k_grid) {
+        int width = w_grid.width;
+        int height = w_grid.height;
+        k_grid.for_each([](knowledge_cell &k) {k.unsee();});
+
+        const W& c = w_grid.get_cell(ch.position);
+        compute_octant_fov(c, -1, 0, direction::ordinal::southwest, direction::ordinal::northwest, -1, vec2<>::X_IDX, width, w_grid, k_grid);
+        compute_octant_fov(c,  0, 1, direction::ordinal::northwest, direction::ordinal::southwest, -1, vec2<>::X_IDX, width, w_grid, k_grid);
+        compute_octant_fov(c,  -1, 0, direction::ordinal::northwest, direction::ordinal::southwest, 1, vec2<>::X_IDX, width, w_grid, k_grid);
+        compute_octant_fov(c,  0, 1, direction::ordinal::southwest, direction::ordinal::northwest, 1, vec2<>::X_IDX, width, w_grid, k_grid);
+        compute_octant_fov(c,  -1, 0, direction::ordinal::northeast, direction::ordinal::northwest, -1, vec2<>::Y_IDX, height, w_grid, k_grid);
+        compute_octant_fov(c,  0, 1, direction::ordinal::northwest, direction::ordinal::northeast, -1, vec2<>::Y_IDX, height, w_grid, k_grid);
+        compute_octant_fov(c,  -1, 0, direction::ordinal::northwest, direction::ordinal::northeast, 1, vec2<>::Y_IDX, height, w_grid, k_grid);
+        compute_octant_fov(c,  0, 1, direction::ordinal::northeast, direction::ordinal::northwest, 1, vec2<>::Y_IDX, height, w_grid, k_grid);
+    }
 };
 
 
@@ -68,15 +74,17 @@ static inline double compute_slope(const vec2<double> &from, const vec2<double> 
     return (to[lateral_index] - from[lateral_index]) / (to[depth_index] - from[depth_index]);
 }
 
-template <typename T>
-void shadow_cast_fov<T>::compute_octant_fov(  const T &eye_cell,
+template <typename W>
+void shadow_cast_fov<W>::compute_octant_fov(  const W &eye_cell,
                                         double min_slope_initial,
                                         double max_slope_initial,
                                         const direction::ordinal::direction_t inner_direction,
                                         const direction::ordinal::direction_t outer_direction,
                                         const int depth_direction,
                                         const unsigned int lateral_index,
-                                        const int lateral_max
+                                        const int lateral_max,
+                                        const grid<W> &game_grid,
+                                        grid<knowledge_cell> &knowledge_grid
                                     ) {
 
     unsigned int depth_index = vec2<>::get_other_index(lateral_index);
@@ -131,12 +139,13 @@ void shadow_cast_fov<T>::compute_octant_fov(  const T &eye_cell,
             const bool last_iteration = i == partial_stop_index;
             
             coord_idx[lateral_index] = i;
-            T &c = game_grid_.get_cell(coord_idx);
+            const W &c = game_grid.get_cell(coord_idx);
+            knowledge_cell &k = knowledge_grid.get_cell(coord_idx);
 
             if (i >= complete_start_index && i <= complete_stop_index) {
-                mark_cell_completely_visible(c);
+                mark_cell_completely_visible(c, k);
             } else {
-                mark_cell_partially_visible(c);
+                mark_cell_partially_visible(c, k);
             }
 
             bool current_opaque = c.is_opaque();
@@ -174,53 +183,14 @@ void shadow_cast_fov<T>::compute_octant_fov(  const T &eye_cell,
     }
 }
 
-template <typename T>
-void shadow_cast_fov<T>::compute_fov(const vec2<int> &eye_coord) {
-    
-    int width = game_grid_.width;
-    int height = game_grid_.height;
-
-    T &c = game_grid_.get_cell(eye_coord);
-    
-    compute_octant_fov(c, -1, 0, direction::ordinal::southwest, direction::ordinal::northwest, -1, vec2<>::X_IDX, width);
-    compute_octant_fov(c,  0, 1, direction::ordinal::northwest, direction::ordinal::southwest, -1, vec2<>::X_IDX, width);
-    compute_octant_fov(c,  -1, 0, direction::ordinal::northwest, direction::ordinal::southwest, 1, vec2<>::X_IDX, width);
-    compute_octant_fov(c,  0, 1, direction::ordinal::southwest, direction::ordinal::northwest, 1, vec2<>::X_IDX, width);
-    compute_octant_fov(c,  -1, 0, direction::ordinal::northeast, direction::ordinal::northwest, -1, vec2<>::Y_IDX, height);
-    compute_octant_fov(c,  0, 1, direction::ordinal::northwest, direction::ordinal::northeast, -1, vec2<>::Y_IDX, height);
-    compute_octant_fov(c,  -1, 0, direction::ordinal::northwest, direction::ordinal::northeast, 1, vec2<>::Y_IDX, height);
-    compute_octant_fov(c,  0, 1, direction::ordinal::northeast, direction::ordinal::northwest, 1, vec2<>::Y_IDX, height);
+template <typename W>
+void shadow_cast_fov<W>::mark_cell_completely_visible(const W &c, knowledge_cell &k) {
+    k.see();
 }
 
-template <typename T>
-void shadow_cast_fov<T>::mark_cell_completely_visible(T &c) {
-        generic_cell<bool> &b = visibility_cache_.get_cell(c.coord);
-        if (b.data == false) {
-            b.data = true;
-            current_vector_->push_back(&c.coord);
-        }
-}
-
-template <typename T>
-void shadow_cast_fov<T>::mark_cell_partially_visible(T &c) {
-    mark_cell_completely_visible(c);
-}
-
-template <typename T>
-void shadow_cast_fov<T>::push_visible_cells(const vec2<int> &eye_coord, std::vector<const vec2<int>*> &visible_cells) {
-
-    current_vector_ = &visible_cells;
-
-    compute_fov(eye_coord);
-
-    for (std::vector<const vec2<int>*>::iterator it = current_vector_->begin();
-        it != current_vector_->end(); ++it) {
-        
-        const vec2<int> *c = *it;
-
-
-        visibility_cache_.get_cell(*c).data = false;
-    }
+template <typename W>
+void shadow_cast_fov<W>::mark_cell_partially_visible(const W &c, knowledge_cell &k) {
+    k.see();
 }
 
 #endif

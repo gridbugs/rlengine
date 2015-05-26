@@ -3,44 +3,30 @@
 
 #include "character/character.hpp"
 #include "world/world.hpp"
-#include "fov/fov.hpp"
+#include "observer/observer.hpp"
 #include "actor/actor.hpp"
 #include "actor/knowledge.hpp"
 #include "drawing/actor_drawing_interface.hpp"
 
-template <typename W> class character_actor : public actor<W>, public actor_drawing_interface {
+template <typename C, typename W, typename K> class character_actor : 
+    public actor<W>, public actor_drawing_interface {
+
     protected:
     character &character_;
     virtual int act(world<W> &w) = 0;
     virtual bool can_act() const = 0;
     
-    fov &fov_;
+    observer<C, W, K> &observer_;
     grid<knowledge_cell> knowledge_grid_;
-    std::vector<const vec2<int>*> visible_cells_; // optimization for fast interface with fov_detector
 
     void observe_world(world<W> &w) {
-        for (std::vector<const vec2<int>*>::iterator it = visible_cells_.begin(); 
-            it != visible_cells_.end(); ++it) {
-            const vec2<int> *c = *it;
-            
-            knowledge_grid_.get_cell(*c).unsee();
-        }
-
-        visible_cells_.clear();
-        fov_.push_visible_cells(character_.position, visible_cells_);
-
-        for (std::vector<const vec2<int>*>::iterator it = visible_cells_.begin(); 
-            it != visible_cells_.end(); ++it) {
-            const vec2<int> *c = *it;
-
-            knowledge_grid_.get_cell(*c).see();
-        }
+        observer_.observe(character_, w.map, knowledge_grid_);
     }
 
     public:
-    character_actor(character &c, world<W> &w, fov &f) : 
+    character_actor(character &c, world<W> &w, observer<C,W,K> &f) : 
         character_(c),
-        fov_(f),
+        observer_(f),
         knowledge_grid_(w.width, w.height)
     {}
 
