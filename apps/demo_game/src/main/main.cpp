@@ -14,7 +14,7 @@ int main(int argc, char *argv[]) {
     world<game_cell> w(100, 40);
     conway_generator gen;
     gen.generate(w);
-    shadow_cast_fov<game_cell> fov;
+    shadow_cast_fov<character, game_cell, knowledge_cell> fov;
     curses_drawer dr;
     schedule<world<game_cell>> s;
     hud h(s);
