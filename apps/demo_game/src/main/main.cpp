@@ -1,5 +1,5 @@
 #include <world/world.hpp>
-#include <world/conway_generator.hpp>
+#include <world/border_generator.hpp>
 #include <io/curses.hpp>
 #include <drawing/curses_drawer.hpp>
 #include <actor/player_actor.hpp>
@@ -12,7 +12,8 @@ int main(int argc, char *argv[]) {
     srand(2);
 
     world<game_cell> w(100, 40);
-    delete (new conway_generator())->generate(w);
+    border_generator gen;
+    gen.generate(w);
     shadow_cast_fov<game_cell> fov;
     curses_drawer dr;
     schedule<world<game_cell>> s;

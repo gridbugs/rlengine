@@ -3,11 +3,9 @@
 
 #include "world/world.hpp"
 
-class generator {
+template <typename W> class generator {
     public:
-    generator(){}
-    virtual generator* generate(world<game_cell> &w) = 0;
-    virtual ~generator(){}
+    virtual void generate(world<W> &w) = 0;
 };
 
 #endif

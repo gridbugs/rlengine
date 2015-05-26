@@ -2,14 +2,11 @@
 #define _BORDER_GENERATOR_HPP_
 
 #include "world/generator.hpp"
+#include "world/game_cell.hpp"
 
-class border_generator : public generator {
+class border_generator : public generator<game_cell> {
     public:
-    border_generator() : generator()
-    {}
-    generator* generate(world<game_cell> &w);
-
-    ~border_generator(){}
+    void generate(world<game_cell> &w);
 };
 
 #endif

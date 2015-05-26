@@ -1,7 +1,7 @@
 #include "world/border_generator.hpp"
 #include "world/game_cell.hpp"
 
-generator* border_generator::generate(world<game_cell> &w) {
+void border_generator::generate(world<game_cell> &w) {
 
     grid<game_cell> &map = w.maps[0];
 
@@ -17,6 +17,4 @@ generator* border_generator::generate(world<game_cell> &w) {
         it->set_data(new game_wall());
         
     }
-
-    return this;
 }

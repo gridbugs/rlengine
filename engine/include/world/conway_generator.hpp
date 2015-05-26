@@ -2,8 +2,9 @@
 #define _CONWAY_GENERATOR_HPP_
 
 #include "world/generator.hpp"
+#include "world/game_cell.hpp"
 
-class conway_generator : public generator {
+class conway_generator : public generator<game_cell> {
     
     private:
     class conway_cell;
@@ -11,9 +12,7 @@ class conway_generator : public generator {
     int generate_attempt(conway_grid &cg);
 
     public:
-    conway_generator() : generator() {}
-    ~conway_generator(){}
-    generator* generate(world<game_cell> &w);
+    void generate(world<game_cell> &w);
 };
 
 #endif
