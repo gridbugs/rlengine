@@ -2,7 +2,6 @@
 #define _FOV_HPP_
 
 #include "geometry/vec2.hpp"
-#include "world/game_grid.hpp"
 #include <vector>
 
 class fov {

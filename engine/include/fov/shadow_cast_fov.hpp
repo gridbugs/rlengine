@@ -1,7 +1,6 @@
 #ifndef _SHADOW_CAST_FOV_HPP_
 #define _SHADOW_CAST_FOV_HPP_
 
-#include "world/game_grid.hpp"
 #include "geometry/vec2.hpp"
 #include "fov/fov.hpp"
 
