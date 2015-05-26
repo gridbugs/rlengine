@@ -1,17 +1,16 @@
 #ifndef _CHARACTER_ACTOR_HPP_
 #define _CHARACTER_ACTOR_HPP_
 
-#include "character/character.hpp"
 #include "world/world.hpp"
 #include "observer/observer.hpp"
 #include "actor/actor.hpp"
 #include "drawing/actor_drawing_interface.hpp"
 
 template <typename C, typename W, typename K> class character_actor : 
-    public actor<W>, public actor_drawing_interface {
+    public actor<W>, public actor_drawing_interface<K> {
 
     protected:
-    character &character_;
+    C &character_;
     virtual int act(world<W> &w) = 0;
     virtual bool can_act() const = 0;
     
@@ -36,7 +35,7 @@ template <typename C, typename W, typename K> class character_actor :
     }
 
     public:
-    character_actor(character &c, world<W> &w, observer<C,W,K> &f) : 
+    character_actor(C &c, world<W> &w, observer<C,W,K> &f) : 
         character_(c),
         observer_(f)
     {
@@ -59,7 +58,7 @@ template <typename C, typename W, typename K> class character_actor :
     const grid<K> &get_knowledge_grid() const {
         return this->get_current_knowledge_grid();
     }
-    const character &get_character() const {
+    const C &get_character() const {
         return character_;
     }
 };

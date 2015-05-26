@@ -3,7 +3,6 @@
 #include <io/curses.hpp>
 #include <samples/curses_drawer.hpp>
 #include <actor/player_actor.hpp>
-#include <ui/hud.hpp>
 #include <ncurses.h>
 #include <observer/shadow_cast_fov.hpp>
 
@@ -17,9 +16,8 @@ int main(int argc, char *argv[]) {
     shadow_cast_fov<character, game_cell, knowledge_cell> fov;
     curses_drawer dr;
     schedule<world<game_cell>> s;
-    hud h(s);
     character player(w.get_random_empty_cell(0).coord);
-    player_actor actor(player, w, fov, dr, h);
+    player_actor<character, game_cell, knowledge_cell>  actor(player, w, fov, dr);
     actor.init_dvorak();
 
 

@@ -6,19 +6,32 @@
 #include "actor/character_actor.hpp"
 #include "geometry/direction.hpp"
 #include "drawing/drawer.hpp"
-#include "ui/hud.hpp"
 
-class player_actor : public character_actor<character, game_cell, knowledge_cell> {
+template <typename C, typename W, typename K> class player_actor : 
+    public character_actor<C, W, K> {
 
     protected:
-    int act(world<game_cell> &w);
+    int act(world<W> &w) {
+        drawer_.draw_world_from_actor(w, *this);
+
+        action *a = nullptr;
+        while (a == nullptr) {
+            unsigned int key_code = wgetch(curses::game_window);  
+            if (key_code >= N_KEY_BINDINGS) {
+                continue;
+            }
+            a = key_bindings_[key_code];
+        }
+        
+        return (*a)(this->character_, w);
+    }
+
     bool can_act() const {return true;}
-    drawer &drawer_; // XXX separate this into a different class
-    hud &hud_;
+    drawer<W, K> &drawer_; // XXX separate this into a different class
 
     class action {
         public:
-        virtual int operator()(character &c, world<game_cell> &w) = 0;
+        virtual int operator()(C &c, world<W> &w) = 0;
     };
 
     class move_action : public action {
@@ -26,7 +39,16 @@ class player_actor : public character_actor<character, game_cell, knowledge_cell
         direction::direction_t direction_;
         public:
         move_action(direction::direction_t d) : direction_(d) {}
-        int operator()(character &c, world<game_cell> &w);
+        int operator()(C &c, world<W> &w) {
+            grid<W> &map = w.maps[c.level_index];
+
+            W *cell_ptr = map.get_neighbour(map.get_cell(c.position), direction_);
+            if (cell_ptr != nullptr) {
+                w.move_character(c, cell_ptr->coord);
+            }
+
+            return 1; // TODO base this off character's stats
+        }
     };
 
     static const unsigned int N_KEY_BINDINGS = 512;
@@ -43,10 +65,9 @@ class player_actor : public character_actor<character, game_cell, knowledge_cell
 
     public:
     
-    player_actor(character &c, world<game_cell> &w, observer<character, game_cell, knowledge_cell> &o, drawer &d, hud &h) :
-        character_actor(c, w, o),
+    player_actor(C &c, world<W> &w, observer<C, W, K> &o, drawer<W, K> &d) :
+        character_actor<C, W, K>(c, w, o),
         drawer_(d),
-        hud_(h),
         move_north_(direction::north),
         move_south_(direction::south),
         move_east_(direction::east),
@@ -61,7 +82,23 @@ class player_actor : public character_actor<character, game_cell, knowledge_cell
         }
     }
 
-    void init_dvorak();   
+    void init_dvorak() {
+    
+        key_bindings_[KEY_LEFT] = &move_west_;
+        key_bindings_[KEY_RIGHT] = &move_east_;
+        key_bindings_[KEY_UP] = &move_north_;
+        key_bindings_[KEY_DOWN] = &move_south_;
+        
+        key_bindings_['d'] = &move_west_;
+        key_bindings_['h'] = &move_south_;
+        key_bindings_['t'] = &move_north_;
+        key_bindings_['n'] = &move_east_;
+        key_bindings_['f'] = &move_northwest_;
+        key_bindings_['g'] = &move_northeast_;
+        key_bindings_['x'] = &move_southwest_;
+        key_bindings_['b'] = &move_southeast_;
+
+    }
 };
 
 #endif
