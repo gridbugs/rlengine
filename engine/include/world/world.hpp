@@ -2,7 +2,6 @@
 #define _WORLD_HPP_
 
 #include "world/grid.hpp"
-#include "samples/game_cell.hpp" //XXX
 #include "geometry/vec2.hpp"
 #include "character/character.hpp"
 #include <vector>
@@ -27,7 +26,7 @@ template <typename W> class world {
         for (;;) {
             int x = rand() % width;
             int y = rand() % height;
-            game_cell& ret = maps[index].get_cell(x, y);
+            W& ret = maps[index].get_cell(x, y);
             if (!ret.is_solid()) {
                 return ret;
             }
