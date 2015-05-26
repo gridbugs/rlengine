@@ -42,7 +42,7 @@ template <typename C, typename W, typename K> class player_actor :
         int operator()(C &c, world<C, W> &w) {
             grid<W> &map = w.maps[c.level_index];
 
-            W *cell_ptr = map.get_neighbour(map.get_cell(c.position), direction_);
+            W *cell_ptr = map.get_neighbour(map.get_cell(c.coord), direction_);
             if (cell_ptr != nullptr) {
                 w.move_character(c, cell_ptr->coord);
             }

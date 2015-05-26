@@ -30,7 +30,7 @@ static void draw_cell_from_actor(const game_cell &cell, const knowledge_cell &kc
     char ch;
     pair_t pair = PAIR_UNKNOWN;
 
-    if (cell.coord == ctr.position) {
+    if (cell.coord == ctr.coord) {
         ch = '@';
         pair = PAIR_VISIBLE;
     } else {

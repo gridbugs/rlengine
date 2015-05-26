@@ -32,9 +32,9 @@ template <typename C, typename W> class world {
         return maps[index][0][0];
     }
 
-    void move_character(character &c, vec2<int> coord) {
+    void move_character(C &c, vec2<int> coord) {
         if (!maps[c.level_index].get_cell(coord).is_solid()) {
-            c.position = coord;
+            c.coord = coord;
         }
     }
 };

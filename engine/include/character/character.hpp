@@ -5,14 +5,14 @@
 
 class character {
     public:
-    vec2<int> position;
+    vec2<int> coord;
     int level_index = 0;
 
     character(int x, int y) :
-        position(x, y)
+        coord(x, y)
     {}
     character(const vec2<int> &v) :
-        position(v)
+        coord(v)
     {}
 };
 

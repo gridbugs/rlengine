@@ -163,7 +163,7 @@ template <typename C, typename W, typename K> class shadow_cast_fov :
         int height = w_grid.height;
         k_grid.for_each([](K &k) {k.unsee();});
 
-        const W& c = w_grid.get_cell(ch.position);
+        const W& c = w_grid.get_cell(ch.coord);
         compute_octant_fov(c, -1, 0, direction::ordinal::southwest, direction::ordinal::northwest, -1, vec2<>::X_IDX, width, w_grid, k_grid);
         compute_octant_fov(c,  0, 1, direction::ordinal::northwest, direction::ordinal::southwest, -1, vec2<>::X_IDX, width, w_grid, k_grid);
         compute_octant_fov(c,  -1, 0, direction::ordinal::northwest, direction::ordinal::southwest, 1, vec2<>::X_IDX, width, w_grid, k_grid);
