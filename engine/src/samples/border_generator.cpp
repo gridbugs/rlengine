@@ -1,7 +1,6 @@
 #include "samples/border_generator.hpp"
-#include "samples/game_cell.hpp"
 
-void border_generator::generate(world<game_cell> &w) {
+void border_generator::generate(world<character, game_cell> &w) {
 
     grid<game_cell> &map = w.maps[0];
 

@@ -10,12 +10,12 @@ int main(int argc, char *argv[]) {
     curses::simple_start();
     srand(2);
 
-    world<game_cell> w(100, 40);
+    world<character, game_cell> w(100, 40);
     conway_generator gen;
     gen.generate(w);
     shadow_cast_fov<character, game_cell, knowledge_cell> fov;
     curses_drawer dr;
-    schedule<world<game_cell>> s;
+    schedule<world<character, game_cell>> s;
     character player(w.get_random_empty_cell(0).coord);
     player_actor<character, game_cell, knowledge_cell>  actor(player, w, fov, dr);
     actor.init_dvorak();

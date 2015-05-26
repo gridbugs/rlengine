@@ -201,7 +201,7 @@ int conway_generator::generate_attempt(conway_grid &cg) {
     return count;
 }
 
-void conway_generator::generate(world<game_cell> &w) {
+void conway_generator::generate(world<character, game_cell> &w) {
     
     grid<game_cell> &map = w.maps[0];
     

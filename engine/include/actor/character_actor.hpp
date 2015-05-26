@@ -7,17 +7,17 @@
 #include "drawing/actor_drawing_interface.hpp"
 
 template <typename C, typename W, typename K> class character_actor : 
-    public actor<W>, public actor_drawing_interface<K> {
+    public actor<C, W>, public actor_drawing_interface<K> {
 
     protected:
     C &character_;
-    virtual int act(world<W> &w) = 0;
+    virtual int act(world<C, W> &w) = 0;
     virtual bool can_act() const = 0;
     
     observer<C, W, K> &observer_;
     std::vector<grid<K>> knowledge_grids_;
 
-    grid<W> &get_current_grid(world<W> &w) const {
+    grid<W> &get_current_grid(world<C, W> &w) const {
         return w.maps[character_.level_index];
     }
 
@@ -29,13 +29,13 @@ template <typename C, typename W, typename K> class character_actor :
         return knowledge_grids_[character_.level_index];
     }
 
-    void observe_world(world<W> &w) {
+    void observe_world(world<C, W> &w) {
         observer_.observe(character_, get_current_grid(w), 
                             this->get_current_knowledge_grid());
     }
 
     public:
-    character_actor(C &c, world<W> &w, observer<C,W,K> &f) : 
+    character_actor(C &c, world<C, W> &w, observer<C,W,K> &f) : 
         character_(c),
         observer_(f)
     {
@@ -45,7 +45,7 @@ template <typename C, typename W, typename K> class character_actor :
         }
     }
 
-    void operator()(world<W>& w, callback_registry<world<W>>& cr) {
+    void operator()(world<C, W>& w, callback_registry<world<C, W>>& cr) {
         if (can_act()) {
             observe_world(w);
             int cooldown = act(w);

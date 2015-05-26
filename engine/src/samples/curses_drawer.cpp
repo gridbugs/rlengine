@@ -57,7 +57,7 @@ static void draw_cell_from_actor(const game_cell &cell, const knowledge_cell &kc
 
 }
 
-void curses_drawer::draw_world_from_actor(world<game_cell> &w, const actor_drawing_interface<knowledge_cell> &a) {
+void curses_drawer::draw_world_from_actor(world<character, game_cell> &w, const actor_drawing_interface<knowledge_cell> &a) {
     const character &ch = a.get_character();
     const grid<knowledge_cell> &knowledge_grid = a.get_knowledge_grid();
     const grid<game_cell> &game_grid = w.maps[ch.level_index];

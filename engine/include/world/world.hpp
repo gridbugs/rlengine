@@ -6,7 +6,7 @@
 #include "character/character.hpp"
 #include <vector>
 
-template <typename W> class world {
+template <typename C, typename W> class world {
     public:
     
     std::vector<grid<W>> maps;
@@ -19,8 +19,6 @@ template <typename W> class world {
     {
         maps.push_back(grid<W>(width, height));
     }
-
-    
 
     W& get_random_empty_cell(int index) {
         for (;;) {

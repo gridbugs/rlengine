@@ -4,10 +4,10 @@
 #include "samples/game_cell.hpp"
 #include "samples/knowledge.hpp"
 
-class curses_drawer : public drawer<game_cell, knowledge_cell> {
+class curses_drawer : public drawer<character, game_cell, knowledge_cell> {
     public:
     curses_drawer();
-    void draw_world_from_actor(world<game_cell> &w, const actor_drawing_interface<knowledge_cell> &a);
+    void draw_world_from_actor(world<character, game_cell> &w, const actor_drawing_interface<knowledge_cell> &a);
 };
 
 #endif
