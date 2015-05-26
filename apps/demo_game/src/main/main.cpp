@@ -17,7 +17,7 @@ int main(int argc, char *argv[]) {
     curses_drawer dr;
     schedule<world<game_cell>> s;
     hud h(s);
-    character player(w.get_random_empty_cell().coord);
+    character player(w.get_random_empty_cell(0).coord);
     player_actor actor(player, w, fov, dr, h);
     actor.init_dvorak();
 

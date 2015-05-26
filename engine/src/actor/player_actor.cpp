@@ -37,7 +37,10 @@ int player_actor::act(world<game_cell> &w) {
 }
 
 int player_actor::move_action::operator()(character &c, world<game_cell> &w) {
-    game_cell *cell_ptr = w.map.get_neighbour(w.map.get_cell(c.position), direction_);
+    
+    grid<game_cell> &map = w.maps[c.level_index];
+
+    game_cell *cell_ptr = map.get_neighbour(map.get_cell(c.position), direction_);
     if (cell_ptr != nullptr) {
         w.move_character(c, cell_ptr->coord);
     }

@@ -10,7 +10,6 @@
 class drawer {
     public:
     virtual void draw_world_from_actor(world<game_cell> &w, const actor_drawing_interface &a) = 0;
-    virtual void draw_world(world<game_cell> &w) = 0;
     virtual void draw_hud(world<game_cell> &w, const hud &h) = 0;
 };
 

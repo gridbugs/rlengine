@@ -24,18 +24,6 @@ curses_drawer::curses_drawer() {
 
 }
 
-static void draw_cell(game_cell &c) {
-    wmove(curses::game_window, c.y_coord, c.x_coord);
-    char ch;
-    if (c.is_opaque()) {
-        ch = '#';
-    } else {
-        ch = '.';
-    }
-
-    waddch(curses::game_window, ch);
-}
-
 static void draw_cell_from_actor(const game_cell &cell, const knowledge_cell &kcell, const character &ctr) {
     wmove(curses::game_window, cell.y_coord, cell.x_coord);
 
@@ -72,15 +60,11 @@ static void draw_cell_from_actor(const game_cell &cell, const knowledge_cell &kc
 void curses_drawer::draw_world_from_actor(world<game_cell> &w, const actor_drawing_interface &a) {
     const character &ch = a.get_character();
     const grid<knowledge_cell> &knowledge_grid = a.get_knowledge_grid();
-    const grid<game_cell> &game_grid = w.map;
+    const grid<game_cell> &game_grid = w.maps[ch.level_index];
 
     game_grid.for_each([knowledge_grid, ch](const game_cell &c) {
         draw_cell_from_actor(c, knowledge_grid.get_cell(c.coord), ch);
     });
-}
-
-void curses_drawer::draw_world(world<game_cell> &w) {
-    w.map.for_each(draw_cell);
 }
 
 void curses_drawer::draw_hud(world<game_cell> &w, const hud &h) {

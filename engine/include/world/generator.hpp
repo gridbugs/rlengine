@@ -10,13 +10,4 @@ class generator {
     virtual ~generator(){}
 };
 
-class border_generator : public generator {
-    public:
-    border_generator() : generator()
-    {}
-    generator* generate(world<game_cell> &w);
-
-    ~border_generator(){}
-};
-
 #endif

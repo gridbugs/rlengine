@@ -203,6 +203,9 @@ int conway_generator::generate_attempt(conway_grid &cg) {
 }
 
 generator* conway_generator::generate(world<game_cell> &w) {
+    
+    grid<game_cell> &map = w.maps[0];
+    
     for (;;) {
         conway_grid cg(w.width, w.height);
 
@@ -210,7 +213,8 @@ generator* conway_generator::generate(world<game_cell> &w) {
             continue;
         }
 
-        for (grid<game_cell>::iterator it = w.map.begin(); it != w.map.end(); ++it) {
+        
+        for (grid<game_cell>::iterator it = map.begin(); it != map.end(); ++it) {
             conway_cell &c = cg.get_cell(it->coord);
             if (c.alive) {
                 it->set_data(new game_wall());

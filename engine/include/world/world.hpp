@@ -5,32 +5,40 @@
 #include "world/game_cell.hpp"
 #include "geometry/vec2.hpp"
 #include "character/character.hpp"
+#include <vector>
 
 template <typename W> class world {
     public:
-    grid<W> map;
+    
+    //grid<W> map;
+    std::vector<grid<W>> maps;
+
     const int width;
     const int height;
     world(const int width, const int height) : 
-        map(width, height),
+//        map(width, height),
         width(width),
         height(height)
-    {}
+    {
+        maps.push_back(grid<W>(width, height));
+    }
 
-    W& get_random_empty_cell() {
+    
+
+    W& get_random_empty_cell(int index) {
         for (;;) {
             int x = rand() % width;
             int y = rand() % height;
-            game_cell& ret = map.get_cell(x, y);
+            game_cell& ret = maps[index].get_cell(x, y);
             if (!ret.is_solid()) {
                 return ret;
             }
         }
-        return map[0][0];
+        return maps[index][0][0];
     }
 
     void move_character(character &c, vec2<int> coord) {
-        if (!map.get_cell(coord).is_solid()) {
+        if (!maps[c.level_index].get_cell(coord).is_solid()) {
             c.position = coord;
         }
     }

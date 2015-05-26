@@ -6,6 +6,7 @@
 class character {
     public:
     vec2<int> position;
+    int level_index = 0;
 
     character(int x, int y) :
         position(x, y)
