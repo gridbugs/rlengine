@@ -1,4 +1,4 @@
-#include "drawing/curses_drawer.hpp"
+#include "samples/curses_drawer.hpp"
 #include "io/curses.hpp"
 
 typedef enum {

@@ -1,5 +1,5 @@
-#include "world/border_generator.hpp"
-#include "world/game_cell.hpp"
+#include "samples/border_generator.hpp"
+#include "samples/game_cell.hpp"
 
 void border_generator::generate(world<game_cell> &w) {
 

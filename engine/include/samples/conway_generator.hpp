@@ -2,7 +2,7 @@
 #define _CONWAY_GENERATOR_HPP_
 
 #include "world/generator.hpp"
-#include "world/game_cell.hpp"
+#include "samples/game_cell.hpp"
 
 class conway_generator : public generator<game_cell> {
     

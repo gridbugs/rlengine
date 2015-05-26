@@ -3,7 +3,6 @@
 
 #include "world/world.hpp"
 #include "character/character.hpp"
-#include "actor/knowledge.hpp"
 #include "drawing/actor_drawing_interface.hpp"
 #include "ui/hud.hpp"
 

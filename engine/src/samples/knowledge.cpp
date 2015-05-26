@@ -1,4 +1,4 @@
-#include "actor/knowledge.hpp"
+#include "samples/knowledge.hpp"
 #include "util/arith.hpp"
 
 #define REMEMBERED  BIT(0)

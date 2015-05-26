@@ -1,7 +1,7 @@
 #include <world/world.hpp>
-#include <world/border_generator.hpp>
+#include <samples/conway_generator.hpp>
 #include <io/curses.hpp>
-#include <drawing/curses_drawer.hpp>
+#include <samples/curses_drawer.hpp>
 #include <actor/player_actor.hpp>
 #include <ui/hud.hpp>
 #include <ncurses.h>
@@ -12,7 +12,7 @@ int main(int argc, char *argv[]) {
     srand(2);
 
     world<game_cell> w(100, 40);
-    border_generator gen;
+    conway_generator gen;
     gen.generate(w);
     shadow_cast_fov<game_cell> fov;
     curses_drawer dr;

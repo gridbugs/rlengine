@@ -2,7 +2,7 @@
 #define _BORDER_GENERATOR_HPP_
 
 #include "world/generator.hpp"
-#include "world/game_cell.hpp"
+#include "samples/game_cell.hpp"
 
 class border_generator : public generator<game_cell> {
     public:

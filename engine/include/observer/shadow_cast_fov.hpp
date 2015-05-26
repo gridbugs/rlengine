@@ -7,7 +7,7 @@
 #include <vector>
 #include <cmath>
 #include "util/arith.hpp"
-#include "actor/knowledge.hpp"
+#include "samples/knowledge.hpp" //XXX
 #include "character/character.hpp"
 
 template <typename W> class shadow_cast_fov : public observer <character, W, knowledge_cell> {

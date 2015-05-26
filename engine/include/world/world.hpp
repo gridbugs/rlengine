@@ -2,7 +2,7 @@
 #define _WORLD_HPP_
 
 #include "world/grid.hpp"
-#include "world/game_cell.hpp"
+#include "samples/game_cell.hpp" //XXX
 #include "geometry/vec2.hpp"
 #include "character/character.hpp"
 #include <vector>
@@ -10,13 +10,11 @@
 template <typename W> class world {
     public:
     
-    //grid<W> map;
     std::vector<grid<W>> maps;
 
     const int width;
     const int height;
     world(const int width, const int height) : 
-//        map(width, height),
         width(width),
         height(height)
     {

@@ -1,7 +1,7 @@
 #ifndef _ACTOR_DRAWING_INTERFACE_
 #define _ACTOR_DRAWING_INTERFACE_
 
-#include "actor/knowledge.hpp"
+#include "samples/knowledge.hpp" //XXX
 
 class actor_drawing_interface {
     public:

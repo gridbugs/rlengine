@@ -1,4 +1,4 @@
-#include "world/conway_generator.hpp"
+#include "samples/conway_generator.hpp"
 
 #include "world/grid.hpp"
 #include "world/cell.hpp"
