@@ -27,7 +27,7 @@ class character_actor : public actor, public actor_drawing_interface {
         knowledge_grid_(w.width, w.height)
     {}
 
-    void operator()(world& w, callback_registry& cr) {
+    void operator()(world& w, callback_registry<world>& cr) {
         if (can_act()) {
             observe_world(w);
             int cooldown = act(w);

@@ -3,34 +3,33 @@
 
 #include <queue>
 #include <vector>
-#include "world/world.hpp"
 
-class schedule_callback;
+template <typename T> class schedule_callback;
 
-class callback_registry {
+template <typename T> class callback_registry {
     public:
     typedef long long unsigned int time_t;
-    virtual void register_callback(schedule_callback&, const time_t) = 0;
+    virtual void register_callback(schedule_callback<T>&, const time_t) = 0;
 };
 
-class schedule_callback {
+template <typename T> class schedule_callback {
     public:
-    virtual void operator()(world& w, callback_registry& cr) = 0;
+    virtual void operator()(T& w, callback_registry<T>& cr) = 0;
 };
 
-class callback_loop {
+template <typename T> class callback_loop {
     public:
-    virtual void run_until_empty(world&) = 0;
+    virtual void run_until_empty(T&) = 0;
 };
 
-class schedule : public callback_registry, public callback_loop {
+template <typename T> class schedule : public callback_registry<T>, public callback_loop<T> {
     private:
 
     class event {
         public:
-        schedule_callback *fn;
+        schedule_callback<T> *fn;
         time_t time;
-        event(schedule_callback &fn, const time_t time) :
+        event(schedule_callback<T> &fn, const time_t time) :
             fn(&fn),
             time(time)
         {}
@@ -50,15 +49,15 @@ class schedule : public callback_registry, public callback_loop {
 
     schedule() : absolute_time_(0) {}
 
-    void register_callback(schedule_callback &fn, const time_t relative_time) {
+    void register_callback(schedule_callback<T> &fn, const typename callback_registry<T>::time_t relative_time) {
         pq_.push(event(fn, relative_time + absolute_time_));
     }
 
-    void run_until_empty(world& w) {
+    void run_until_empty(T& w) {
         while (!pq_.empty()) {
             const event &e = pq_.top();
             absolute_time_ = e.time;
-            schedule_callback *c = e.fn;
+            schedule_callback<T> *c = e.fn;
             pq_.pop();
             (*c)(w, *this);
         }

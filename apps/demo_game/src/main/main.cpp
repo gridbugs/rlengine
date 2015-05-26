@@ -15,7 +15,7 @@ int main(int argc, char *argv[]) {
     delete (new conway_generator())->generate(w);
     shadow_cast_fov<game_cell> fov(w.map);
     curses_drawer dr;
-    schedule s;
+    schedule<world> s;
     hud h(s);
     character player(w.get_random_empty_cell().coord);
     player_actor actor(player, w, fov, dr, h);
