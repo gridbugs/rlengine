@@ -24,7 +24,7 @@ curses_drawer::curses_drawer() {
 
 }
 
-static void draw_cell(game_cell_interface &c) {
+static void draw_cell(game_cell &c) {
     wmove(curses::game_window, c.y_coord, c.x_coord);
     char ch;
     if (c.is_opaque()) {
@@ -36,7 +36,7 @@ static void draw_cell(game_cell_interface &c) {
     waddch(curses::game_window, ch);
 }
 
-static void draw_cell_from_actor(const game_cell_interface &cell, const knowledge_cell &kcell, const character &ctr) {
+static void draw_cell_from_actor(const game_cell &cell, const knowledge_cell &kcell, const character &ctr) {
     wmove(curses::game_window, cell.y_coord, cell.x_coord);
 
     char ch;
@@ -69,21 +69,21 @@ static void draw_cell_from_actor(const game_cell_interface &cell, const knowledg
 
 }
 
-void curses_drawer::draw_world_from_actor(world &w, const actor_drawing_interface &a) {
+void curses_drawer::draw_world_from_actor(world<game_cell> &w, const actor_drawing_interface &a) {
     const character &ch = a.get_character();
     const grid<knowledge_cell> &knowledge_grid = a.get_knowledge_grid();
-    const game_grid_interface &game_grid = w.map;
+    const grid<game_cell> &game_grid = w.map;
 
-    game_grid.for_each([knowledge_grid, ch](const game_cell_interface &c) {
+    game_grid.for_each([knowledge_grid, ch](const game_cell &c) {
         draw_cell_from_actor(c, knowledge_grid.get_cell(c.coord), ch);
     });
 }
 
-void curses_drawer::draw_world(world &w) {
+void curses_drawer::draw_world(world<game_cell> &w) {
     w.map.for_each(draw_cell);
 }
 
-void curses_drawer::draw_hud(world &w, const hud &h) {
+void curses_drawer::draw_hud(world<game_cell> &w, const hud &h) {
     werase(curses::hud_window);
     wprintw(curses::hud_window, "Time: %lld\n", h.get_time());
     wrefresh(curses::hud_window);

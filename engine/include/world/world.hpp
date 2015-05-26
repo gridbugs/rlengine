@@ -6,9 +6,9 @@
 #include "geometry/vec2.hpp"
 #include "character/character.hpp"
 
-class world {
+template <typename W> class world {
     public:
-    game_grid<game_cell> map;
+    grid<W> map;
     const int width;
     const int height;
     world(const int width, const int height) : 
@@ -17,10 +17,23 @@ class world {
         height(height)
     {}
 
-    game_cell& get_random_empty_cell();   
+    W& get_random_empty_cell() {
+        for (;;) {
+            int x = rand() % width;
+            int y = rand() % height;
+            game_cell& ret = map.get_cell(x, y);
+            if (!ret.is_solid()) {
+                return ret;
+            }
+        }
+        return map[0][0];
+    }
 
-    void move_character(character &c, vec2<int> coord);
-
+    void move_character(character &c, vec2<int> coord) {
+        if (!map.get_cell(coord).is_solid()) {
+            c.position = coord;
+        }
+    }
 };
 
 #endif

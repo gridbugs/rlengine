@@ -11,11 +11,11 @@ int main(int argc, char *argv[]) {
     curses::simple_start();
     srand(2);
 
-    world w(100, 40);
+    world<game_cell> w(100, 40);
     delete (new conway_generator())->generate(w);
     shadow_cast_fov<game_cell> fov(w.map);
     curses_drawer dr;
-    schedule<world> s;
+    schedule<world<game_cell>> s;
     hud h(s);
     character player(w.get_random_empty_cell().coord);
     player_actor actor(player, w, fov, dr, h);

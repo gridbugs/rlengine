@@ -19,7 +19,7 @@ void player_actor::init_dvorak() {
 
 }
 
-int player_actor::act(world &w) {
+int player_actor::act(world<game_cell> &w) {
  
     drawer_.draw_world_from_actor(w, *this);
     drawer_.draw_hud(w, hud_);
@@ -36,7 +36,7 @@ int player_actor::act(world &w) {
     return (*a)(character_, w);
 }
 
-int player_actor::move_action::operator()(character &c, world &w) {
+int player_actor::move_action::operator()(character &c, world<game_cell> &w) {
     game_cell *cell_ptr = w.map.get_neighbour(w.map.get_cell(c.position), direction_);
     if (cell_ptr != nullptr) {
         w.move_character(c, cell_ptr->coord);

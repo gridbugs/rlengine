@@ -13,7 +13,7 @@ class conway_generator : public generator {
     public:
     conway_generator() : generator() {}
     ~conway_generator(){}
-    generator* generate(world &w);
+    generator* generate(world<game_cell> &w);
 };
 
 #endif

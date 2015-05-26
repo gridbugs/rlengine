@@ -5,9 +5,9 @@
 class curses_drawer : public drawer {
     public:
     curses_drawer();
-    void draw_world_from_actor(world &w, const actor_drawing_interface &a);
-    void draw_world(world &w);
-    void draw_hud(world &w, const hud &h);
+    void draw_world_from_actor(world<game_cell> &w, const actor_drawing_interface &a);
+    void draw_world(world<game_cell> &w);
+    void draw_hud(world<game_cell> &w, const hud &h);
 };
 
 #endif

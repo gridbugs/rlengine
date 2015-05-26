@@ -202,7 +202,7 @@ int conway_generator::generate_attempt(conway_grid &cg) {
     return count;
 }
 
-generator* conway_generator::generate(world &w) {
+generator* conway_generator::generate(world<game_cell> &w) {
     for (;;) {
         conway_grid cg(w.width, w.height);
 

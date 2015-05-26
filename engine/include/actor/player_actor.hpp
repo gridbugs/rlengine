@@ -8,17 +8,17 @@
 #include "drawing/drawer.hpp"
 #include "ui/hud.hpp"
 
-class player_actor : public character_actor {
+class player_actor : public character_actor<game_cell> {
 
     protected:
-    int act(world &w);
+    int act(world<game_cell> &w);
     bool can_act() const {return true;}
     drawer &drawer_; // XXX separate this into a different class
     hud &hud_;
 
     class action {
         public:
-        virtual int operator()(character &c, world &w) = 0;
+        virtual int operator()(character &c, world<game_cell> &w) = 0;
     };
 
     class move_action : public action {
@@ -26,7 +26,7 @@ class player_actor : public character_actor {
         direction::direction_t direction_;
         public:
         move_action(direction::direction_t d) : direction_(d) {}
-        int operator()(character &c, world &w);
+        int operator()(character &c, world<game_cell> &w);
     };
 
     static const unsigned int N_KEY_BINDINGS = 512;
@@ -43,7 +43,7 @@ class player_actor : public character_actor {
 
     public:
     
-    player_actor(character &c, world &w, fov &f, drawer &d, hud &h) :
+    player_actor(character &c, world<game_cell> &w, fov &f, drawer &d, hud &h) :
         character_actor(c, w, f),
         drawer_(d),
         hud_(h),

@@ -6,13 +6,13 @@
 
 class hud {
     protected:
-    const schedule<world> &schedule_;
+    const schedule<world<game_cell>> &schedule_;
     public:
-    hud(const schedule<world> &s) :
+    hud(const schedule<world<game_cell>> &s) :
         schedule_(s)
     {}
     
-    typedef callback_registry<world>::time_t time_t;
+    typedef callback_registry<world<game_cell>>::time_t time_t;
 
     time_t get_time() const {return schedule_.get_time();}
 };

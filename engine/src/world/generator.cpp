@@ -1,7 +1,7 @@
 #include "world/generator.hpp"
 #include "world/game_cell.hpp"
 
-generator* border_generator::generate(world &w) {
+generator* border_generator::generate(world<game_cell> &w) {
 
     for (grid<game_cell>::iterator it = w.map.begin();
         it != w.map.end(); ++it) {

@@ -4,6 +4,6 @@
 #include "schedule/schedule.hpp"
 #include "world/world.hpp"
 
-class actor : public schedule_callback<world> {};
+template <typename W> class actor : public schedule_callback<world<W>> {};
 
 #endif
