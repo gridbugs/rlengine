@@ -7,7 +7,7 @@
 
 class fov {
     public:
-    virtual void push_visible_cells(const vec2<int> &eye_coord, std::vector<game_cell_interface*> &visible_cells) = 0;
+    virtual void push_visible_cells(const vec2<int> &eye_coord, std::vector<const vec2<int>*> &visible_cells) = 0;
 };
 
 #endif

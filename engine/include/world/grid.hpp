@@ -9,8 +9,15 @@
 #include <array>
 #include <algorithm>
 #include <functional>
+#include "world/cell.hpp"
 
-template <typename T> class simple_grid {
+class grid_interface {
+    public:
+    virtual void for_each_cell(const std::function<void(cell&)> &f) = 0;
+    virtual void for_each_cell(const std::function<void(const cell&)> &f) const = 0;
+};
+
+template <typename T> class simple_grid : public grid_interface {
 
     protected:
     const int n_cells_;
@@ -65,6 +72,14 @@ template <typename T> class simple_grid {
     
     void for_each(const std::function<void(const T&)> &f) const {
         std::for_each(cells_.cbegin(), cells_.cend(), f);
+    }
+    
+    void for_each_cell(const std::function<void(cell&)> &f) {
+        for_each(f);
+    }
+
+    void for_each_cell(const std::function<void(const cell&)> &f) const {
+        for_each(f);
     }
 };
 

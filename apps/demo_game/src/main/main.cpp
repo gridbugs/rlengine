@@ -13,7 +13,7 @@ int main(int argc, char *argv[]) {
 
     world w(100, 40);
     delete (new conway_generator())->generate(w);
-    shadow_cast_fov fov(w.map);
+    shadow_cast_fov<game_cell> fov(w.map);
     curses_drawer dr;
     schedule s;
     hud h(s);
