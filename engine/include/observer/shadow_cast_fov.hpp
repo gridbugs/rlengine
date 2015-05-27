@@ -153,7 +153,7 @@ template <typename C, typename W, typename K> class shadow_cast_fov :
         k.see();
     }
     void mark_cell_partially_visible(const W &c, K &k) {
-        k.see();
+        k.partially_see();
     }
 
     public:
@@ -172,6 +172,8 @@ template <typename C, typename W, typename K> class shadow_cast_fov :
         compute_octant_fov(c,  0, 1, direction::ordinal::northwest, direction::ordinal::northeast, -1, vec2<>::Y_IDX, height, w_grid, k_grid);
         compute_octant_fov(c,  -1, 0, direction::ordinal::northwest, direction::ordinal::northeast, 1, vec2<>::Y_IDX, height, w_grid, k_grid);
         compute_octant_fov(c,  0, 1, direction::ordinal::northeast, direction::ordinal::northwest, 1, vec2<>::Y_IDX, height, w_grid, k_grid);
+        k_grid.get_cell(ch.coord).see();
+
     }
 };
 

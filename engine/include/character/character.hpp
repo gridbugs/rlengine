@@ -8,12 +8,11 @@ class character {
     vec2<int> coord;
     int level_index = 0;
 
-    character(int x, int y) :
-        coord(x, y)
-    {}
     character(const vec2<int> &v) :
         coord(v)
     {}
+
+    virtual void take_damage(int d) = 0;
 };
 
 #endif

@@ -10,6 +10,7 @@ template <typename C, typename W> class world {
     public:
     
     std::vector<grid<W>> maps;
+    std::vector<C> characters;
 
     const int width;
     const int height;

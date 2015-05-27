@@ -7,7 +7,7 @@
 #include "drawing/actor_drawing_interface.hpp"
 
 template <typename C, typename W, typename K> class character_actor : 
-    public actor<C, W>, public actor_drawing_interface<K> {
+    public actor<C, W>, public actor_drawing_interface<C, K> {
 
     protected:
     C &character_;
@@ -32,6 +32,21 @@ template <typename C, typename W, typename K> class character_actor :
     void observe_world(world<C, W> &w) {
         observer_.observe(character_, get_current_grid(w), 
                             this->get_current_knowledge_grid());
+
+        get_current_knowledge_grid().for_each([](K &k) {
+            if (k.is_visible()) {
+                k.unsee_characters();
+            }
+        });
+
+        for (typename std::vector<C>::iterator it = w.characters.begin(); it != w.characters.end(); ++it) {
+            if (it->level_index == character_.level_index) {
+                K &k = get_current_knowledge_grid().get_cell(it->coord);
+                if (k.is_visible()) {
+                    k.see_character(*it);   
+                }
+            }
+        }
     }
 
     public:

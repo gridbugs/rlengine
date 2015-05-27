@@ -1,3 +1,4 @@
+#if 0
 #include "samples/knowledge.hpp"
 #include "util/arith.hpp"
 
@@ -48,3 +49,4 @@ bool knowledge_cell::is_visible() const {
 bool knowledge_cell::is_magic() const {
     return knowledge_ & MAGIC;
 }
+#endif

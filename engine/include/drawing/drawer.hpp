@@ -7,7 +7,7 @@
 
 template <typename C, typename W, typename K> class drawer {
     public:
-    virtual void draw_world_from_actor(world<C, W> &w, const actor_drawing_interface<K> &a) = 0;
+    virtual void draw_world_from_actor(world<C, W> &w, const actor_drawing_interface<C, K> &a) = 0;
 };
 
 #endif
