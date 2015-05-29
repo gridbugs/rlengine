@@ -15,7 +15,7 @@ CXX_TEST_SRC=$(wildcard $(TEST_DIR)/*.cpp)
 CXX_TEST_OBJ=$(CXX_TEST_SRC:.cpp=.o)
 CXX_TEST_BIN=$(CXX_TEST_OBJ:.o=)
 CXX=g++
-CXXFLAGS=-g -Werror -Wall -std=c++11
+CXXFLAGS=-g -Werror -Wall -std=c++14
 ENGINE_CXXFLAGS=-I$(ENGINE_DIR)/include
 LDLIBS=-lncurses
 

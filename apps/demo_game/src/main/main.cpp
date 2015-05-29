@@ -22,6 +22,9 @@ class demo_character : public character {
     void take_damage(int d) {
         hit_points -= d;
     }
+    int get_move_time(direction::direction_t d) const {
+        return 1;
+    }
 };
 
 typedef knowledge_cell<demo_character, game_cell> kcell_t;
@@ -81,14 +84,12 @@ int main(int argc, char *argv[]) {
     demo_drawer dr;
     schedule<world<demo_character, game_cell>> s;
     
-    w.characters.push_back(demo_character(w.get_random_empty_cell(0).coord, 10, '@', PAIR_WHITE));
+   /// w.characters.push_back(demo_character(w.get_random_empty_cell(0).coord, 10, '@', PAIR_WHITE));
+    w.characters.push_back(std::make_unique<demo_character>(w.get_random_empty_cell(0).coord, 10, '@', PAIR_WHITE));
     
-    w.characters.push_back(demo_character(w.get_random_empty_cell(0).coord, 10, 'b', PAIR_RED));
-    w.characters.push_back(demo_character(w.get_random_empty_cell(0).coord, 10, 'b', PAIR_RED));
-    w.characters.push_back(demo_character(w.get_random_empty_cell(0).coord, 10, 'b', PAIR_RED));
-    w.characters.push_back(demo_character(w.get_random_empty_cell(0).coord, 10, 'b', PAIR_RED));
+    w.characters.push_back(std::make_unique<demo_character>(w.get_random_empty_cell(0).coord, 10, 'b', PAIR_RED));
     
-    demo_character &player = w.characters[0];
+    demo_character &player = *w.characters[0];
     
     player_actor<demo_character, game_cell, kcell_t>  actor(player, w, fov, dr);
     actor.init_dvorak();

@@ -2,6 +2,7 @@
 #define _CHARACTER_HPP_
 
 #include "geometry/vec2.hpp"
+#include "geometry/direction.hpp"
 
 class character {
     public:
@@ -13,6 +14,7 @@ class character {
     {}
 
     virtual void take_damage(int d) = 0;
+    virtual int get_move_time(direction::direction_t d) const = 0;
 };
 
 #endif

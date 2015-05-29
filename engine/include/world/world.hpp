@@ -5,12 +5,13 @@
 #include "geometry/vec2.hpp"
 #include "character/character.hpp"
 #include <vector>
+#include <memory>
 
 template <typename C, typename W> class world {
     public:
     
     std::vector<grid<W>> maps;
-    std::vector<C> characters;
+    std::vector<std::unique_ptr<C>> characters;
 
     const int width;
     const int height;

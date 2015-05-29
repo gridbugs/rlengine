@@ -39,11 +39,11 @@ template <typename C, typename W, typename K> class character_actor :
             }
         });
 
-        for (typename std::vector<C>::iterator it = w.characters.begin(); it != w.characters.end(); ++it) {
-            if (it->level_index == character_.level_index) {
-                K &k = get_current_knowledge_grid().get_cell(it->coord);
+        for (typename std::vector<std::unique_ptr<C>>::iterator it = w.characters.begin(); it != w.characters.end(); ++it) {
+            if ((*it)->level_index == character_.level_index) {
+                K &k = get_current_knowledge_grid().get_cell((*it)->coord);
                 if (k.is_visible()) {
-                    k.see_character(*it);   
+                    k.see_character(**it);   
                 }
             }
         }
