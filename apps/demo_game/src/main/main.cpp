@@ -3,6 +3,7 @@
 #include <io/curses.hpp>
 #include <samples/curses_drawer.hpp>
 #include <actor/player_actor.hpp>
+#include <actor/always_move_left.hpp>
 #include <ncurses.h>
 #include <observer/shadow_cast_fov.hpp>
 #include <observer/omniscient_fov.hpp>
@@ -23,7 +24,7 @@ class demo_character : public character {
         hit_points -= d;
     }
     int get_move_time(direction::direction_t d) const {
-        return 1;
+        return 8;
     }
 };
 
@@ -73,14 +74,15 @@ class demo_drawer : public curses_drawer<demo_character, game_cell, kcell_t> {
 };
 
 int main(int argc, char *argv[]) {
+    fifo::start();
     curses::simple_start();
     srand(2);
 
     world<demo_character, game_cell> w(100, 40);
     conway_generator<demo_character, game_cell> gen;
     gen.generate(w);
-    shadow_cast_fov<demo_character, game_cell, kcell_t> fov;
-    //omniscient_fov<demo_character, game_cell, kcell_t> fov;
+    //shadow_cast_fov<demo_character, game_cell, kcell_t> fov;
+    omniscient_fov<demo_character, game_cell, kcell_t> fov;
     demo_drawer dr;
     schedule<world<demo_character, game_cell>> s;
     
@@ -91,16 +93,20 @@ int main(int argc, char *argv[]) {
     
     demo_character &player = *w.characters[0];
     
-    player_actor<demo_character, game_cell, kcell_t>  actor(player, w, fov, dr);
-    actor.init_dvorak();
+    
+    player_actor<demo_character, game_cell, kcell_t>  a1(player, w, fov, dr);
+    a1.init_dvorak();
 
+    always_move_left<demo_character, game_cell, kcell_t> a2(*w.characters[1], w, fov);
 
-    s.register_callback(actor, 0);
+    s.register_callback(a1, 4);
+    s.register_callback(a2, 10);
 
 
     s.run_until_empty(w);
     
     curses::simple_stop();
+    fifo::stop();
 
     return 0;
 }

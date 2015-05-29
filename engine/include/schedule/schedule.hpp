@@ -3,6 +3,7 @@
 
 #include <queue>
 #include <vector>
+#include "debug/fifo.hpp"
 
 template <typename T> class schedule_callback;
 
@@ -38,7 +39,7 @@ template <typename T> class schedule : public callback_registry<T>, public callb
     class event_comparitor {
         public:
         bool operator()(const event &a, const event &b) {
-            return a.time < b.time;
+            return a.time > b.time;
         }
     };
 
@@ -52,9 +53,13 @@ template <typename T> class schedule : public callback_registry<T>, public callb
     void register_callback(schedule_callback<T> &fn, const typename callback_registry<T>::time_t relative_time) {
         pq_.push(event(fn, relative_time + absolute_time_));
     }
+    
+    time_t get_time() const {return absolute_time_;}
 
     void run_until_empty(T& w) {
         while (!pq_.empty()) {
+            fifo::cout << "time: " << get_time() << fifo::endl;
+            fifo::cout << "pos: " << w.characters[1]->coord << fifo::endl;
             const event &e = pq_.top();
             absolute_time_ = e.time;
             schedule_callback<T> *c = e.fn;
@@ -63,7 +68,6 @@ template <typename T> class schedule : public callback_registry<T>, public callb
         }
     }
 
-    time_t get_time() const {return absolute_time_;}
 };
 
 #endif

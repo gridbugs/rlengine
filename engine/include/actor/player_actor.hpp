@@ -47,7 +47,7 @@ template <typename C, typename W, typename K> class player_actor :
                 w.move_character(c, cell_ptr->coord);
             }
 
-            return 1; // TODO base this off character's stats
+            return 4; // TODO base this off character's stats
         }
     };
 

@@ -50,9 +50,9 @@ template <typename C, typename W, typename K> class character_actor :
     }
 
     public:
-    character_actor(C &c, world<C, W> &w, observer<C,W,K> &f) : 
+    character_actor(C &c, world<C, W> &w, observer<C,W,K> &o) : 
         character_(c),
-        observer_(f)
+        observer_(o)
     {
         for (typename std::vector<grid<W>>::iterator it = w.maps.begin();
              it != w.maps.end(); ++it) {
