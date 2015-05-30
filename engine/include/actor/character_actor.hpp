@@ -10,14 +10,17 @@ template <typename C, typename W, typename K> class character_actor :
     public actor<C, W>, public actor_drawing_interface<C, K> {
 
     protected:
+
+    typedef world<C, W> world_t;
+
     C &character_;
-    virtual int act(world<C, W> &w) = 0;
+    virtual int act(world_t &w) = 0;
     virtual bool can_act() const = 0;
     
     observer<C, W, K> &observer_;
     std::vector<grid<K>> knowledge_grids_;
 
-    grid<W> &get_current_grid(world<C, W> &w) const {
+    grid<W> &get_current_grid(world_t &w) const {
         return w.maps[character_.level_index];
     }
 
@@ -29,7 +32,7 @@ template <typename C, typename W, typename K> class character_actor :
         return knowledge_grids_[character_.level_index];
     }
 
-    void observe_world(world<C, W> &w) {
+    void observe_world(world_t &w) {
         observer_.observe(character_, get_current_grid(w), 
                             this->get_current_knowledge_grid());
 
@@ -50,7 +53,7 @@ template <typename C, typename W, typename K> class character_actor :
     }
 
     public:
-    character_actor(C &c, world<C, W> &w, observer<C,W,K> &o) : 
+    character_actor(C &c, world_t &w, observer<C,W,K> &o) : 
         character_(c),
         observer_(o)
     {
@@ -60,7 +63,7 @@ template <typename C, typename W, typename K> class character_actor :
         }
     }
 
-    void operator()(world<C, W>& w, callback_registry<world<C, W>>& cr) {
+    void operator()(world_t& w, callback_registry<world_t>& cr) {
         if (can_act()) {
             observe_world(w);
             int cooldown = act(w);

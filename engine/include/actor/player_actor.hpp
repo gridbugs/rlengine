@@ -11,7 +11,10 @@ template <typename C, typename W, typename K> class player_actor :
     public character_actor<C, W, K> {
 
     protected:
-    int act(world<C, W> &w) {
+
+    typedef typename character_actor<C, W, K>::world_t world_t;
+
+    int act(world_t &w) {
         drawer_.draw_world_from_actor(w, *this);
 
         action *a = nullptr;
@@ -31,7 +34,7 @@ template <typename C, typename W, typename K> class player_actor :
 
     class action {
         public:
-        virtual int operator()(C &c, world<C, W> &w) = 0;
+        virtual int operator()(C &c, world_t &w) = 0;
     };
 
     class move_action : public action {
@@ -39,7 +42,7 @@ template <typename C, typename W, typename K> class player_actor :
         direction::direction_t direction_;
         public:
         move_action(direction::direction_t d) : direction_(d) {}
-        int operator()(C &c, world<C, W> &w) {
+        int operator()(C &c, world_t &w) {
             grid<W> &map = w.maps[c.level_index];
 
             W *cell_ptr = map.get_neighbour(map.get_cell(c.coord), direction_);
@@ -65,7 +68,7 @@ template <typename C, typename W, typename K> class player_actor :
 
     public:
     
-    player_actor(C &c, world<C, W> &w, observer<C, W, K> &o, drawer<C, W, K> &d) :
+    player_actor(C &c, world_t &w, observer<C, W, K> &o, drawer<C, W, K> &d) :
         character_actor<C, W, K>(c, w, o),
         drawer_(d),
         move_north_(direction::north),
