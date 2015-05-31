@@ -12,15 +12,20 @@ template <typename C, typename W, typename K> class character_actor :
     protected:
 
     typedef world<C, W> world_t;
+    typedef observer<C, W, K> observer_t;
 
     C &character_;
     virtual int act(world_t &w) = 0;
     virtual bool can_act() const = 0;
     
-    observer<C, W, K> &observer_;
+    observer_t &observer_;
     std::vector<grid<K>> knowledge_grids_;
 
-    grid<W> &get_current_grid(world_t &w) const {
+    const grid<W> &get_current_grid(world_t &w) const {
+        return w.maps[character_.level_index];
+    }
+    
+    grid<W> &get_current_grid(world_t &w) {
         return w.maps[character_.level_index];
     }
 
@@ -53,7 +58,7 @@ template <typename C, typename W, typename K> class character_actor :
     }
 
     public:
-    character_actor(C &c, world_t &w, observer<C,W,K> &o) : 
+    character_actor(C &c, world_t &w, observer_t &o) : 
         character_(c),
         observer_(o)
     {

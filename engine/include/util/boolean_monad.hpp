@@ -36,4 +36,29 @@ template <typename C> class boolean_monad {
     }
 };
 
+template <typename C> class boolean_monad_non_scalar {
+    C context;
+
+    public:
+    boolean_monad_non_scalar(C context) :
+        context(context)
+    {}
+    
+    boolean_monad_non_scalar<C> &operator&&(const std::function<C()> f) {
+        if (context) {
+            context = context && f();
+        }
+        return *this;
+    }
+    boolean_monad_non_scalar<C> &operator||(const std::function<C()> f) {
+        if (!context) {
+            context = context || f();
+        }
+        return *this;
+    }
+    operator C() {
+        return this->context;
+    }
+};
+
 #endif

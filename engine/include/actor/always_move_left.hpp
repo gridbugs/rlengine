@@ -7,8 +7,6 @@
 #include <functional>
 
 using namespace behaviour_tree;
-using namespace action;
-using namespace std::placeholders;
 
 template <typename C, typename W, typename K> class always_move_left :
     public character_actor<C, W, K> {
@@ -17,7 +15,7 @@ template <typename C, typename W, typename K> class always_move_left :
     typedef typename character_actor<C, W, K>::world_t world_t;
 
     int act(world_t &w) {
-        timed_result r = get_context(seq() && std::bind(move<C, W>, std::ref(w), std::ref(this->character_), direction::west));
+        timed_result r = seq() && move_in_direction_action<C, W>(w, this->character_, direction::west);
         return r.time;
     }
     bool can_act() const {return true;}

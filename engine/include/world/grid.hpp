@@ -149,6 +149,11 @@ template <typename T> class grid : public simple_grid<T> {
     std::vector<cell_internal> cell_internals_;
     std::vector<T*> border_;
 
+    const cell_internal &get_cell_internal(const int x_coord, 
+                                     const int y_coord) const {
+        return cell_internals_[x_coord + y_coord * this->width];
+    }
+    
     cell_internal &get_cell_internal(const int x_coord, 
                                      const int y_coord) {
         return cell_internals_[x_coord + y_coord * this->width];
@@ -228,6 +233,10 @@ template <typename T> class grid : public simple_grid<T> {
             std::min(cell.x_coord, this->width - cell.x_coord - 1),
             std::min(cell.y_coord, this->height - cell.y_coord - 1)
         );
+    }
+    
+    const T* get_neighbour(T &cell, direction::direction_t direction) const {
+        return get_cell_internal(cell.x_coord, cell.y_coord).neighbours[direction];
     }
 
     T* get_neighbour(T &cell, direction::direction_t direction) {

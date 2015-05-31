@@ -2,11 +2,11 @@
 #include <samples/conway_generator.hpp>
 #include <io/curses.hpp>
 #include <samples/curses_drawer.hpp>
-#include <actor/player_actor.hpp>
 #include <actor/always_move_left.hpp>
 #include <ncurses.h>
 #include <observer/shadow_cast_fov.hpp>
 #include <observer/omniscient_fov.hpp>
+#include <control/curses_control.hpp>
 
 class demo_character : public character {
     public:
@@ -25,6 +25,9 @@ class demo_character : public character {
     }
     int get_move_time(direction::direction_t d) const {
         return 8;
+    }
+    int get_melee_range() const {
+        return 1;
     }
 };
 
@@ -90,17 +93,25 @@ int main(int argc, char *argv[]) {
     w.characters.push_back(std::make_unique<demo_character>(w.get_random_empty_cell(0).coord, 10, '@', PAIR_WHITE));
     
     w.characters.push_back(std::make_unique<demo_character>(w.get_random_empty_cell(0).coord, 10, 'b', PAIR_RED));
+    w.characters.push_back(std::make_unique<demo_character>(w.get_random_empty_cell(0).coord, 10, 'b', PAIR_RED));
+    w.characters.push_back(std::make_unique<demo_character>(w.get_random_empty_cell(0).coord, 10, 'b', PAIR_RED));
+    w.characters.push_back(std::make_unique<demo_character>(w.get_random_empty_cell(0).coord, 10, 'b', PAIR_RED));
     
     demo_character &player = *w.characters[0];
     
-    
-    player_actor<demo_character, game_cell, kcell_t>  a1(player, w, fov, dr);
+    curses_control<demo_character, game_cell, kcell_t> a1(player, w, fov, dr);
     a1.init_dvorak();
 
     always_move_left<demo_character, game_cell, kcell_t> a2(*w.characters[1], w, fov);
+    always_move_left<demo_character, game_cell, kcell_t> a3(*w.characters[2], w, fov);
+    always_move_left<demo_character, game_cell, kcell_t> a4(*w.characters[3], w, fov);
+    always_move_left<demo_character, game_cell, kcell_t> a5(*w.characters[4], w, fov);
 
     s.register_callback(a1, 4);
-    s.register_callback(a2, 10);
+    s.register_callback(a2, 5);
+    s.register_callback(a3, 6);
+    s.register_callback(a4, 7);
+    s.register_callback(a5, 8);
 
 
     s.run_until_empty(w);

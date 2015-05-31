@@ -56,6 +56,14 @@ class knowledge_cell : public cell {
     bool contains_character() const {
         return !characters.empty();
     }
+    
+    void for_each_character(const std::function<void(C&)> &f) {
+        std::for_each(characters.begin(), characters.end(), f);
+    }
+    
+    void for_each_character(const std::function<void(const C&)> &f) const {
+        std::for_each(characters.begin(), characters.end(), f);
+    }
 };
 
 #endif

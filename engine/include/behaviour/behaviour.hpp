@@ -29,6 +29,7 @@ class timed_result {
         success(p.second),
         time(p.first)
     {}
+    timed_result() : success(false), time(0) {}
 
     operator bool() const {
         return success;
@@ -41,12 +42,24 @@ class timed_result {
     }
 };
 
+class timed_result_monad : public boolean_monad_non_scalar<timed_result> {
+    public:
+    timed_result_monad(timed_result t) :
+        boolean_monad_non_scalar<timed_result>(t)
+    {}
+};
+
 namespace behaviour_tree {
-    boolean_monad<timed_result> seq() {
-        return boolean_monad<timed_result>(timed_result(true, 0));
+    timed_result_monad seq() {
+        return timed_result_monad(timed_result(true, 0));
     }
-    boolean_monad<timed_result> sel() {
-        return boolean_monad<timed_result>(timed_result(false, 0));
+    timed_result_monad sel() {
+        return timed_result_monad(timed_result(false, 0));
+    }
+
+    template <typename A, typename B>
+    std::function<timed_result()> with(A t, B f) {
+        return std::bind(f, t);
     }
 };
 
