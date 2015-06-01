@@ -9,8 +9,8 @@
 class action {
     public:
     virtual timed_result operator()() = 0;
-    virtual bool is_possible() const = 0;
-    virtual bool is_safe() const = 0;
+    virtual bool is_possible() = 0;
+    virtual bool is_safe() = 0;
 };
 
 template <typename C, typename W> class move_in_direction_action : public action {
@@ -19,7 +19,7 @@ template <typename C, typename W> class move_in_direction_action : public action
 
     world_t &world_;
     C &character_;
-    direction::direction_t &direction_;
+    direction::direction_t direction_;
     const W *destination_;
     bool possible_;
 
@@ -37,11 +37,11 @@ template <typename C, typename W> class move_in_direction_action : public action
         });
     }
 
-    bool is_possible() const {
+    bool is_possible() {
         return possible_;
     }
 
-    bool is_safe() const {
+    bool is_safe() {
         return true;
     }
 
@@ -61,11 +61,11 @@ template <typename C, typename W> class attack_in_direction_action : public acti
     attack_in_direction_action(world_t &w, C &c, direction::direction_t d)
     {}
 
-    bool is_possible() const {
+    bool is_possible() {
         return true;
     }
 
-    bool is_safe() const {
+    bool is_safe() {
         return true;
     }
 

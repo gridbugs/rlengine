@@ -58,7 +58,7 @@ template <typename C, typename W, typename K> class control :
     bool is_enemy(const C &c) const {
         return true;
     }
-    bool is_enemy_in_melee_range_in_direction(world_t &w, direction::direction_t d) const {
+    bool is_enemy_in_melee_range_in_direction(world_t &w, direction::direction_t d) {
         return is_enemy_within_distance_in_direction(w, this->character_.get_melee_range(), d);
     }
     bool is_enemy_within_distance_in_direction(world_t &w, int distance, direction::direction_t d) const {

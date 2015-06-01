@@ -3,6 +3,7 @@
 #include <iostream>
 #include <algorithm>
 #include <ncurses.h>
+#include <vector>
 
 #define GAME_WINDOW_WIDTH 100
 #define GAME_WINDOW_HEIGHT 40
