@@ -45,6 +45,5 @@ $(TEST_DIR)/%: $(ENGINE_OBJS) $(TEST_DIR)/%.o
 
 clean:
 	rm -rf $(OBJDIR) $(BINDIR)
-	find tests/ -not -name '*.[ch]pp' -type f -delete
-	find -name '*.swp' -delete
+	find . -name '*.swp' -delete
 
