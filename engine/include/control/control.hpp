@@ -62,34 +62,29 @@ template <typename C, typename W, typename K> class control :
         return is_enemy_within_distance_in_direction(w, this->character_.get_melee_range(), d);
     }
     bool is_enemy_within_distance_in_direction(world_t &w, int distance, direction::direction_t d) const {
+
         if (distance == 0) {
             return false;
         }
         const grid<K> &map = this->get_current_knowledge_grid();
-        const K *neighbour = map.get_neighbour(map.get_cell(this->character_.coord), d);
-        if (neighbour == nullptr) {
-            return false;
-        }
 
-        W &world_neighbour = this->get_current_grid(w).get_cell(neighbour->coord);
-        if (world_neighbour.is_solid() || world_neighbour.is_opaque()) {
-            return false;
-        }
+        return map.template with_neighbour<bool, false>(map.get_cell(this->character_.coord), d, [&](const K& neighbour) {
+            W &world_neighbour = this->get_current_grid(w).get_cell(neighbour.coord);
+            if (world_neighbour.is_solid() || world_neighbour.is_opaque()) {
+                return false;
+            }
 
-        bool contains_enemy = false;
-        neighbour->for_each_character([&](const C &c) {
-            contains_enemy = contains_enemy || this->is_enemy(c);
+            bool contains_enemy = false;
+            neighbour.for_each_character([&](const C &c) {
+                contains_enemy = contains_enemy || this->is_enemy(c);
+            });
+
+            if (contains_enemy) {
+                return true;
+            }
+            return is_enemy_within_distance_in_direction(w, distance - 1, d);
         });
-
-        if (contains_enemy) {
-            return true;
-        }
-        return is_enemy_within_distance_in_direction(w, distance - 1, d);
     }
-
-//    action demux_direction_input(direction::direction_t d) {
-
-//    }
 
     int act(world_t &w) {
 

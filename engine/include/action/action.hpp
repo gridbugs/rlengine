@@ -20,18 +20,21 @@ template <typename C, typename W> class move_in_direction_action : public action
     world_t &world_;
     C &character_;
     direction::direction_t &direction_;
-    W *destination_;
+    const W *destination_;
     bool possible_;
 
     public:
     move_in_direction_action(world_t &w, C &c, direction::direction_t d) :
         world_(w),
         character_(c),
-        direction_(d)
+        direction_(d),
+        destination_(nullptr)
     {
         grid<W> &map = w.maps[c.level_index];
-        destination_ = map.get_neighbour(map.get_cell(c.coord), d);
-        possible_ = destination_ != nullptr && !destination_->is_solid();
+        map.with_neighbour(map.get_cell(c.coord), d, [&](const W &dest) {
+            possible_ = !dest.is_solid();
+            destination_ = &dest;
+        });
     }
 
     bool is_possible() const {

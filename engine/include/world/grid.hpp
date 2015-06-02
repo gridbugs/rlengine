@@ -51,7 +51,7 @@ template <typename T> class simple_grid : public grid_interface {
         return rows_[idx];
     }
 
-    T& get_cell(const int x_coord, const int y_coord) const {
+    T& get_cell(int x_coord, int y_coord) const {
         return (*this)[y_coord][x_coord];
     }
 
@@ -243,6 +243,39 @@ template <typename T> class grid : public simple_grid<T> {
         return get_cell_internal(cell.x_coord, cell.y_coord).neighbours[direction];
     }
     
+
+    template <typename R, R fallback>
+    R with_neighbour(const T &cell, direction::direction_t direction, const std::function<R(T&)> &f) {
+        T* neighbour = get_cell_internal(cell.x_coord, cell.y_coord).neighbours[direction];
+        if (neighbour == nullptr) {
+            return fallback;
+        }
+        return f(*neighbour);
+    }   
+    
+    template <typename R, R fallback>   
+    R with_neighbour(const T &cell, direction::direction_t direction, const std::function<R(const T&)> &f) const {
+        T* neighbour = get_cell_internal(cell.x_coord, cell.y_coord).neighbours[direction];
+        if (neighbour == nullptr) {
+            return fallback;
+        }
+        return f(*neighbour);
+    }
+
+    void with_neighbour(const T &cell, direction::direction_t direction, const std::function<void(T&)> &f) {
+        T* neighbour = get_cell_internal(cell.x_coord, cell.y_coord).neighbours[direction];
+        if (neighbour != nullptr) {
+            f(*neighbour);
+        }
+    }   
+    
+    void with_neighbour(const T &cell, direction::direction_t direction, const std::function<void(const T&)> &f) const {
+        T* neighbour = get_cell_internal(cell.x_coord, cell.y_coord).neighbours[direction];
+        if (neighbour != nullptr) {
+            f(*neighbour);
+        }
+    }
+
     void for_each_neighbour(const T& cell, const std::function<void(T&)> &f) {
         std::for_each(neighbour_begin(cell), neighbour_end(cell), f);
     }
