@@ -2,7 +2,6 @@
 #define _CONTROL_HPP_
 
 #include "actor/character_actor.hpp"
-#include "action/action.hpp"
 #include "drawing/drawer.hpp"
 #include "debug/fifo.hpp"
 #include "io/curses.hpp"

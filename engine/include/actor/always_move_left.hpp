@@ -3,7 +3,6 @@
 
 #include "behaviour/behaviour.hpp"
 #include "actor/character_actor.hpp"
-#include "action/action.hpp"
 #include "transaction/transaction.hpp"
 #include <functional>
 
