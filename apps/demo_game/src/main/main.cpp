@@ -12,12 +12,14 @@ class demo_character : public character {
     public:
     int hit_points;
     char char_to_draw;
-    pair_t col_pair;
-    demo_character(const vec2<int> &v, int hp, char ch, pair_t col_pair) : 
+    pair_t col_pair_visible;
+    pair_t col_pair_remembered;
+    demo_character(const vec2<int> &v, int hp, char ch, pair_t col_pair_visible, pair_t col_pair_remembered) : 
         character(v),
         hit_points(hp),
         char_to_draw(ch),
-        col_pair(col_pair)
+        col_pair_visible(col_pair_visible),
+        col_pair_remembered(col_pair_remembered)
     {}
 
     void take_damage(int d) {
@@ -54,12 +56,19 @@ class demo_drawer : public curses_drawer<demo_character, game_cell, kcell_t> {
         } else {
             ch = '.';
         }
-        if (kcell.contains_character()) {
-            pair = kcell.characters.front().col_pair; 
-        } else if (kcell.is_visible()) {
-            pair = PAIR_VISIBLE;
+
+        if (kcell.is_visible()) {
+            if (kcell.contains_character()) {
+                pair = kcell.characters.front().col_pair_visible; 
+            } else {
+                pair = PAIR_VISIBLE;
+            }
         } else if (kcell.is_remembered()) {
-            pair = PAIR_REMEMBERED;
+            if (kcell.contains_character()) {
+                pair = kcell.characters.front().col_pair_remembered;
+            } else {
+                pair = PAIR_REMEMBERED;
+            }
         } else {
             pair = PAIR_UNKNOWN;
         }
@@ -84,18 +93,18 @@ int main(int argc, char *argv[]) {
     world<demo_character, game_cell> w(100, 40);
     conway_generator<demo_character, game_cell> gen;
     gen.generate(w);
-    //shadow_cast_fov<demo_character, game_cell, kcell_t> fov;
-    omniscient_fov<demo_character, game_cell, kcell_t> fov;
+    shadow_cast_fov<demo_character, game_cell, kcell_t> fov;
+    //omniscient_fov<demo_character, game_cell, kcell_t> fov;
     demo_drawer dr;
     schedule<world<demo_character, game_cell>> s;
     
    /// w.characters.push_back(demo_character(w.get_random_empty_cell(0).coord, 10, '@', PAIR_WHITE));
-    w.characters.push_back(std::make_unique<demo_character>(w.get_random_empty_cell(0).coord, 10, '@', PAIR_WHITE));
+    w.characters.push_back(std::make_unique<demo_character>(w.get_random_empty_cell(0).coord, 10, '@', PAIR_WHITE, PAIR_WHITE));
     
-    w.characters.push_back(std::make_unique<demo_character>(w.get_random_empty_cell(0).coord, 10, 'b', PAIR_RED));
-    w.characters.push_back(std::make_unique<demo_character>(w.get_random_empty_cell(0).coord, 10, 'b', PAIR_RED));
-    w.characters.push_back(std::make_unique<demo_character>(w.get_random_empty_cell(0).coord, 10, 'b', PAIR_RED));
-    w.characters.push_back(std::make_unique<demo_character>(w.get_random_empty_cell(0).coord, 10, 'b', PAIR_RED));
+    w.characters.push_back(std::make_unique<demo_character>(w.get_random_empty_cell(0).coord, 10, 'b', PAIR_RED, PAIR_MAGENTA));
+    w.characters.push_back(std::make_unique<demo_character>(w.get_random_empty_cell(0).coord, 10, 'b', PAIR_RED, PAIR_MAGENTA));
+    w.characters.push_back(std::make_unique<demo_character>(w.get_random_empty_cell(0).coord, 10, 'b', PAIR_RED, PAIR_MAGENTA));
+    w.characters.push_back(std::make_unique<demo_character>(w.get_random_empty_cell(0).coord, 10, 'b', PAIR_RED, PAIR_MAGENTA));
     
     demo_character &player = *w.characters[0];
     

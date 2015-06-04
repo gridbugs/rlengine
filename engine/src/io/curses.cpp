@@ -10,8 +10,8 @@ std::ostream curses::cout(&buf);
 std::ostream &(&curses::endl)(std::ostream &os) = std::endl;
 
 void curses::simple_start() {
-    char envstr[] = "TERM=xterm-256color";
-    putenv(envstr);
+//    char envstr[] = "TERM=xterm-256color";
+//    putenv(envstr);
 
     initscr();
     cbreak();

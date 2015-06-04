@@ -4,6 +4,7 @@
 #include "behaviour/behaviour.hpp"
 #include "geometry/direction.hpp"
 #include "debug/fifo.hpp"
+#include "io/curses.hpp"
 
 
 class action {
@@ -70,7 +71,7 @@ template <typename C, typename W> class attack_in_direction_action : public acti
     }
 
     timed_result operator()() {
-        fifo::cout << "attacking..." << fifo::endl;
+        curses::cout << "attacking..." << curses::endl;
         return timed_result(true, 1); //TODO
     }
 };

@@ -19,7 +19,8 @@ typedef enum {
     PAIR_RED,
     PAIR_GREEN,
     PAIR_CYAN,
-    PAIR_WHITE
+    PAIR_WHITE,
+    PAIR_MAGENTA
 } pair_t;
 
 template <typename C, typename W, typename K>
@@ -66,14 +67,15 @@ class curses_drawer : public drawer<C, W, K> {
         init_color(COL_GREY, REMEMBERED_VALUE, REMEMBERED_VALUE, REMEMBERED_VALUE);
         init_color(COL_BLACK, 0, 0, 0);
 
-        init_pair(PAIR_VISIBLE, COL_WHITE, COL_BLACK);
-        init_pair(PAIR_REMEMBERED, COL_GREY, COL_BLACK);
-        init_pair(PAIR_UNKNOWN, COL_BLACK, COL_BLACK);
-        init_pair(PAIR_BLUE, COLOR_BLUE, COL_BLACK);
-        init_pair(PAIR_RED, COLOR_RED, COL_BLACK);
-        init_pair(PAIR_GREEN, COLOR_GREEN, COL_BLACK);
-        init_pair(PAIR_CYAN, COLOR_CYAN, COL_BLACK);
-        init_pair(PAIR_WHITE, COLOR_WHITE, COL_BLACK);
+        init_pair(PAIR_VISIBLE, COLOR_WHITE, COLOR_BLACK);
+        init_pair(PAIR_REMEMBERED, COLOR_BLUE, COLOR_BLACK);
+        init_pair(PAIR_UNKNOWN, COLOR_BLACK, COLOR_BLACK);
+        init_pair(PAIR_BLUE, COLOR_BLUE, COLOR_BLACK);
+        init_pair(PAIR_RED, COLOR_RED, COLOR_BLACK);
+        init_pair(PAIR_GREEN, COLOR_GREEN, COLOR_BLACK);
+        init_pair(PAIR_CYAN, COLOR_CYAN, COLOR_BLACK);
+        init_pair(PAIR_WHITE, COLOR_WHITE, COLOR_BLACK);
+        init_pair(PAIR_MAGENTA, COLOR_MAGENTA, COLOR_BLACK);
     }
     void draw_world_from_actor(world<C, W> &w, const actor_drawing_interface<C, K> &a) {
         const C &ch = a.get_character();
