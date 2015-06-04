@@ -101,10 +101,10 @@ int main(int argc, char *argv[]) {
    /// w.characters.push_back(demo_character(w.get_random_empty_cell(0).coord, 10, '@', PAIR_WHITE));
     w.characters.push_back(std::make_unique<demo_character>(w.get_random_empty_cell(0).coord, 10, '@', PAIR_WHITE, PAIR_WHITE));
     
-    w.characters.push_back(std::make_unique<demo_character>(w.get_random_empty_cell(0).coord, 10, 'b', PAIR_RED, PAIR_MAGENTA));
-    w.characters.push_back(std::make_unique<demo_character>(w.get_random_empty_cell(0).coord, 10, 'b', PAIR_RED, PAIR_MAGENTA));
-    w.characters.push_back(std::make_unique<demo_character>(w.get_random_empty_cell(0).coord, 10, 'b', PAIR_RED, PAIR_MAGENTA));
-    w.characters.push_back(std::make_unique<demo_character>(w.get_random_empty_cell(0).coord, 10, 'b', PAIR_RED, PAIR_MAGENTA));
+    w.characters.push_back(std::make_unique<demo_character>(w.get_random_empty_cell(0).coord, 10, 'b', PAIR_RED, PAIR_DARK_RED));
+    w.characters.push_back(std::make_unique<demo_character>(w.get_random_empty_cell(0).coord, 10, 'b', PAIR_RED, PAIR_DARK_RED));
+    w.characters.push_back(std::make_unique<demo_character>(w.get_random_empty_cell(0).coord, 10, 'b', PAIR_RED, PAIR_DARK_RED));
+    w.characters.push_back(std::make_unique<demo_character>(w.get_random_empty_cell(0).coord, 10, 'b', PAIR_RED, PAIR_DARK_RED));
     
     demo_character &player = *w.characters[0];
     

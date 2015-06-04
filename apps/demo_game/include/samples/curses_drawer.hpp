@@ -6,9 +6,12 @@
 #include "io/curses.hpp"
 
 typedef enum {
-    COL_WHITE = 16,
+    COL_LIGHT_GREY = 16,
     COL_GREY,
-    COL_BLACK
+    COL_BLACK,
+    COL_RED,
+    COL_DARK_RED,
+    COL_WHITE
 } col_t;
 
 typedef enum {
@@ -17,10 +20,10 @@ typedef enum {
     PAIR_UNKNOWN,
     PAIR_BLUE,
     PAIR_RED,
+    PAIR_DARK_RED,
     PAIR_GREEN,
     PAIR_CYAN,
-    PAIR_WHITE,
-    PAIR_MAGENTA
+    PAIR_WHITE
 } pair_t;
 
 template <typename C, typename W, typename K>
@@ -61,21 +64,24 @@ class curses_drawer : public drawer<C, W, K> {
 
     public:
     curses_drawer() {
-        #define VISIBLE_VALUE 900
-        #define REMEMBERED_VALUE 300
-        init_color(COL_WHITE, VISIBLE_VALUE, VISIBLE_VALUE, VISIBLE_VALUE);
+        #define VISIBLE_VALUE 800
+        #define REMEMBERED_VALUE 200
+        init_color(COL_LIGHT_GREY, VISIBLE_VALUE, VISIBLE_VALUE, VISIBLE_VALUE);
         init_color(COL_GREY, REMEMBERED_VALUE, REMEMBERED_VALUE, REMEMBERED_VALUE);
         init_color(COL_BLACK, 0, 0, 0);
+        init_color(COL_RED, 800, 0, 0);
+        init_color(COL_DARK_RED, 200, 0, 0);
+        init_color(COL_WHITE, 1000, 1000, 1000);
 
-        init_pair(PAIR_VISIBLE, COLOR_WHITE, COLOR_BLACK);
-        init_pair(PAIR_REMEMBERED, COLOR_BLUE, COLOR_BLACK);
-        init_pair(PAIR_UNKNOWN, COLOR_BLACK, COLOR_BLACK);
-        init_pair(PAIR_BLUE, COLOR_BLUE, COLOR_BLACK);
-        init_pair(PAIR_RED, COLOR_RED, COLOR_BLACK);
-        init_pair(PAIR_GREEN, COLOR_GREEN, COLOR_BLACK);
-        init_pair(PAIR_CYAN, COLOR_CYAN, COLOR_BLACK);
-        init_pair(PAIR_WHITE, COLOR_WHITE, COLOR_BLACK);
-        init_pair(PAIR_MAGENTA, COLOR_MAGENTA, COLOR_BLACK);
+        init_pair(PAIR_VISIBLE, COL_LIGHT_GREY, COL_BLACK);
+        init_pair(PAIR_REMEMBERED, COL_GREY, COL_BLACK);
+        init_pair(PAIR_UNKNOWN, COL_BLACK, COL_BLACK);
+        init_pair(PAIR_BLUE, COLOR_BLUE, COL_BLACK);
+        init_pair(PAIR_RED, COL_RED, COL_BLACK);
+        init_pair(PAIR_DARK_RED, COL_DARK_RED, COL_BLACK);
+        init_pair(PAIR_GREEN, COLOR_GREEN, COL_BLACK);
+        init_pair(PAIR_CYAN, COLOR_CYAN, COL_BLACK);
+        init_pair(PAIR_WHITE, COLOR_WHITE, COL_BLACK);
     }
     void draw_world_from_actor(world<C, W> &w, const actor_drawing_interface<C, K> &a) {
         const C &ch = a.get_character();
