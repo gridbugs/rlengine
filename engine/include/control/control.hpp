@@ -5,17 +5,18 @@
 #include "action/action.hpp"
 #include "drawing/drawer.hpp"
 #include "debug/fifo.hpp"
+#include "io/curses.hpp"
 #include <array>
 
 using namespace behaviour_tree;
 
-template <typename C, typename W, typename K> class control :
-    public character_actor<C, W, K> {
+template <typename C, typename W, typename T, typename K> class control :
+    public character_actor<C, W, T, K> {
 
     protected:
-    typedef typename character_actor<C, W, K>::world_t world_t;
-    typedef typename character_actor<C, W, K>::observer_t observer_t;
-    typedef drawer<C, W, K> drawer_t;
+    typedef typename character_actor<C, W, T, K>::world_t world_t;
+    typedef typename character_actor<C, W, T, K>::observer_t observer_t;
+    typedef drawer<C, W, T, K> drawer_t;
 
     drawer_t &drawer_;
     void draw(world_t &w) const {
@@ -85,39 +86,46 @@ template <typename C, typename W, typename K> class control :
             return is_enemy_within_distance_in_direction(w, distance - 1, d);
         });
     }
-
+    
+    int i = 0;
     int act(world_t &w) {
-
+        
         draw(w);
 
-        timed_result r = seq() && with(get_input(), [&](input_t input) {
-            return seq() && [&](){return input != INPUT_NONE;} && [&](){
-                return sel() || [&](){
-                    return seq() && std::bind(&control::is_direction_input, this, input) &&
-                           with(get_input_direction(input), [&](direction::direction_t dir) {
-                        return sel() || [&]() {
-                            return seq() && std::bind(&control::is_enemy_in_melee_range_in_direction,
-                                                      this, std::ref(w), dir) &&
-                                   attack_in_direction_action<C, W>(w, this->character_, dir);
-                        } || with(move_in_direction_action<C, W>(w, this->character_, dir), 
-                                  [&](const move_in_direction_action<C, W> &a) {
-                            return seq() && std::bind(&move_in_direction_action<C, W>::is_possible, a) &&
-                                   std::bind(&move_in_direction_action<C, W>::is_safe, a) && a;
+        input_t input = get_input();
+        
+        if (input == INPUT_NONE) {
+            return 0;
+        }
 
-                        });
-                    });
-                };
-            };
-        });
+        if (is_direction_input(input)) {
+            direction::direction_t d = get_input_direction(input);
+            
+            if (is_enemy_in_melee_range_in_direction(w, d)) {
+                w.transactions.register_transaction(
+                    std::make_unique<try_attack_transaction<T, C, W>>(
+                        this->character_, d
+                    )
+                );
+                return 0;
+            } else {
+                w.transactions.register_transaction(
+                    std::make_unique<try_move_transaction<T, C, W>>(
+                        this->character_, d
+                    )
+                );
+                return 0;
+            }
+        }
 
-        return r.time;
+        return 0;
     }
 
     bool can_act() const {return true;}
 
     public:
     control(C &c, world_t &w, observer_t &o, drawer_t &d) :
-        character_actor<C, W, K>(c, w, o),
+        character_actor<C, W, T, K>(c, w, o),
         drawer_(d)
     {}
 };

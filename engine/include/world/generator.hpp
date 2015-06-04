@@ -3,9 +3,9 @@
 
 #include "world/world.hpp"
 
-template <typename C, typename W> class generator {
+template <typename C, typename W, typename T> class generator {
     public:
-    virtual void generate(world<C, W> &w) = 0;
+    virtual void generate(world<C, W, T> &w) = 0;
 };
 
 #endif

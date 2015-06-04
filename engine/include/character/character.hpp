@@ -14,7 +14,7 @@ class character {
     {}
 
     virtual void take_damage(int d) = 0;
-    virtual int get_move_time(direction::direction_t d) const = 0;
+    virtual int get_move_time() const = 0;
     virtual int get_melee_range() const = 0;
 };
 

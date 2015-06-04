@@ -7,6 +7,7 @@
 #include <observer/shadow_cast_fov.hpp>
 #include <observer/omniscient_fov.hpp>
 #include <control/curses_control.hpp>
+#include <transaction/transaction.hpp>
 
 class demo_character : public character {
     public:
@@ -25,7 +26,7 @@ class demo_character : public character {
     void take_damage(int d) {
         hit_points -= d;
     }
-    int get_move_time(direction::direction_t d) const {
+    int get_move_time() const {
         return 8;
     }
     int get_melee_range() const {
@@ -33,9 +34,13 @@ class demo_character : public character {
     }
 };
 
+class demo_transaction : public transaction<demo_transaction, demo_character, game_cell> {
+    public:
+};
+
 typedef knowledge_cell<demo_character, game_cell> kcell_t;
 
-class demo_drawer : public curses_drawer<demo_character, game_cell, kcell_t> {
+class demo_drawer : public curses_drawer<demo_character, game_cell, demo_transaction, kcell_t> {
     public:
     demo_drawer() : curses_drawer() {}
 
@@ -85,18 +90,20 @@ class demo_drawer : public curses_drawer<demo_character, game_cell, kcell_t> {
     }
 };
 
+
 int main(int argc, char *argv[]) {
     fifo::start();
     curses::simple_start();
     srand(2);
 
-    world<demo_character, game_cell> w(100, 40);
-    conway_generator<demo_character, game_cell> gen;
+
+    world<demo_character, game_cell, demo_transaction> w(100, 40);
+    conway_generator<demo_character, game_cell, demo_transaction> gen;
     gen.generate(w);
-    shadow_cast_fov<demo_character, game_cell, kcell_t> fov;
-    //omniscient_fov<demo_character, game_cell, kcell_t> fov;
+    //shadow_cast_fov<demo_character, game_cell, kcell_t> fov;
+    omniscient_fov<demo_character, game_cell, kcell_t> fov;
     demo_drawer dr;
-    schedule<world<demo_character, game_cell>> s;
+    schedule<world<demo_character, game_cell, demo_transaction>> s;
     
    /// w.characters.push_back(demo_character(w.get_random_empty_cell(0).coord, 10, '@', PAIR_WHITE));
     w.characters.push_back(std::make_unique<demo_character>(w.get_random_empty_cell(0).coord, 10, '@', PAIR_WHITE, PAIR_WHITE));
@@ -108,13 +115,15 @@ int main(int argc, char *argv[]) {
     
     demo_character &player = *w.characters[0];
     
-    curses_control<demo_character, game_cell, kcell_t> a1(player, w, fov, dr);
+    try_move_transaction<demo_transaction, demo_character, game_cell> test(player, direction::west);
+    
+    curses_control<demo_character, game_cell, demo_transaction, kcell_t> a1(player, w, fov, dr);
     a1.init_dvorak();
 
-    always_move_left<demo_character, game_cell, kcell_t> a2(*w.characters[1], w, fov);
-    always_move_left<demo_character, game_cell, kcell_t> a3(*w.characters[2], w, fov);
-    always_move_left<demo_character, game_cell, kcell_t> a4(*w.characters[3], w, fov);
-    always_move_left<demo_character, game_cell, kcell_t> a5(*w.characters[4], w, fov);
+    always_move_left<demo_character, game_cell, demo_transaction, kcell_t> a2(*w.characters[1], w, fov);
+    always_move_left<demo_character, game_cell, demo_transaction, kcell_t> a3(*w.characters[2], w, fov);
+    always_move_left<demo_character, game_cell, demo_transaction, kcell_t> a4(*w.characters[3], w, fov);
+    always_move_left<demo_character, game_cell, demo_transaction, kcell_t> a5(*w.characters[4], w, fov);
 
     s.register_callback(a1, 4);
     s.register_callback(a2, 5);

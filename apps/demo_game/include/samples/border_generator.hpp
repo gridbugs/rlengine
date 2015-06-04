@@ -4,9 +4,9 @@
 #include "world/generator.hpp"
 #include "samples/game_cell.hpp"
 
-template <typename C, typename W> class border_generator : public generator<C, W> {
+template <typename C, typename W, typename T> class border_generator : public generator<C, W, T> {
     public:
-    void generate(world<C, W> &w) {
+    void generate(world<C, W, T> &w) {
 
         grid<W> &map = w.maps[0];
 

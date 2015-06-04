@@ -14,9 +14,9 @@ class action {
     virtual bool is_safe() = 0;
 };
 
-template <typename C, typename W> class move_in_direction_action : public action {
+template <typename C, typename W, typename T> class move_in_direction_action : public action {
     protected:
-    typedef world<C, W> world_t;
+    typedef world<C, W, T> world_t;
 
     world_t &world_;
     C &character_;
@@ -55,9 +55,9 @@ template <typename C, typename W> class move_in_direction_action : public action
     }
 };
 
-template <typename C, typename W> class attack_in_direction_action : public action {
+template <typename C, typename W, typename T> class attack_in_direction_action : public action {
     protected:
-    typedef world<C, W> world_t;
+    typedef world<C, W, T> world_t;
     public:
     attack_in_direction_action(world_t &w, C &c, direction::direction_t d)
     {}

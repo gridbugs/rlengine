@@ -6,12 +6,12 @@
 #include "actor/actor.hpp"
 #include "drawing/actor_drawing_interface.hpp"
 
-template <typename C, typename W, typename K> class character_actor : 
-    public actor<C, W>, public actor_drawing_interface<C, K> {
+template <typename C, typename W, typename T, typename K> class character_actor : 
+    public actor<C, W, T>, public actor_drawing_interface<C, K> {
 
     protected:
 
-    typedef world<C, W> world_t;
+    typedef world<C, W, T> world_t;
     typedef observer<C, W, K> observer_t;
 
     C &character_;
@@ -71,7 +71,9 @@ template <typename C, typename W, typename K> class character_actor :
     void operator()(world_t& w, callback_registry<world_t>& cr) {
         if (can_act()) {
             observe_world(w);
-            int cooldown = act(w);
+            act(w);
+            int cooldown = w.transactions.process_all(w);
+//            cooldown = 1;
             if (can_act()) {
                 cr.register_callback(*this, cooldown);
             }

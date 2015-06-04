@@ -9,8 +9,8 @@
 #include <vector>
 #include <utility>
 
-template <typename C, typename W>
-class conway_generator : public generator<C, W> {
+template <typename C, typename W, typename T>
+class conway_generator : public generator<C, W, T> {
     
     private:
     class conway_cell : public cell {
@@ -196,7 +196,7 @@ class conway_generator : public generator<C, W> {
     }
 
     public:
-    void generate(world<C, W> &w) {
+    void generate(world<C, W, T> &w) {
         grid<W> &map = w.maps[0];
         
         for (;;) {

@@ -4,11 +4,11 @@
 #include "io/curses.hpp"
 #include "control/control.hpp"
 
-template <typename C, typename W, typename K> class curses_control :
-    public control<C, W, K> {
+template <typename C, typename W, typename T, typename K> class curses_control :
+    public control<C, W, T, K> {
 
     protected:
-    typedef control<C, W, K> control_t;
+    typedef control<C, W, T, K> control_t;
     typedef typename control_t::world_t world_t;
     typedef typename control_t::observer_t observer_t;
     typedef typename control_t::drawer_t drawer_t;

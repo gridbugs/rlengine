@@ -26,8 +26,8 @@ typedef enum {
     PAIR_WHITE
 } pair_t;
 
-template <typename C, typename W, typename K>
-class curses_drawer : public drawer<C, W, K> {
+template <typename C, typename W, typename T, typename K>
+class curses_drawer : public drawer<C, W, T, K> {
     protected:
     virtual void draw_cell_from_actor(const W &cell, const K &kcell, const C &ctr) {
         wmove(curses::game_window, cell.y_coord, cell.x_coord);
@@ -83,7 +83,7 @@ class curses_drawer : public drawer<C, W, K> {
         init_pair(PAIR_CYAN, COLOR_CYAN, COL_BLACK);
         init_pair(PAIR_WHITE, COLOR_WHITE, COL_BLACK);
     }
-    void draw_world_from_actor(world<C, W> &w, const actor_drawing_interface<C, K> &a) {
+    void draw_world_from_actor(world<C, W, T> &w, const actor_drawing_interface<C, K> &a) {
         const C &ch = a.get_character();
         const grid<K> &knowledge_grid = a.get_knowledge_grid();
         const grid<W> &game_grid = w.maps[ch.level_index];
