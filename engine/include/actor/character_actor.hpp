@@ -15,7 +15,7 @@ template <typename C, typename W, typename T, typename K> class character_actor 
     typedef observer<C, W, K> observer_t;
 
     C &character_;
-    virtual int act(world_t &w) = 0;
+    virtual void act(world_t &w) = 0;
     virtual bool can_act() const = 0;
     
     observer_t &observer_;

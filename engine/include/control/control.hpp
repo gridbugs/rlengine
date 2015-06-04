@@ -7,8 +7,6 @@
 #include "io/curses.hpp"
 #include <array>
 
-using namespace behaviour_tree;
-
 template <typename C, typename W, typename T, typename K> class control :
     public character_actor<C, W, T, K> {
 
@@ -86,15 +84,14 @@ template <typename C, typename W, typename T, typename K> class control :
         });
     }
     
-    int i = 0;
-    int act(world_t &w) {
+    void act(world_t &w) {
         
         draw(w);
 
         input_t input = get_input();
         
         if (input == INPUT_NONE) {
-            return 0;
+            return;
         }
 
         if (is_direction_input(input)) {
@@ -106,18 +103,16 @@ template <typename C, typename W, typename T, typename K> class control :
                         this->character_, d
                     )
                 );
-                return 0;
+                return;
             } else {
                 w.transactions.register_transaction(
                     std::make_unique<try_move_transaction<T, C, W>>(
                         this->character_, d
                     )
                 );
-                return 0;
+                return;
             }
         }
-
-        return 0;
     }
 
     bool can_act() const {return true;}
