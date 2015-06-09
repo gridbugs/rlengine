@@ -123,11 +123,25 @@ template <typename T, typename C, typename W> class try_attack_transaction : pub
         });
         if (!success) {
              w.transactions.register_transaction(
-                std::make_unique<miss_attack_transaction<T, C, W>>(
-                    attacker_
-                )
+                std::make_unique<miss_attack_transaction<T, C, W>>(attacker_)
             );
         }
+        return 0;
+    }
+};
+
+template <typename T, typename C, typename W, typename K> class see_character_transaction : public T {
+    public:
+    C &seer_;
+    C &seen_;
+    K &kcell_;
+    see_character_transaction(C &seer, C &seen, K &kcell) :
+        seer_(seer),
+        seen_(seen),
+        kcell_(kcell)
+    {}
+    int operator()(world<C, W, T> &w) {
+        kcell_.see_character(seen_);
         return 0;
     }
 };

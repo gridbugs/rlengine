@@ -5,6 +5,7 @@
 #include "observer/observer.hpp"
 #include "actor/actor.hpp"
 #include "drawing/actor_drawing_interface.hpp"
+#include "transaction/transaction.hpp"
 
 template <typename C, typename W, typename T, typename K> class character_actor : 
     public actor<C, W, T>, public actor_drawing_interface<C, K> {
@@ -47,14 +48,16 @@ template <typename C, typename W, typename T, typename K> class character_actor 
             }
         });
 
+
         for (typename std::vector<std::unique_ptr<C>>::iterator it = w.characters.begin(); it != w.characters.end(); ++it) {
             if ((*it)->level_index == character_.level_index) {
                 K &k = get_current_knowledge_grid().get_cell((*it)->coord);
                 if (k.is_visible()) {
-                    k.see_character(**it);   
+                    w.transactions.register_transaction(std::make_unique<see_character_transaction<T, C, W, K>>(this->character_, **it, k));
                 }
             }
         }
+        w.transactions.process_all(w);
     }
 
     public:
@@ -73,7 +76,6 @@ template <typename C, typename W, typename T, typename K> class character_actor 
             observe_world(w);
             act(w);
             int cooldown = w.transactions.process_all(w);
-//            cooldown = 1;
             if (can_act()) {
                 cr.register_callback(*this, cooldown);
             }
