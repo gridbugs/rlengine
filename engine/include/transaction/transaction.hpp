@@ -6,6 +6,19 @@
 #include "io/curses.hpp"
 #include <memory>
 
+template <typename T, typename C, typename W> class try_transaction : public T {
+    public:
+    virtual bool attempt(world<C, W, T> &w) = 0;
+    virtual void fail(world<C, W, T> &w) = 0;
+
+    int operator()(world<C, W, T> &w) {
+        if (!attempt(w)) {
+            fail(w);
+        }
+        return 0;
+    }
+};
+
 template <typename T, typename C, typename W> class move_transaction : public T {
     public:
     C &character_;
@@ -35,7 +48,7 @@ template <typename T, typename C, typename W> class move_blocked_transaction : p
 };
 
 
-template <typename T, typename C, typename W> class try_move_transaction : public T {
+template <typename T, typename C, typename W> class try_move_transaction : public try_transaction<T, C, W> {
     public:
     C &character_;
     direction::direction_t direction_;
@@ -44,10 +57,9 @@ template <typename T, typename C, typename W> class try_move_transaction : publi
         direction_(d)
     {}
 
-    int operator()(world<C, W, T> &w) {
+    bool attempt(world<C, W, T> &w) {
         grid<W> &map = w.maps[character_.level_index];
-        bool success = false;
-        map.with_neighbour(map.get_cell(character_.coord), direction_, [&](const W &dest) {
+        return map.template with_neighbour<bool, false>(map.get_cell(character_.coord), direction_, [&](const W &dest) {
             if (!dest.is_solid()) {
                 w.transactions.register_transaction(
                     std::make_unique<move_transaction<T, C, W>>(
@@ -56,19 +68,20 @@ template <typename T, typename C, typename W> class try_move_transaction : publi
                         dest
                     )
                 );
-                success = true;
+                return true;
             }
+            return false;
         });
-
-        if (!success) {
-            w.transactions.register_transaction(
-                std::make_unique<move_blocked_transaction<T, C, W>>(
-                    character_
-                )
-            );
-        }
-        return 0;
     }
+
+    void fail(world<C, W, T> &w) {
+        w.transactions.register_transaction(
+            std::make_unique<move_blocked_transaction<T, C, W>>(
+                character_
+            )
+        );
+    }
+
 };
 
 template <typename T, typename C, typename W> class attack_transaction : public T {
@@ -98,7 +111,7 @@ template <typename T, typename C, typename W> class miss_attack_transaction : pu
     }
 };
 
-template <typename T, typename C, typename W> class try_attack_transaction : public T {
+template <typename T, typename C, typename W> class try_attack_transaction : public try_transaction<T, C, W> {
     public:
     C &attacker_;
     direction::direction_t direction_;
@@ -107,10 +120,9 @@ template <typename T, typename C, typename W> class try_attack_transaction : pub
         direction_(d)
     {}
 
-    int operator()(world<C, W, T> &w) {
+    bool attempt(world<C, W, T> &w) {
         grid<W> &map = w.maps[attacker_.level_index];
-        bool success = false;
-        map.with_neighbour(map.get_cell(attacker_.coord), direction_, [&](const W &target_cell) {
+        return map.template with_neighbour<bool, false>(map.get_cell(attacker_.coord), direction_, [&](const W &target_cell) {
             w.with_character_at_coord(attacker_.level_index, target_cell.coord, [&](C &target) {
                 w.transactions.register_transaction(
                     std::make_unique<attack_transaction<T, C, W>>(
@@ -118,15 +130,15 @@ template <typename T, typename C, typename W> class try_attack_transaction : pub
                         target
                     )
                 );
-                success = true;
+                return true;
             });
+            return false;
         });
-        if (!success) {
-             w.transactions.register_transaction(
-                std::make_unique<miss_attack_transaction<T, C, W>>(attacker_)
-            );
-        }
-        return 0;
+    }
+    void fail(world<C, W, T> &w) {
+         w.transactions.register_transaction(
+            std::make_unique<miss_attack_transaction<T, C, W>>(attacker_)
+        );
     }
 };
 
