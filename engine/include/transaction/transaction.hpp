@@ -6,16 +6,27 @@
 #include "io/curses.hpp"
 #include <memory>
 
-template <typename T, typename C, typename W> class try_transaction : public T {
+template <typename T, typename C, typename W> class instant_transaction : public T {
+    public:
+
+    virtual void commit(world<C, W, T> &w) = 0;
+
+    int operator()(world<C, W, T> &w) {
+        commit(w);
+        return 0;
+    }
+};
+
+
+template <typename T, typename C, typename W> class try_transaction : public instant_transaction<T, C, W> {
     public:
     virtual bool attempt(world<C, W, T> &w) = 0;
     virtual void fail(world<C, W, T> &w) = 0;
 
-    int operator()(world<C, W, T> &w) {
+    void commit(world<C, W, T> &w) {
         if (!attempt(w)) {
             fail(w);
         }
-        return 0;
     }
 };
 
@@ -142,7 +153,9 @@ template <typename T, typename C, typename W> class try_attack_transaction : pub
     }
 };
 
-template <typename T, typename C, typename W, typename K> class see_character_transaction : public T {
+template <typename T, typename C, typename W, typename K> class see_character_transaction : 
+    public instant_transaction<T, C, W> {
+
     public:
     C &seer_;
     C &seen_;
@@ -152,9 +165,8 @@ template <typename T, typename C, typename W, typename K> class see_character_tr
         seen_(seen),
         kcell_(kcell)
     {}
-    int operator()(world<C, W, T> &w) {
+    void commit(world<C, W, T> &w) {
         kcell_.see_character(seen_);
-        return 0;
     }
 };
 
