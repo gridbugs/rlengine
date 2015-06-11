@@ -27,16 +27,14 @@ void try_move_transaction::fail(world &w) {
 bool try_attack_transaction::attempt(world &w) {
     grid<world_cell> &map = w.maps[attacker_.level_index];
     return map.template with_neighbour<bool, false>(map.get_cell(attacker_.coord), direction_, [&](const world_cell &target_cell) {
+        bool ret = false;
         w.with_character_at_coord(attacker_.level_index, target_cell.coord, [&](character &target) {
             w.transactions.register_transaction(
-                std::make_unique<attack_transaction>(
-                    attacker_,
-                    target
-                )
+                std::make_unique<attack_transaction>(attacker_, target)
             );
-            return true;
+            ret = true;
         });
-        return false;
+        return ret;
     });
 }
 void try_attack_transaction::fail(world &w) {
