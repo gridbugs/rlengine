@@ -5,27 +5,7 @@
 #include "world/world_cell.hpp"
 #include "knowledge/knowledge.hpp"
 #include "io/curses.hpp"
-
-typedef enum {
-    COL_LIGHT_GREY = 16,
-    COL_GREY,
-    COL_BLACK,
-    COL_RED,
-    COL_DARK_RED,
-    COL_WHITE
-} col_t;
-
-typedef enum {
-    PAIR_VISIBLE = 16,
-    PAIR_REMEMBERED,
-    PAIR_UNKNOWN,
-    PAIR_BLUE,
-    PAIR_RED,
-    PAIR_DARK_RED,
-    PAIR_GREEN,
-    PAIR_CYAN,
-    PAIR_WHITE
-} pair_t;
+#include "drawing/curses_col.hpp"
 
 class curses_drawer : public drawer {
     protected:
@@ -34,32 +14,42 @@ class curses_drawer : public drawer {
 
         char ch;
         pair_t pair = PAIR_UNKNOWN;
+        bool bold = false;
 
-        if (cell.coord == ctr.coord) {
-            ch = '@';
-            pair = PAIR_VISIBLE;
+        if (kcell.contains_character()) {
+            ch = kcell.characters.front().get_char();
+            bold = true;
+        } else if (cell.is_opaque()) {
+            ch = '#';
         } else {
-            
-            if (cell.is_opaque()) {
-                ch = '#';
-            } else {
-                ch = '.';
-            }
-            
-            if (kcell.is_visible()) {
-                pair = PAIR_VISIBLE;
-            } else if (kcell.is_remembered()) {
-                pair = PAIR_REMEMBERED;
-            } else {
-                pair = PAIR_UNKNOWN;
-            }
-            
+            ch = '.';
         }
 
+        if (kcell.is_visible()) {
+            if (kcell.contains_character()) {
+                pair = kcell.characters.front().get_col_pair_visible(); 
+            } else {
+                pair = PAIR_VISIBLE;
+            }
+        } else if (kcell.is_remembered()) {
+            if (kcell.contains_character()) {
+                pair = kcell.characters.front().get_col_pair_remembered();
+            } else {
+                pair = PAIR_REMEMBERED;
+            }
+        } else {
+            pair = PAIR_UNKNOWN;
+        }
+
+        if (bold) {
+            wattron(curses::game_window, A_BOLD);
+        }
         wattron(curses::game_window, COLOR_PAIR(pair));
         waddch(curses::game_window, ch);
         wattroff(curses::game_window, COLOR_PAIR(pair));
-
+        if (bold) {
+            wattroff(curses::game_window, A_BOLD);
+        }
     }
 
     public:
