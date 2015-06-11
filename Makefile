@@ -2,8 +2,7 @@ TARGET=game
 OBJDIR=build
 BINDIR=bin
 
-ENGINE_DIR=engine
-CXX_ENGINE_SRC=$(wildcard $(ENGINE_DIR)/src/*/*.cpp)
+CXX_ENGINE_SRC=$(wildcard src/*/*.cpp)
 
 TEST_DIR=tests
 CXX_TEST_SRC=$(wildcard $(TEST_DIR)/*.cpp)
@@ -11,7 +10,7 @@ CXX_TEST_OBJ=$(CXX_TEST_SRC:.cpp=.o)
 CXX_TEST_BIN=$(CXX_TEST_OBJ:.o=)
 CXX=g++
 CXXFLAGS=-g -Werror -Wall -std=c++14
-ENGINE_CXXFLAGS=-I$(ENGINE_DIR)/include
+ENGINE_CXXFLAGS=-Iinclude
 LDLIBS=-lncurses
 
 ENGINE_OBJS=$(addprefix $(OBJDIR)/, $(CXX_ENGINE_SRC:.cpp=.o))
