@@ -52,6 +52,46 @@ class curses_drawer : public drawer {
         }
     }
 
+    void draw_hud_from_actor(world &w, const actor_drawing_interface &a) {
+        wclear(curses::hud_window);
+
+        pair_t pair = a.get_character().get_col_pair_visible(); 
+        wattron(curses::hud_window, A_BOLD);
+        wattron(curses::hud_window, COLOR_PAIR(pair));
+        wprintw(curses::hud_window, "%c\n", a.get_character().get_char());
+        wattroff(curses::hud_window, COLOR_PAIR(pair));
+        wattroff(curses::hud_window, A_BOLD);
+        
+        wprintw(curses::hud_window, "%d/%d\n", 
+            a.get_character().current_hit_points,
+            a.get_character().max_hit_points
+        );
+
+        wprintw(curses::hud_window, "\n");
+
+        a.get_character().get_current_knowledge_grid().
+            for_each_visible_character([&](const character_image &ci) {
+
+            if (ci.source != &(a.get_character()) && ci.current_hit_points > 0) {
+
+                pair_t pair = ci.get_col_pair_visible(); 
+                wattron(curses::hud_window, A_BOLD);
+                wattron(curses::hud_window, COLOR_PAIR(pair));
+                wprintw(curses::hud_window, "%c\n", ci.get_char());
+                wattroff(curses::hud_window, COLOR_PAIR(pair));
+                wattroff(curses::hud_window, A_BOLD);
+                wprintw(curses::hud_window, "%d/%d\n", 
+                    ci.current_hit_points,
+                    ci.max_hit_points
+                );
+                
+                wprintw(curses::hud_window, "\n");
+            }
+        });
+        
+        wrefresh(curses::hud_window);
+    }
+
     public:
     curses_drawer() {
         #define VISIBLE_VALUE 800
@@ -81,6 +121,8 @@ class curses_drawer : public drawer {
         game_grid.for_each([&](const world_cell &c) {
             draw_cell_from_actor(c, knowledge_grid.get_cell(c.coord), ch);
         });
+
+        draw_hud_from_actor(w, a);
     }
 };
 

@@ -16,7 +16,7 @@
 class basic_character : public character {
     public:
     basic_character(const world_dimensions &w, const vec2<int> &v) :
-        character(w, v, 'b', PAIR_RED, PAIR_DARK_RED)
+        character(w, v, 'b', PAIR_RED, PAIR_DARK_RED, 10)
     {}
 };
 

@@ -93,7 +93,7 @@ class attack_transaction : public transaction {
     {}
 
     int operator()(world &w) {
-        curses::cout << "attacking!" << curses::endl;
+        target_.take_damage(attacker_.get_melee_damage());
         return 1;
     }
 };

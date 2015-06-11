@@ -52,10 +52,6 @@ class knowledge_cell : public cell {
     void unsee_characters() {
         characters.clear();
     }
-
-    bool contains_character() const {
-        return !characters.empty();
-    }
     
     void for_each_character(const std::function<void(character_image&)> &f) {
         std::for_each(characters.begin(), characters.end(), f);
@@ -64,6 +60,42 @@ class knowledge_cell : public cell {
     void for_each_character(const std::function<void(const character_image&)> &f) const {
         std::for_each(characters.begin(), characters.end(), f);
     }
+
+    bool contains_character() const {
+        bool ret = false;
+        for_each_character([&](const character_image ci) {
+            ret = ret || ci.current_hit_points > 0;
+        });
+        return ret;
+    }
+};
+
+class knowledge_grid : public grid<knowledge_cell> {
+    public:
+    knowledge_grid(int width, int height) : 
+        grid<knowledge_cell>(width, height)
+    {}
+
+    void for_each_visible_character(const std::function<void(character_image&)> &f) {
+        this->for_each([&](knowledge_cell &kc) {
+            if (kc.is_visible()) {
+                kc.for_each_character([&](character_image &ci) {
+                    f(ci);
+                });
+            }
+        });
+    }
+
+    void for_each_visible_character(const std::function<void(const character_image&)> &f) const {
+        this->for_each([&](const knowledge_cell &kc) {
+            if (kc.is_visible()) {
+                kc.for_each_character([&](const character_image &ci) {
+                    f(ci);
+                });
+            }
+        });
+    }
+
 };
 
 #endif

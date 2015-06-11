@@ -69,7 +69,7 @@ class control : public character_actor {
 
             bool contains_enemy = false;
             neighbour.for_each_character([&](const character_image &c) {
-                contains_enemy = contains_enemy || this->is_enemy(c);
+                contains_enemy = contains_enemy || (c.current_hit_points > 0 && this->is_enemy(c));
             });
 
             if (contains_enemy) {
