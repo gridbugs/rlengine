@@ -13,8 +13,8 @@ class always_move_left : public character_actor {
     bool can_act() const {return true;}
 
     public:
-    always_move_left(character &c, world &w, observer &o) :
-        character_actor(c, w, o)
+    always_move_left(character &c, observer &o) :
+        character_actor(c, o)
     {}
 };
 

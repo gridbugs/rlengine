@@ -48,7 +48,7 @@ class control : public character_actor {
         }
     }
 
-    bool is_enemy(const character &c) const {
+    bool is_enemy(const character_image &c) const {
         return true;
     }
     bool is_enemy_in_melee_range_in_direction(world &w, direction::direction_t d) {
@@ -68,7 +68,7 @@ class control : public character_actor {
             }
 
             bool contains_enemy = false;
-            neighbour.for_each_character([&](const character &c) {
+            neighbour.for_each_character([&](const character_image &c) {
                 contains_enemy = contains_enemy || this->is_enemy(c);
             });
 
@@ -109,8 +109,8 @@ class control : public character_actor {
     bool can_act() const {return true;}
 
     public:
-    control(character &c, world &w, observer &o, drawer &d) :
-        character_actor(c, w, o),
+    control(character &c, observer &o, drawer &d) :
+        character_actor(c, o),
         drawer_(d)
     {}
 };

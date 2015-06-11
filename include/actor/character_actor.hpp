@@ -15,7 +15,6 @@ class character_actor : public actor, public actor_drawing_interface {
     virtual bool can_act() const = 0;
     
     observer &observer_;
-    std::vector<grid<knowledge_cell>> knowledge_grids_;
 
     const grid<world_cell> &get_current_grid(world &w) const {
         return w.maps[character_.level_index];
@@ -26,11 +25,11 @@ class character_actor : public actor, public actor_drawing_interface {
     }
 
     grid<knowledge_cell> &get_current_knowledge_grid() {
-        return knowledge_grids_[character_.level_index];
+        return character_.get_current_knowledge_grid();
     }
     
     const grid<knowledge_cell> &get_current_knowledge_grid() const {
-        return knowledge_grids_[character_.level_index];
+        return character_.get_current_knowledge_grid();
     }
 
     void observe_world(world &w) {
@@ -56,15 +55,10 @@ class character_actor : public actor, public actor_drawing_interface {
     }
 
     public:
-    character_actor(character &c, world &w, observer &o) : 
+    character_actor(character &c, observer &o) : 
         character_(c),
         observer_(o)
-    {
-        for (typename std::vector<grid<world_cell>>::iterator it = w.maps.begin();
-             it != w.maps.end(); ++it) {
-            knowledge_grids_.push_back(grid<knowledge_cell>(it->width, it->height));
-        }
-    }
+    {}
 
     void operator()(world& w, callback_registry<world>& cr) {
         if (can_act()) {

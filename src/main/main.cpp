@@ -15,8 +15,8 @@
 
 class basic_character : public character {
     public:
-    basic_character(const vec2<int> &v) :
-        character(v, 'b', PAIR_RED, PAIR_DARK_RED)
+    basic_character(const world_dimensions &w, const vec2<int> &v) :
+        character(w, v, 'b', PAIR_RED, PAIR_DARK_RED)
     {}
 };
 
@@ -31,17 +31,17 @@ int main(int argc, char *argv[]) {
     shadow_cast_fov fov;
     curses_drawer dr;
 
-    w.characters.push_back(std::make_unique<character>(w.get_random_empty_cell(0).coord));
-    w.characters.push_back(std::make_unique<basic_character>(w.get_random_empty_cell(0).coord));
-    w.characters.push_back(std::make_unique<basic_character>(w.get_random_empty_cell(0).coord));
-    w.characters.push_back(std::make_unique<basic_character>(w.get_random_empty_cell(0).coord));
-    w.characters.push_back(std::make_unique<basic_character>(w.get_random_empty_cell(0).coord));
+    w.characters.push_back(std::make_unique<character>(w, w.get_random_empty_cell(0).coord));
+    w.characters.push_back(std::make_unique<basic_character>(w, w.get_random_empty_cell(0).coord));
+    w.characters.push_back(std::make_unique<basic_character>(w, w.get_random_empty_cell(0).coord));
+    w.characters.push_back(std::make_unique<basic_character>(w, w.get_random_empty_cell(0).coord));
+    w.characters.push_back(std::make_unique<basic_character>(w, w.get_random_empty_cell(0).coord));
 
-    curses_control a0(*w.characters[0], w, fov, dr);
-    always_move_left a1(*w.characters[1], w, fov);
-    always_move_left a2(*w.characters[2], w, fov);
-    always_move_left a3(*w.characters[3], w, fov);
-    always_move_left a4(*w.characters[4], w, fov);
+    curses_control a0(*w.characters[0], fov, dr);
+    always_move_left a1(*w.characters[1], fov);
+    always_move_left a2(*w.characters[2], fov);
+    always_move_left a3(*w.characters[3], fov);
+    always_move_left a4(*w.characters[4], fov);
 
     a0.init_dvorak();
 

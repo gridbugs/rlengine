@@ -21,8 +21,8 @@ class curses_control : public control {
     }
 
     public:
-    curses_control(character &c, world &w, observer &o, drawer &d) :
-        control(c, w, o, d)
+    curses_control(character &c, observer &o, drawer &d) :
+        control(c, o, d)
     {
         for (unsigned int i = 0; i < N_KEY_BINDINGS; ++i) {
             key_bindings_[i] = control::INPUT_NONE;

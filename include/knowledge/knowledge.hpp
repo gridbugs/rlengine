@@ -4,12 +4,14 @@
 #include "world/grid.hpp"
 #include "world/cell.hpp"
 #include "util/arith.hpp"
-#include "character/character.hpp"
+#include "character/character_image.hpp"
 
 #include <list>
 
 #define REMEMBERED  BIT(0)
 #define VISIBLE     BIT(1)
+
+class character;
 
 class knowledge_cell : public cell {
 
@@ -17,7 +19,7 @@ class knowledge_cell : public cell {
     unsigned int knowledge_;
 
     public:
-    std::list<character> characters;
+    std::list<character_image> characters;
     
     knowledge_cell(const int j, const int i) : 
         cell(j, i),
@@ -45,9 +47,7 @@ class knowledge_cell : public cell {
         knowledge_ &= ~VISIBLE;
     }
 
-    void see_character(const character &c) {
-        characters.push_back(c);
-    }
+    void see_character(const character &c);
 
     void unsee_characters() {
         characters.clear();
@@ -57,11 +57,11 @@ class knowledge_cell : public cell {
         return !characters.empty();
     }
     
-    void for_each_character(const std::function<void(character&)> &f) {
+    void for_each_character(const std::function<void(character_image&)> &f) {
         std::for_each(characters.begin(), characters.end(), f);
     }
     
-    void for_each_character(const std::function<void(const character&)> &f) const {
+    void for_each_character(const std::function<void(const character_image&)> &f) const {
         std::for_each(characters.begin(), characters.end(), f);
     }
 };
