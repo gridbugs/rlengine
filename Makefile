@@ -1,11 +1,6 @@
-APP_DIR=apps
+TARGET=game
 OBJDIR=build
 BINDIR=bin
-APP_OBJ_DIR=$(OBJDIR)/app_build
-APP_BIN_DIR=$(OBJDIR)/apps
-APPMK=$(APP_DIR)/app.mk
-
-all: $(patsubst $(APP_DIR)/%/Makefile,$(BINDIR)/%,$(wildcard $(APP_DIR)/*/Makefile))
 
 ENGINE_DIR=engine
 CXX_ENGINE_SRC=$(wildcard $(ENGINE_DIR)/src/*/*.cpp)
@@ -21,19 +16,20 @@ LDLIBS=-lncurses
 
 ENGINE_OBJS=$(addprefix $(OBJDIR)/, $(CXX_ENGINE_SRC:.cpp=.o))
 
-
-include $(wildcard $(APP_DIR)/*/Makefile)
+all: $(BINDIR)/$(TARGET)
 
 -include $(ENGINE_OBJS:.o=.d)
 
 .PHONY: tests clean all
-
 
 $(OBJDIR)/%.o: %.cpp
 	mkdir -p $(dir $@)
 	$(CXX) -c $(CXXFLAGS) $(ENGINE_CXXFLAGS) $< -o $@
 	$(CXX) -MM -MT $@ $(CXXFLAGS) $(ENGINE_CXXFLAGS) $< > $(OBJDIR)/$*.d
 
+$(BINDIR)/%: $(ENGINE_OBJS)
+	mkdir -p $(dir $@)
+	$(CXX) $^ $(LDLIBS) -o $@
 
 tests: $(CXX_TEST_BIN)
 

@@ -6,6 +6,11 @@
 #include "io/curses.hpp"
 #include <memory>
 
+template <typename T, typename C, typename W> class transaction {
+    public:
+    virtual int operator()(world<C, W, T> &w) = 0;
+};
+
 template <typename T, typename C, typename W> class instant_transaction : public T {
     public:
 
@@ -170,9 +175,5 @@ template <typename T, typename C, typename W, typename K> class see_character_tr
     }
 };
 
-template <typename T, typename C, typename W> class transaction {
-    public:
-    virtual int operator()(world<C, W, T> &w) = 0;
-};
 
 #endif

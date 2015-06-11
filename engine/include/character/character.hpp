@@ -13,9 +13,9 @@ class character {
         coord(v)
     {}
 
-    virtual void take_damage(int d) = 0;
-    virtual int get_move_time() const = 0;
-    virtual int get_melee_range() const = 0;
+    virtual void take_damage(int d) {}
+    virtual int get_move_time() {return 1;}
+    virtual int get_melee_range() {return 1;}
 };
 
 #endif
