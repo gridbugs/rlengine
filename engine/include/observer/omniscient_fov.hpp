@@ -3,12 +3,10 @@
 
 #include "observer/observer.hpp"
 
-template <typename C, typename W, typename K> class omniscient_fov : 
-    public observer <C, W, K> {
-    
+class omniscient_fov : public observer {
     public:
-    void observe(const C &c, const grid<W> &w_grid, grid<K> &k_grid) {
-        k_grid.for_each([](K &k) {k.see();});
+    void observe(const character &c, const grid<world_cell> &w_grid, grid<knowledge_cell> &k_grid) {
+        k_grid.for_each([](knowledge_cell &k) {k.see();});
     }
 };
 

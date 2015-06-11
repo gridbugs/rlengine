@@ -9,14 +9,11 @@
 #include <vector>
 #include <memory>
 
-template <typename C, typename W, typename T> class world {
+class world {
     public:
     std::vector<grid<world_cell>> maps;
     std::vector<std::unique_ptr<character>> characters;
-    typedef transaction_queue<transaction<T, C, W>, character, world_cell> transaction_queue_t;
-    transaction_queue_t transactions;
-    typedef typename transaction_queue_t::transaction_t transaction_t;
-    typedef typename transaction_queue_t::transaction_ptr_t transaction_ptr_t;
+    transaction_queue transactions;
 
     const int width;
     const int height;

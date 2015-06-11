@@ -3,11 +3,10 @@
 
 #include "observer/observer.hpp"
 
-template <typename C, typename W, typename K> class blind_fov : 
-    public observer <C, W, K> {
+class blind_fov : public observer {
 
     public:
-    void observe(const C &c, const grid<W> &w_grid, grid<K> &k_grid) {}
+    void observe(const character &c, const grid<world_cell> &w_grid, grid<knowledge_cell> &k_grid) {}
 };
 
 #endif

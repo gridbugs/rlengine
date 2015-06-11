@@ -7,16 +7,11 @@
 #include "io/curses.hpp"
 #include <array>
 
-template <typename C, typename W, typename T, typename K> class control :
-    public character_actor<C, W, T, K> {
-
+class control : public character_actor {
     protected:
-    typedef typename character_actor<C, W, T, K>::world_t world_t;
-    typedef typename character_actor<C, W, T, K>::observer_t observer_t;
-    typedef drawer<C, W, T, K> drawer_t;
 
-    drawer_t &drawer_;
-    void draw(world_t &w) const {
+    drawer &drawer_;
+    void draw(world &w) const {
         drawer_.draw_world_from_actor(w, *this);
     }
     
@@ -53,27 +48,27 @@ template <typename C, typename W, typename T, typename K> class control :
         }
     }
 
-    bool is_enemy(const C &c) const {
+    bool is_enemy(const character &c) const {
         return true;
     }
-    bool is_enemy_in_melee_range_in_direction(world_t &w, direction::direction_t d) {
+    bool is_enemy_in_melee_range_in_direction(world &w, direction::direction_t d) {
         return is_enemy_within_distance_in_direction(w, this->character_.get_melee_range(), d);
     }
-    bool is_enemy_within_distance_in_direction(world_t &w, int distance, direction::direction_t d) const {
+    bool is_enemy_within_distance_in_direction(world &w, int distance, direction::direction_t d) const {
 
         if (distance == 0) {
             return false;
         }
-        const grid<K> &map = this->get_current_knowledge_grid();
+        const grid<knowledge_cell> &map = this->get_current_knowledge_grid();
 
-        return map.template with_neighbour<bool, false>(map.get_cell(this->character_.coord), d, [&](const K& neighbour) {
-            W &world_neighbour = this->get_current_grid(w).get_cell(neighbour.coord);
+        return map.template with_neighbour<bool, false>(map.get_cell(this->character_.coord), d, [&](const knowledge_cell& neighbour) {
+            world_cell &world_neighbour = this->get_current_grid(w).get_cell(neighbour.coord);
             if (world_neighbour.is_solid() || world_neighbour.is_opaque()) {
                 return false;
             }
 
             bool contains_enemy = false;
-            neighbour.for_each_character([&](const C &c) {
+            neighbour.for_each_character([&](const character &c) {
                 contains_enemy = contains_enemy || this->is_enemy(c);
             });
 
@@ -84,7 +79,7 @@ template <typename C, typename W, typename T, typename K> class control :
         });
     }
     
-    void act(world_t &w) {
+    void act(world &w) {
         
         draw(w);
 
@@ -99,16 +94,12 @@ template <typename C, typename W, typename T, typename K> class control :
             
             if (is_enemy_in_melee_range_in_direction(w, d)) {
                 w.transactions.register_transaction(
-                    std::make_unique<try_attack_transaction<T, C, W>>(
-                        this->character_, d
-                    )
+                    std::make_unique<try_attack_transaction>(this->character_, d)
                 );
                 return;
             } else {
                 w.transactions.register_transaction(
-                    std::make_unique<try_move_transaction<T, C, W>>(
-                        this->character_, d
-                    )
+                    std::make_unique<try_move_transaction>(this->character_, d)
                 );
                 return;
             }
@@ -118,8 +109,8 @@ template <typename C, typename W, typename T, typename K> class control :
     bool can_act() const {return true;}
 
     public:
-    control(C &c, world_t &w, observer_t &o, drawer_t &d) :
-        character_actor<C, W, T, K>(c, w, o),
+    control(character &c, world &w, observer &o, drawer &d) :
+        character_actor(c, w, o),
         drawer_(d)
     {}
 };

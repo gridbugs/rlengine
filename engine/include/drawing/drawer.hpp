@@ -5,9 +5,9 @@
 #include "character/character.hpp"
 #include "drawing/actor_drawing_interface.hpp"
 
-template <typename C, typename W, typename T, typename K> class drawer {
+class drawer {
     public:
-    virtual void draw_world_from_actor(world<C, W, T> &w, const actor_drawing_interface<C, K> &a) = 0;
+    virtual void draw_world_from_actor(world &w, const actor_drawing_interface &a) = 0;
 };
 
 #endif

@@ -3,9 +3,9 @@
 
 #include "world/grid.hpp"
 
-template <typename C, typename W, typename K> class observer {
+class observer {
     public:
-    virtual void observe(const C &c, const grid<W> &w_grid, grid<K> &k_grid) = 0;
+    virtual void observe(const character &c, const grid<world_cell> &w_grid, grid<knowledge_cell> &k_grid) = 0;
 };
 
 #endif

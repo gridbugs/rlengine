@@ -7,53 +7,48 @@
 #include "drawing/actor_drawing_interface.hpp"
 #include "transaction/transaction.hpp"
 
-template <typename C, typename W, typename T, typename K> class character_actor : 
-    public actor<C, W, T>, public actor_drawing_interface<C, K> {
-
+class character_actor : public actor, public actor_drawing_interface {
     protected:
 
-    typedef world<C, W, T> world_t;
-    typedef observer<C, W, K> observer_t;
-
-    C &character_;
-    virtual void act(world_t &w) = 0;
+    character &character_;
+    virtual void act(world &w) = 0;
     virtual bool can_act() const = 0;
     
-    observer_t &observer_;
-    std::vector<grid<K>> knowledge_grids_;
+    observer &observer_;
+    std::vector<grid<knowledge_cell>> knowledge_grids_;
 
-    const grid<W> &get_current_grid(world_t &w) const {
+    const grid<world_cell> &get_current_grid(world &w) const {
         return w.maps[character_.level_index];
     }
     
-    grid<W> &get_current_grid(world_t &w) {
+    grid<world_cell> &get_current_grid(world &w) {
         return w.maps[character_.level_index];
     }
 
-    grid<K> &get_current_knowledge_grid() {
+    grid<knowledge_cell> &get_current_knowledge_grid() {
         return knowledge_grids_[character_.level_index];
     }
     
-    const grid<K> &get_current_knowledge_grid() const {
+    const grid<knowledge_cell> &get_current_knowledge_grid() const {
         return knowledge_grids_[character_.level_index];
     }
 
-    void observe_world(world_t &w) {
+    void observe_world(world &w) {
         observer_.observe(character_, get_current_grid(w), 
                             this->get_current_knowledge_grid());
 
-        get_current_knowledge_grid().for_each([](K &k) {
+        get_current_knowledge_grid().for_each([](knowledge_cell &k) {
             if (k.is_visible()) {
                 k.unsee_characters();
             }
         });
 
 
-        for (typename std::vector<std::unique_ptr<C>>::iterator it = w.characters.begin(); it != w.characters.end(); ++it) {
+        for (typename std::vector<std::unique_ptr<character>>::iterator it = w.characters.begin(); it != w.characters.end(); ++it) {
             if ((*it)->level_index == character_.level_index) {
-                K &k = get_current_knowledge_grid().get_cell((*it)->coord);
+                knowledge_cell &k = get_current_knowledge_grid().get_cell((*it)->coord);
                 if (k.is_visible()) {
-                    w.transactions.register_transaction(std::make_unique<see_character_transaction<T, C, W, K>>(this->character_, **it, k));
+                    w.transactions.register_transaction(std::make_unique<see_character_transaction>(this->character_, **it, k));
                 }
             }
         }
@@ -61,17 +56,17 @@ template <typename C, typename W, typename T, typename K> class character_actor 
     }
 
     public:
-    character_actor(C &c, world_t &w, observer_t &o) : 
+    character_actor(character &c, world &w, observer &o) : 
         character_(c),
         observer_(o)
     {
-        for (typename std::vector<grid<W>>::iterator it = w.maps.begin();
+        for (typename std::vector<grid<world_cell>>::iterator it = w.maps.begin();
              it != w.maps.end(); ++it) {
-            knowledge_grids_.push_back(grid<K>(it->width, it->height));
+            knowledge_grids_.push_back(grid<knowledge_cell>(it->width, it->height));
         }
     }
 
-    void operator()(world_t& w, callback_registry<world_t>& cr) {
+    void operator()(world& w, callback_registry<world>& cr) {
         if (can_act()) {
             observe_world(w);
             act(w);
@@ -82,10 +77,10 @@ template <typename C, typename W, typename T, typename K> class character_actor 
         }
     }
     
-    const grid<K> &get_knowledge_grid() const {
+    const grid<knowledge_cell> &get_knowledge_grid() const {
         return this->get_current_knowledge_grid();
     }
-    const C &get_character() const {
+    const character &get_character() const {
         return character_;
     }
 };
