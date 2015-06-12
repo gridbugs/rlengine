@@ -7,8 +7,7 @@
 class always_move_left : public character_actor {
     protected:
     void act(world &w) {
-        w.transactions.register_transaction(std::make_unique<try_move_transaction>(
-            this->character_, direction::west));
+        w.register_transaction<try_move_transaction>(this->character_, direction::west);
     }
     bool can_act() const {return true;}
 

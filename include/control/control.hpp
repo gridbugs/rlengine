@@ -61,7 +61,7 @@ class control : public character_actor {
         }
         const grid<knowledge_cell> &map = this->get_current_knowledge_grid();
 
-        return map.template with_neighbour<bool, false>(map.get_cell(this->character_.coord), d, [&](const knowledge_cell& neighbour) {
+        return map.with_neighbour<bool, false>(map.get_cell(this->character_.coord), d, [&](const knowledge_cell& neighbour) {
             world_cell &world_neighbour = this->get_current_grid(w).get_cell(neighbour.coord);
             if (world_neighbour.is_solid() || world_neighbour.is_opaque()) {
                 return false;
@@ -93,14 +93,10 @@ class control : public character_actor {
             direction::direction_t d = get_input_direction(input);
             
             if (is_enemy_in_melee_range_in_direction(w, d)) {
-                w.transactions.register_transaction(
-                    std::make_unique<try_attack_transaction>(this->character_, d)
-                );
+                w.register_transaction<try_attack_transaction>(this->character_, d);
                 return;
             } else {
-                w.transactions.register_transaction(
-                    std::make_unique<try_move_transaction>(this->character_, d)
-                );
+                w.register_transaction<try_move_transaction>(this->character_, d);
                 return;
             }
         }

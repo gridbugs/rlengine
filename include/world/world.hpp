@@ -54,6 +54,10 @@ class world : public world_dimensions {
     int get_width() const {return width;}
     int get_height() const {return height;}
     int get_depth() const {return maps.size();}
+
+    template <typename TransactionType, typename... Args> void register_transaction(Args&&... args) {
+        transactions.register_transaction(std::make_unique<TransactionType>(args...));
+    }
 };
 
 #endif
