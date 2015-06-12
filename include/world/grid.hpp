@@ -31,7 +31,7 @@ template <typename T> class simple_grid : public grid_interface {
 
     simple_grid(const int width, const int height) :
         n_cells_(width * height),
-        width(width), height(height) 
+        width(width), height(height)
     {
         /* Create cells */
         for (int i = 0; i < height; ++i) {
@@ -39,7 +39,7 @@ template <typename T> class simple_grid : public grid_interface {
                 cells_.push_back(T(j, i));
             }
         }
- 
+
         /* Populate pointer array */
         for (int i = 0; i < height; ++i) {
             rows_.push_back(&cells_[i*width]);
@@ -69,11 +69,11 @@ template <typename T> class simple_grid : public grid_interface {
     void for_each(const std::function<void(T&)> &f) {
         std::for_each(begin(), end(), f);
     }
-    
+
     void for_each(const std::function<void(const T&)> &f) const {
         std::for_each(cells_.cbegin(), cells_.cend(), f);
     }
-    
+
     void for_each_cell(const std::function<void(cell&)> &f) {
         for_each(f);
     }
@@ -92,7 +92,7 @@ template <typename T> class grid : public simple_grid<T> {
         std::array<T*, direction::n_directions> neighbours;
 
         cell_internal(T &cell) :
-            cell(cell) 
+            cell(cell)
         {}
 
 
@@ -149,26 +149,26 @@ template <typename T> class grid : public simple_grid<T> {
     std::vector<cell_internal> cell_internals_;
     std::vector<T*> border_;
 
-    const cell_internal &get_cell_internal(const int x_coord, 
+    const cell_internal &get_cell_internal(const int x_coord,
                                      const int y_coord) const {
         return cell_internals_[x_coord + y_coord * this->width];
     }
-    
-    cell_internal &get_cell_internal(const int x_coord, 
+
+    cell_internal &get_cell_internal(const int x_coord,
                                      const int y_coord) {
         return cell_internals_[x_coord + y_coord * this->width];
     }
 
     typedef typename std::vector<cell_internal>::iterator iterator_internal;
-    
+
     public:
-   
+
     typedef typename simple_grid<T>::iterator iterator;
 
     grid(const int width, const int height) :
         simple_grid<T>(width, height)
     {
-        
+
         for (iterator it = this->cells_.begin(); it != this->cells_.end(); ++it) {
             cell_internals_.push_back(*it);
         }
@@ -178,7 +178,7 @@ template <typename T> class grid : public simple_grid<T> {
             it != cell_internals_.end();
             ++it)
         {
-            it->link_neighbours(*this);    
+            it->link_neighbours(*this);
         }
 
         /* Compute border */
@@ -234,7 +234,7 @@ template <typename T> class grid : public simple_grid<T> {
             std::min(cell.y_coord, this->height - cell.y_coord - 1)
         );
     }
-    
+
     const T* get_neighbour(T &cell, direction::direction_t direction) const {
         return get_cell_internal(cell.x_coord, cell.y_coord).neighbours[direction];
     }
@@ -242,7 +242,7 @@ template <typename T> class grid : public simple_grid<T> {
     T* get_neighbour(T &cell, direction::direction_t direction) {
         return get_cell_internal(cell.x_coord, cell.y_coord).neighbours[direction];
     }
-    
+
 
     template <typename R, R fallback>
     R with_neighbour(const T &cell, direction::direction_t direction, const std::function<R(T&)> &f) {
@@ -251,9 +251,9 @@ template <typename T> class grid : public simple_grid<T> {
             return fallback;
         }
         return f(*neighbour);
-    }   
-    
-    template <typename R, R fallback>   
+    }
+
+    template <typename R, R fallback>
     R with_neighbour(const T &cell, direction::direction_t direction, const std::function<R(const T&)> &f) const {
         T* neighbour = get_cell_internal(cell.x_coord, cell.y_coord).neighbours[direction];
         if (neighbour == nullptr) {
@@ -267,8 +267,8 @@ template <typename T> class grid : public simple_grid<T> {
         if (neighbour != nullptr) {
             f(*neighbour);
         }
-    }   
-    
+    }
+
     void with_neighbour(const T &cell, direction::direction_t direction, const std::function<void(const T&)> &f) const {
         T* neighbour = get_cell_internal(cell.x_coord, cell.y_coord).neighbours[direction];
         if (neighbour != nullptr) {

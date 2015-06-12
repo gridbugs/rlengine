@@ -7,8 +7,8 @@
 template <typename A,typename B>
 class non_null_iterator {
     public:
-    non_null_iterator(A &container, const int size, const int start_idx=0) : 
-        container(container), size(size) 
+    non_null_iterator(A &container, const int size, const int start_idx=0) :
+        container(container), size(size)
     {
         idx = start_idx;
         increment_while_null();

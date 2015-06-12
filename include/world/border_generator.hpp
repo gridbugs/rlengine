@@ -19,7 +19,7 @@ class border_generator : public generator {
             it != map.border_end(); ++it) {
 
             it->set_data(new game_wall());
-            
+
         }
 
     }

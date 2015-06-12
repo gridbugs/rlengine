@@ -14,7 +14,7 @@ class control : public character_actor {
     void draw(world &w) const {
         drawer_.draw_world_from_actor(w, *this);
     }
-    
+
     typedef enum {
         INPUT_NONE = 0,
         INPUT_NORTH,
@@ -78,20 +78,20 @@ class control : public character_actor {
             return is_enemy_within_distance_in_direction(w, distance - 1, d);
         });
     }
-    
+
     void act(world &w) {
-        
+
         draw(w);
 
         input_t input = get_input();
-        
+
         if (input == INPUT_NONE) {
             return;
         }
 
         if (is_direction_input(input)) {
             direction::direction_t d = get_input_direction(input);
-            
+
             if (is_enemy_in_melee_range_in_direction(w, d)) {
                 w.register_transaction<try_attack_transaction>(this->character_, d);
                 return;

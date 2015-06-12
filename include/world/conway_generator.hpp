@@ -10,14 +10,14 @@
 #include <utility>
 
 class conway_generator : public generator {
-    
+
     private:
     class conway_cell : public cell {
         private:
         bool alive_next_;
         public:
         bool alive;
-        conway_cell(const int x_coord, const int y_coord) : 
+        conway_cell(const int x_coord, const int y_coord) :
             cell(x_coord, y_coord)
         {
             alive = rand()%2;
@@ -69,12 +69,12 @@ class conway_generator : public generator {
                     live_max = 8;
                     resurrect_min = 0;
                     resurrect_max = 8;
-                    
+
                 }
 
                 if (it->alive) {
                     if (alive_neighbour_count < live_min ||
-                        alive_neighbour_count > live_max) 
+                        alive_neighbour_count > live_max)
                     {
                         it->will_die();
                     }
@@ -145,13 +145,13 @@ class conway_generator : public generator {
                         }
                     }
                 }
-                
+
                 group_sizes.push_back(std::pair<bool,int>(it->alive, count));
                 count = 0;
                 ++current_id;
             }
 
-            
+
             int max_count = -1;
             int max_id;
 
@@ -197,7 +197,7 @@ class conway_generator : public generator {
     public:
     void generate(world &w) {
         grid<world_cell> &map = w.maps[0];
-        
+
         for (;;) {
             conway_grid cg(w.width, w.height);
 
@@ -205,7 +205,7 @@ class conway_generator : public generator {
                 continue;
             }
 
-            
+
             for (typename grid<world_cell>::iterator it = map.begin(); it != map.end(); ++it) {
                 conway_cell &c = cg.get_cell(it->coord);
                 if (c.alive) {

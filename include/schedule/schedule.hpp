@@ -53,7 +53,7 @@ template <typename T> class schedule : public callback_registry<T>, public callb
     void register_callback(schedule_callback<T> &fn, const typename callback_registry<T>::time_t relative_time) {
         pq_.push(event(fn, relative_time + absolute_time_));
     }
-    
+
     time_t get_time() const {return absolute_time_;}
 
     void run_until_empty(T& w) {

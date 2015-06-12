@@ -61,7 +61,7 @@ direction_t direction::combine_cardinal_directions(direction_t a, direction_t b)
 void direction::split_ordinal_direction(const direction_t ordinal,
                                         direction_t *c0,
                                         direction_t *c1) {
-    if (is_ordinal(ordinal)) {   
+    if (is_ordinal(ordinal)) {
         int idx = ordinal - n_cardinal_directions;
         *c0 = cardinal_table[idx][0];
         *c1 = cardinal_table[idx][1];
@@ -80,7 +80,7 @@ static const std::string string_table[n_directions + 1] = {
     [southeast] = "southeast",
     [southwest] = "southwest",
     [northwest] = "northwest",
-    [none] = "none" 
+    [none] = "none"
 };
 
 std::ostream &operator<<(std::ostream &out, const direction_t dir) {

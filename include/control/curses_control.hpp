@@ -11,7 +11,7 @@ class curses_control : public control {
 
     static const unsigned int N_KEY_BINDINGS = 512;
     std::array<input_t, N_KEY_BINDINGS> key_bindings_;
-    
+
     input_t get_input() const {
         unsigned int key_code;
         do {
@@ -30,12 +30,12 @@ class curses_control : public control {
     }
 
     void init_dvorak() {
-    
+
         key_bindings_[KEY_LEFT] = control::INPUT_WEST;
         key_bindings_[KEY_RIGHT] = control::INPUT_EAST;
         key_bindings_[KEY_UP] = control::INPUT_NORTH;
         key_bindings_[KEY_DOWN] = control::INPUT_SOUTH;
-        
+
         key_bindings_['d'] = control::INPUT_WEST;
         key_bindings_['h'] = control::INPUT_SOUTH;
         key_bindings_['t'] = control::INPUT_NORTH;

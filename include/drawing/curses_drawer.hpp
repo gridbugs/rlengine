@@ -27,7 +27,7 @@ class curses_drawer : public drawer {
 
         if (kcell.is_visible()) {
             if (kcell.contains_character()) {
-                pair = kcell.characters.front().get_col_pair_visible(); 
+                pair = kcell.characters.front().get_col_pair_visible();
             } else {
                 pair = PAIR_VISIBLE;
             }
@@ -55,14 +55,14 @@ class curses_drawer : public drawer {
     void draw_hud_from_actor(world &w, const actor_drawing_interface &a) {
         wclear(curses::hud_window);
 
-        pair_t pair = a.get_character().get_col_pair_visible(); 
+        pair_t pair = a.get_character().get_col_pair_visible();
         wattron(curses::hud_window, A_BOLD);
         wattron(curses::hud_window, COLOR_PAIR(pair));
         wprintw(curses::hud_window, "%c\n", a.get_character().get_char());
         wattroff(curses::hud_window, COLOR_PAIR(pair));
         wattroff(curses::hud_window, A_BOLD);
-        
-        wprintw(curses::hud_window, "%d/%d\n", 
+
+        wprintw(curses::hud_window, "%d/%d\n",
             a.get_character().current_hit_points,
             a.get_character().max_hit_points
         );
@@ -74,21 +74,21 @@ class curses_drawer : public drawer {
 
             if (ci.source != &(a.get_character()) && ci.current_hit_points > 0) {
 
-                pair_t pair = ci.get_col_pair_visible(); 
+                pair_t pair = ci.get_col_pair_visible();
                 wattron(curses::hud_window, A_BOLD);
                 wattron(curses::hud_window, COLOR_PAIR(pair));
                 wprintw(curses::hud_window, "%c\n", ci.get_char());
                 wattroff(curses::hud_window, COLOR_PAIR(pair));
                 wattroff(curses::hud_window, A_BOLD);
-                wprintw(curses::hud_window, "%d/%d\n", 
+                wprintw(curses::hud_window, "%d/%d\n",
                     ci.current_hit_points,
                     ci.max_hit_points
                 );
-                
+
                 wprintw(curses::hud_window, "\n");
             }
         });
-        
+
         wrefresh(curses::hud_window);
     }
 

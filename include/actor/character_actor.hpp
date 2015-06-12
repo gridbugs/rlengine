@@ -13,13 +13,13 @@ class character_actor : public actor, public actor_drawing_interface {
     character &character_;
     virtual void act(world &w) = 0;
     virtual bool can_act() const {return character_.current_hit_points > 0;}
-    
+
     observer &observer_;
 
     const grid<world_cell> &get_current_grid(world &w) const {
         return w.maps[character_.level_index];
     }
-    
+
     grid<world_cell> &get_current_grid(world &w) {
         return w.maps[character_.level_index];
     }
@@ -27,13 +27,13 @@ class character_actor : public actor, public actor_drawing_interface {
     grid<knowledge_cell> &get_current_knowledge_grid() {
         return character_.get_current_knowledge_grid();
     }
-    
+
     const grid<knowledge_cell> &get_current_knowledge_grid() const {
         return character_.get_current_knowledge_grid();
     }
 
     void observe_world(world &w) {
-        observer_.observe(character_, get_current_grid(w), 
+        observer_.observe(character_, get_current_grid(w),
                             this->get_current_knowledge_grid());
 
         get_current_knowledge_grid().for_each([](knowledge_cell &k) {
@@ -55,7 +55,7 @@ class character_actor : public actor, public actor_drawing_interface {
     }
 
     public:
-    character_actor(character &c, observer &o) : 
+    character_actor(character &c, observer &o) :
         character_(c),
         observer_(o)
     {}
@@ -70,7 +70,7 @@ class character_actor : public actor, public actor_drawing_interface {
             }
         }
     }
-    
+
     const grid<knowledge_cell> &get_knowledge_grid() const {
         return this->get_current_knowledge_grid();
     }

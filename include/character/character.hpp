@@ -19,7 +19,7 @@ class character {
     int max_hit_points = 10;
     int current_hit_points = 10;
     int level_index = 0;
-    
+
     std::vector<knowledge_grid> knowledge_grids;
 
     protected:
@@ -57,7 +57,7 @@ class character {
     virtual pair_t get_col_pair_remembered() const {return col_pair_remembered;}
 
     character_image get_image() const {
-        return character_image(coord, char_repr, col_pair_visible, col_pair_remembered, 
+        return character_image(coord, char_repr, col_pair_visible, col_pair_remembered,
                 max_hit_points, current_hit_points, this);
     }
 

@@ -37,7 +37,7 @@ void curses::simple_start() {
         HUD_WINDOW_STARTY,
         HUD_WINDOW_STARTX
     );
-    
+
     keypad(curses::game_window, TRUE);
 
     scrollok(curses::console_window, true);

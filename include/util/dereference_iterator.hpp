@@ -8,7 +8,7 @@ class dereference_iterator {
     I it;
 
     public:
-    dereference_iterator(const I &it) : 
+    dereference_iterator(const I &it) :
         it(it)
         {}
 
@@ -18,7 +18,7 @@ class dereference_iterator {
     T* operator->() const {
         return *it;
     }
-    
+
     dereference_iterator<I,T>& operator++() {++it;return *this;}
     dereference_iterator<I,T> operator++(int) {
         dereference_iterator<I,T> ret = *this;
@@ -32,7 +32,7 @@ class dereference_iterator {
         return ret;
     }
 
-    
+
     bool operator==(const dereference_iterator<I,T> &it) const {
         return this->it == it.it;
     }

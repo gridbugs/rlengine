@@ -20,8 +20,8 @@ class knowledge_cell : public cell {
 
     public:
     std::list<character_image> characters;
-    
-    knowledge_cell(const int j, const int i) : 
+
+    knowledge_cell(const int j, const int i) :
         cell(j, i),
         knowledge_(0)
     {}
@@ -52,11 +52,11 @@ class knowledge_cell : public cell {
     void unsee_characters() {
         characters.clear();
     }
-    
+
     void for_each_character(const std::function<void(character_image&)> &f) {
         std::for_each(characters.begin(), characters.end(), f);
     }
-    
+
     void for_each_character(const std::function<void(const character_image&)> &f) const {
         std::for_each(characters.begin(), characters.end(), f);
     }
@@ -72,7 +72,7 @@ class knowledge_cell : public cell {
 
 class knowledge_grid : public grid<knowledge_cell> {
     public:
-    knowledge_grid(int width, int height) : 
+    knowledge_grid(int width, int height) :
         grid<knowledge_cell>(width, height)
     {}
 

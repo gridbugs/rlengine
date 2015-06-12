@@ -28,7 +28,7 @@ namespace direction {
     void split_ordinal_direction(const direction_t ordinal,
                                  direction_t *c0,
                                  direction_t *c1);
-                                 
+
 
     namespace cardinal {
         typedef enum {
@@ -38,7 +38,7 @@ namespace direction {
             west
         } direction_t;
     };
-    
+
     namespace ordinal {
         typedef enum {
             northeast = 0,

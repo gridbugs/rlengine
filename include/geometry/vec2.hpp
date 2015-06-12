@@ -10,13 +10,13 @@ template <typename T=double> class vec2 {
     std::array<T, 2> arr;
 
     public:
-    
+
     static const unsigned int X_IDX = 0;
     static const unsigned int Y_IDX = 1;
     static unsigned int get_other_index(unsigned int idx) {
         return 1 - idx;
     }
-    
+
     vec2(const T x, const T y) : arr { {x, y} }, x(arr[0]), y(arr[1]) {}
     vec2(const vec2<T> &v) : vec2(v.x, v.y) {}
     vec2() : vec2(0, 0) {}
@@ -58,7 +58,7 @@ template <typename T=double> class vec2 {
     T &operator[](const unsigned int idx) {
         return arr[idx];
     }
- 
+
     vec2<T>& operator=(const vec2<T>& v) {
         arr = v.arr;
         return *this;

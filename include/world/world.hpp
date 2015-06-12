@@ -18,7 +18,7 @@ class world : public world_dimensions {
 
     const int width;
     const int height;
-    world(const int width, const int height) : 
+    world(const int width, const int height) :
         width(width),
         height(height)
     {
