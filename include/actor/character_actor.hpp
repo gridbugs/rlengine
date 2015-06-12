@@ -12,7 +12,7 @@ class character_actor : public actor, public actor_drawing_interface {
 
     character &character_;
     virtual void act(world &w) = 0;
-    virtual bool can_act() const = 0;
+    virtual bool can_act() const {return character_.current_hit_points > 0;}
     
     observer &observer_;
 

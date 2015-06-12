@@ -9,7 +9,6 @@ class always_move_left : public character_actor {
     void act(world &w) {
         w.register_transaction<try_move_transaction>(this->character_, direction::west);
     }
-    bool can_act() const {return true;}
 
     public:
     always_move_left(character &c, observer &o) :
