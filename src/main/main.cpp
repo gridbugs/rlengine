@@ -11,6 +11,8 @@
 #include "debug/fifo.hpp"
 #include "io/curses.hpp"
 
+#include "util/cancellable.hpp"
+
 #include <memory>
 
 class basic_character : public character {
@@ -18,6 +20,10 @@ class basic_character : public character {
     basic_character(const world_dimensions &w, const vec2<int> &v) :
         character(w, v, 'b', PAIR_RED, PAIR_DARK_RED, 10)
     {}
+};
+
+class test {
+    bool is_cancelled() {return false;}
 };
 
 int main(int argc, char *argv[]) {
@@ -53,6 +59,13 @@ int main(int argc, char *argv[]) {
     s.register_callback(a4, 4);
 
     s.run_until_empty(w);
+
+    cancellable_owner_list<test> ol0;
+    cancellable_owner_list<test> ol1;
+    cancellable_watcher_list<test> wl0;
+
+    ol0.add_watcher(wl0);
+    ol1.add_watcher(wl0);
 
     curses::simple_stop();
     fifo::stop();
