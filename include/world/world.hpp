@@ -29,14 +29,28 @@ class world : public world_dimensions {
         maps.push_back(grid<world_cell>(width, height));
     }
 
-    void with_character_at_coord(int level, vec2<int> coord, const std::function<void(character&)> &f) {
+    void for_each_character(const std::function<void(character&)> &f) {
         std::for_each(characters.begin(), characters.end(), [&](std::unique_ptr<character> &c) {
-            if (c->level_index == level && c->coord == coord) {
-                f(*c);
-            }
+            f(*c);
         });
     }
 
+    void for_each_character(int level, const std::function<void(character&)> &f) {
+        for_each_character([&](character &c) {
+            if (c.level_index == level) {
+                f(c);
+            }
+        });
+    }
+    
+    void for_each_character(int level, vec2<int> coord, const std::function<void(character&)> &f) {
+        for_each_character(level, [&](character &c) {
+            if (c.coord == coord) {
+                f(c);
+            }
+        });
+    }
+    
     world_cell& get_random_empty_cell(int index) {
         for (;;) {
             int x = rand() % width;

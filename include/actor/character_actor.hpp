@@ -43,11 +43,11 @@ class character_actor : public schedule_callback, public actor_drawing_interface
         });
 
 
-        for (typename std::vector<std::unique_ptr<character>>::iterator it = w.characters.begin(); it != w.characters.end(); ++it) {
+        for (std::vector<std::unique_ptr<character>>::iterator it = w.characters.begin(); it != w.characters.end(); ++it) {
             if ((*it)->level_index == character_.level_index) {
                 knowledge_cell &k = get_current_knowledge_grid().get_cell((*it)->coord);
                 if (k.is_visible()) {
-                    w.transactions.register_transaction(std::make_unique<see_character_transaction>(this->character_, **it, k));
+                    w.register_transaction<see_character_transaction>(this->character_, **it, k);
                 }
             }
         }

@@ -21,7 +21,7 @@ bool try_attack_transaction::attempt(world &w) {
     grid<world_cell> &map = w.maps[attacker_.level_index];
     return map.with_neighbour<bool, false>(map.get_cell(attacker_.coord), direction_, [&](const world_cell &target_cell) {
         bool ret = false;
-        w.with_character_at_coord(attacker_.level_index, target_cell.coord, [&](character &target) {
+        w.for_each_character(attacker_.level_index, target_cell.coord, [&](character &target) {
             w.register_transaction<attack_transaction>(attacker_, target);
             ret = true;
         });
