@@ -7,10 +7,14 @@
 #include "character/character.hpp"
 #include "transaction/transaction_queue.hpp"
 #include "world/world_dimensions.hpp"
+#include "schedule/schedule.hpp"
 #include <vector>
 #include <memory>
 
 class world : public world_dimensions {
+    protected:
+    schedule schedule_;
+
     public:
     std::vector<grid<world_cell>> maps;
     std::vector<std::unique_ptr<character>> characters;
@@ -50,6 +54,8 @@ class world : public world_dimensions {
             c.coord = coord;
         }
     }
+
+    schedule& get_schedule() {return schedule_;}
 
     int get_width() const {return width;}
     int get_height() const {return height;}

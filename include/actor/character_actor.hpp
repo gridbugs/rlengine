@@ -3,11 +3,11 @@
 
 #include "world/world.hpp"
 #include "observer/observer.hpp"
-#include "actor/actor.hpp"
+#include "schedule/schedule.hpp"
 #include "drawing/actor_drawing_interface.hpp"
 #include "transaction/transaction.hpp"
 
-class character_actor : public actor, public actor_drawing_interface {
+class character_actor : public schedule_callback, public actor_drawing_interface {
     protected:
 
     character &character_;
@@ -60,13 +60,14 @@ class character_actor : public actor, public actor_drawing_interface {
         observer_(o)
     {}
 
-    void operator()(world& w, callback_registry<world>& cr) {
+    void operator()() {
         if (can_act()) {
+            world &w = character_.get_world();
             observe_world(w);
             act(w);
             int cooldown = w.transactions.process_all(w);
             if (can_act()) {
-                cr.register_callback(*this, cooldown);
+                w.get_schedule().register_callback(*this, cooldown);
             }
         }
     }

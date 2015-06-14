@@ -17,7 +17,7 @@
 
 class basic_character : public character {
     public:
-    basic_character(const world_dimensions &w, const vec2<int> &v) :
+    basic_character(world &w, const vec2<int> &v) :
         character(w, v, 'b', PAIR_RED, PAIR_DARK_RED, 10)
     {}
 };
@@ -51,14 +51,13 @@ int main(int argc, char *argv[]) {
 
     a0.init_dvorak();
 
-    schedule<world> s;
-    s.register_callback(a0, 0);
-    s.register_callback(a1, 1);
-    s.register_callback(a2, 2);
-    s.register_callback(a3, 3);
-    s.register_callback(a4, 4);
+    w.get_schedule().register_callback(a0, 0);
+    w.get_schedule().register_callback(a1, 1);
+    w.get_schedule().register_callback(a2, 2);
+    w.get_schedule().register_callback(a3, 3);
+    w.get_schedule().register_callback(a4, 4);
 
-    s.run_until_empty(w);
+    w.get_schedule().run_until_empty();
 
     cancellable_owner_list<test> ol0;
     cancellable_owner_list<test> ol1;

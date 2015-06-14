@@ -1,7 +1,6 @@
 #ifndef _CHARACTER_HPP_
 #define _CHARACTER_HPP_
 
-#include "world/world_dimensions.hpp"
 #include "geometry/vec2.hpp"
 #include "geometry/direction.hpp"
 #include "drawing/curses_col.hpp"
@@ -10,7 +9,12 @@
 
 #include <algorithm>
 
+class world;
+
 class character {
+    protected:
+    world &world_;
+
     public:
     vec2<int> coord;
     char char_repr = '@';
@@ -23,21 +27,19 @@ class character {
     std::vector<knowledge_grid> knowledge_grids;
 
     protected:
-    void init_knowledge_grids(int x, int y, int z) {
-        for (int i = 0; i < z; ++i) {
-            knowledge_grids.push_back(knowledge_grid(x, y));
-        }
-    }
+    void init_knowledge_grids();
 
     public:
-    character(const world_dimensions &wd, const vec2<int> &v) :
+    character(world &w, const vec2<int> &v) :
+        world_(w),
         coord(v)
     {
-        init_knowledge_grids(wd.get_width(), wd.get_height(), wd.get_depth());
+        init_knowledge_grids();
     }
 
-    character(const world_dimensions &wd, const vec2<int> &v, char c, pair_t vp, pair_t rp,
+    character(world &w, const vec2<int> &v, char c, pair_t vp, pair_t rp,
                 int hit_points) :
+        world_(w),
         coord(v),
         char_repr(c),
         col_pair_visible(vp),
@@ -45,8 +47,10 @@ class character {
         max_hit_points(hit_points),
         current_hit_points(hit_points)
     {
-        init_knowledge_grids(wd.get_width(), wd.get_height(), wd.get_depth());
+        init_knowledge_grids();
     }
+
+    world& get_world() {return world_;}
 
     virtual int get_move_time() const {return 1;}
     virtual int get_melee_range() const {return 1;}
