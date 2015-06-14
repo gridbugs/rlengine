@@ -27,6 +27,13 @@ class test {
 };
 
 int main(int argc, char *argv[]) {
+
+    std::list<std::unique_ptr<active_effect>> test_list;
+    cancellable_owner_list<active_effect> test_list_2;
+    cancellable_owner_list<active_effect> test_list_3;
+
+    test_list_2 = test_list_3;
+
     fifo::start();
     curses::simple_start();
     srand(2);
@@ -58,13 +65,6 @@ int main(int argc, char *argv[]) {
     w.get_schedule().register_callback(a4, 4);
 
     w.get_schedule().run_until_empty();
-
-    cancellable_owner_list<test> ol0;
-    cancellable_owner_list<test> ol1;
-    cancellable_watcher_list<test> wl0;
-
-    ol0.add_watcher(wl0);
-    ol1.add_watcher(wl0);
 
     curses::simple_stop();
     fifo::stop();

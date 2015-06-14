@@ -6,6 +6,8 @@
 #include "drawing/curses_col.hpp"
 #include "character/character_image.hpp"
 #include "knowledge/knowledge.hpp"
+#include "effect/active_effect.hpp"
+#include "util/cancellable.hpp"
 
 #include <algorithm>
 
@@ -25,6 +27,8 @@ class character {
     int level_index = 0;
 
     std::vector<knowledge_grid> knowledge_grids;
+
+    cancellable_owner_list<active_effect> active_effects;
 
     protected:
     void init_knowledge_grids();

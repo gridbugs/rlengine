@@ -8,6 +8,9 @@
 #include "transaction/transaction_queue.hpp"
 #include "world/world_dimensions.hpp"
 #include "schedule/schedule.hpp"
+#include "effect/active_effect.hpp"
+#include "util/cancellable.hpp"
+
 #include <vector>
 #include <memory>
 
@@ -19,6 +22,7 @@ class world : public world_dimensions {
     std::vector<grid<world_cell>> maps;
     std::vector<std::unique_ptr<character>> characters;
     transaction_queue transactions;
+    cancellable_watcher_list<active_effect> active_effects;
 
     const int width;
     const int height;
@@ -42,7 +46,7 @@ class world : public world_dimensions {
             }
         });
     }
-    
+
     void for_each_character(int level, vec2<int> coord, const std::function<void(character&)> &f) {
         for_each_character(level, [&](character &c) {
             if (c.coord == coord) {
@@ -50,7 +54,7 @@ class world : public world_dimensions {
             }
         });
     }
-    
+
     world_cell& get_random_empty_cell(int index) {
         for (;;) {
             int x = rand() % width;

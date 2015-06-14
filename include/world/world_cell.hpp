@@ -2,6 +2,8 @@
 #define _GAME_CELL_HPP_
 
 #include "world/cell.hpp"
+#include "effect/active_effect.hpp"
+#include "util/cancellable.hpp"
 
 class game_cell_interface : public cell {
     public:
@@ -39,6 +41,9 @@ class world_cell : public game_cell_interface {
     game_cell_data *data_;
 
     public:
+
+    cancellable_owner_list<active_effect> active_effects;
+
     world_cell(const int x, const int y) :
         game_cell_interface(x, y), data_(nullptr)
     {
