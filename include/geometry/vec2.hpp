@@ -17,6 +17,10 @@ template <typename T=double> class vec2 {
         return 1 - idx;
     }
 
+    static vec2<double> from_radial(double angle, double length) {
+        return vec2<double>(std::cos(angle) * length, std::sin(angle) * length);
+    }
+
     vec2(const T x, const T y) : arr { {x, y} }, x(arr[0]), y(arr[1]) {}
     vec2(const vec2<T> &v) : vec2(v.x, v.y) {}
     vec2() : vec2(0, 0) {}
@@ -69,5 +73,7 @@ template <typename T=double> class vec2 {
     }
 
 };
+
+
 
 #endif

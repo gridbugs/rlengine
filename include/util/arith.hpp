@@ -14,6 +14,8 @@ namespace arithmetic {
     }
 
     bool is_integer(double x);
+
+    double random_double(double min, double max);
 };
 
 #endif
