@@ -13,6 +13,9 @@
 
 #include "util/cancellable.hpp"
 
+#include "util/perlin.hpp"
+#include "util/arith.hpp"
+
 #include <memory>
 
 class basic_character : public character {
@@ -26,8 +29,16 @@ class test {
     bool is_cancelled() {return false;}
 };
 
-int main(int argc, char *argv[]) {
+void f(int low, int high, int r, int g, int b) {
+    for (int i = low; i < high; ++i) {
+        init_color(20 + i, r, g, b);
+    }
+}
 
+int main(int argc, char *argv[]) {
+    srand(time(NULL));
+//    srand(0);
+#if 0
     std::list<std::unique_ptr<active_effect>> test_list;
     cancellable_owner_list<active_effect> test_list_2;
     cancellable_owner_list<active_effect> test_list_3;
@@ -36,7 +47,6 @@ int main(int argc, char *argv[]) {
 
     fifo::start();
     curses::simple_start();
-    srand(2);
 
     world w(100, 40);
     std::make_unique<conway_generator>()->generate(w);
@@ -68,5 +78,42 @@ int main(int argc, char *argv[]) {
 
     curses::simple_stop();
     fifo::stop();
+#endif
+
+    char envstr[] = "TERM=xterm-256color";
+    putenv(envstr);
+
+    initscr();
+    cbreak();
+    noecho();
+    curs_set(0);
+    start_color();
+
+    const int offset = 20;
+    for (int i = 0; i < 200; ++i) {
+        init_color(offset + i, 200+(i%10)*3.0 + i, 100+(i%10)*2.5 + i*0.5, 0+(i)*0.0);
+        init_pair(offset + i, 0, offset + i);
+    }
+ 
+    perlin_grid pg;
+    grid<generic_cell<int>> dg(220, 60);
+    
+    dg.for_each([&](generic_cell<int> &c) {
+        double noise = pg.get_noise(c.centre * 0.01);
+        c.data = (noise + 1) * 100;
+    });
+
+    dg.for_each([&](generic_cell<int> &c) {
+        wmove(stdscr, c.y_coord, c.x_coord);
+        wattron(stdscr, COLOR_PAIR(offset+c.data));
+        waddch(stdscr, ' ');
+        wattroff(stdscr, COLOR_PAIR(offset+c.data));
+
+    });
+
+
+    wgetch(stdscr);
+
+    endwin();
     return 0;
 }
