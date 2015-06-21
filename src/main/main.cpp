@@ -35,6 +35,13 @@ void f(int low, int high, int r, int g, int b) {
     }
 }
 
+class test_cell : public cell {
+    public:
+    test_cell(const int j, const int i) : cell(j, i) {};
+    int data;
+    double noise;
+};
+
 int main(int argc, char *argv[]) {
     srand(time(NULL));
 //    srand(0);
@@ -91,26 +98,30 @@ int main(int argc, char *argv[]) {
 
     const int offset = 20;
     for (int i = 0; i < 200; ++i) {
-        init_color(offset + i, 200+(i%10)*3.0 + i, 100+(i%10)*2.5 + i*0.5, 0+(i)*0.0);
+        init_color(offset + i, i*5, i*5, i*5);
         init_pair(offset + i, 0, offset + i);
+    }
+    for (int i = 0; i < 20; ++i) {
+        init_pair(i, i, i);
     }
  
     perlin_grid pg;
-    grid<generic_cell<int>> dg(220, 60);
+    grid<test_cell> dg(220, 60);
     
-    dg.for_each([&](generic_cell<int> &c) {
-        double noise = pg.get_noise(c.centre * 0.01);
-        c.data = (noise + 1) * 100;
+    dg.for_each([&](test_cell &c) {
+        c.noise = pg.get_noise(c.centre * 0.08);
+        c.data = (c.noise + 1) * 100;
     });
+ 
+    
 
-    dg.for_each([&](generic_cell<int> &c) {
+    dg.for_each([&](test_cell &c) {
         wmove(stdscr, c.y_coord, c.x_coord);
-        wattron(stdscr, COLOR_PAIR(offset+c.data));
+        wattron(stdscr, COLOR_PAIR(c.data));
         waddch(stdscr, ' ');
-        wattroff(stdscr, COLOR_PAIR(offset+c.data));
+        wattroff(stdscr, COLOR_PAIR(c.data));
 
     });
-
 
     wgetch(stdscr);
 
