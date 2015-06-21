@@ -1,6 +1,7 @@
 #ifndef _CELL_HPP_
 #define _CELL_HPP_
 
+#include <iostream>
 #include "geometry/vec2.hpp"
 #include "geometry/direction.hpp"
 
@@ -34,5 +35,11 @@ template <typename T> class generic_cell : public cell {
     T data;
     generic_cell(const int j, const int i) : cell(j, i) {};
 };
+
+
+template <typename T>
+std::ostream& operator<<(std::ostream &out, const generic_cell<T> &c) {
+    return out << c.data;
+}
 
 #endif
