@@ -285,6 +285,11 @@ template <typename T> class grid : public simple_grid<T> {
     void for_each_border(const std::function<void(T&)> &f) {
         std::for_each(border_begin(), border_end(), f);
     }
+
+    bool is_border_cell(const T& cell) {
+        return cell.x_coord == 0 || cell.x_coord == this->width - 1 ||
+               cell.y_coord == 0 || cell.y_coord == this->height - 1;
+    }
 };
 
 template <typename T>
