@@ -22,7 +22,7 @@ double ease_curve(double x) {
 double perlin_grid::get_noise(const vec2<double> &p) {
 
     /* +----> x
-     * | 
+     * |
      * |    a +--------+ b
      * |      |        |
      * v      |        |

@@ -35,18 +35,18 @@ template <typename T> class cancellable_owner_list {
 
     cancellable_owner_list() {
     }
-    
+
     cancellable_owner_list(const cancellable_owner_list &col) {
     }
 
     cancellable_owner_list(cancellable_watcher_list<T> &cwl) {
-        add_watcher(cwl);    
+        add_watcher(cwl);
     }
-    
+
     cancellable_owner_list<T>& operator=(const cancellable_owner_list<T>& x) {
         return *this;
     }
-    
+
     void add_watcher(cancellable_watcher_list<T> &w) {
         watchers_.push_front(&w);
         std::for_each(list_.begin(), list_.end(), [&](std::unique_ptr<T> &x) {
@@ -54,7 +54,7 @@ template <typename T> class cancellable_owner_list {
         });
     }
 
-    
+
     void watchers_remove_cancelled() {
         std::for_each(watchers_.begin(), watchers_.end(), [&](watcher_t *w) {
             w->remove_cancelled();

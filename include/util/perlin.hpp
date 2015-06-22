@@ -8,7 +8,7 @@
 class perlin_gradient {
     public:
     static vec2<double> get_random_unit_vector();
-    
+
     const vec2<double> unit_vector;
     perlin_gradient() :
         unit_vector(get_random_unit_vector())
@@ -16,7 +16,7 @@ class perlin_gradient {
 };
 
 template <typename T> class signed_vector {
-    
+
     private:
     std::vector<T> positive;
     std::vector<T> negative;
@@ -63,7 +63,7 @@ class perlin_grid {
      * Each row is a vector of gradients.
      */
     signed_vector<signed_vector<perlin_gradient>> gradient_grid;
-    
+
     void resize_grid(const vec2<double> &p);
     const perlin_gradient &get_gradient(const vec2<double> &p);
 

@@ -43,6 +43,7 @@ class test_cell : public cell {
     double noise;
     int generation = -1;
     test_cell *core = nullptr;
+    int classification = -1;
 };
 
 test_cell& get_min_border(grid<test_cell> &grid) {
@@ -92,7 +93,7 @@ bool dijkstra(grid<test_cell> &gr) {
     std::priority_queue<search_node, std::vector<search_node>, search_node_comparitor> pq;
     pq.push(search_node(*start, 0, 0));
     search_grid.get_cell(start->coord).visited = true;
-    
+
     std::list<test_cell*> ends;
 
     while (!pq.empty()) {
@@ -105,17 +106,18 @@ bool dijkstra(grid<test_cell> &gr) {
         if (gr.is_border_cell(*current) && dist > 100) {
             if (end == nullptr) {
                 end = current;
-    
+
                 search_cell *tmp = &search_grid.get_cell(end->coord);
                 while (tmp) {
                     gr.get_cell(tmp->coord).data = COLOR_BLUE; //COLOR_RED;
                     gr.get_cell(tmp->coord).generation = 0;
                     gr.get_cell(tmp->coord).core = &gr.get_cell(tmp->coord);
+                    gr.get_cell(tmp->coord).ch = '~';
                     tmp = tmp->parent;
                 }
 
             } else {
-                if (arithmetic::random_double(0, 1) < 0.01) {
+                if (arithmetic::random_double(0, 1) < 0.02) {
                     ends.push_back(current);
                 }
             }
@@ -140,10 +142,11 @@ bool dijkstra(grid<test_cell> &gr) {
                 break;
             }
             gr.get_cell(tmp->coord).data = COLOR_BLUE; //COLOR_RED;
-            gr.get_cell(tmp->coord).generation = 3;
+            gr.get_cell(tmp->coord).generation = 2;
             gr.get_cell(tmp->coord).core = &gr.get_cell(tmp->coord);
+            gr.get_cell(tmp->coord).ch = '~';
             tmp = tmp->parent;
-        }   
+        }
     });
 
     return true;
@@ -160,6 +163,7 @@ void grow(grid<test_cell> &gr, int gen) {
                         nei.generation = next_gen;
                         nei.core = core;
                         nei.data = COLOR_BLUE;//COLOR_RED + next_gen;
+                        nei.ch = '~';
                     }
                 }
             });
@@ -167,34 +171,41 @@ void grow(grid<test_cell> &gr, int gen) {
     });
 }
 
-void greedy(grid<test_cell> &gr) {
+void flood(grid<test_cell> &gr, test_cell &start, const std::function<void(test_cell&)> &f) {
+    std::list<test_cell*> queue;
+    queue.push_back(&start);
 
-    grid<generic_cell<bool>> visited(gr.width, gr.height);
-
+    simple_grid<generic_cell<bool>> visited(gr.width, gr.height);
     visited.for_each([](generic_cell<bool> &c) {c.data = false;});
-    test_cell &c = get_min_border(gr);
-    test_cell *current = &c;
 
-    while (true) {
-        current->data = COLOR_RED;
-        current->ch = 'x';
-        visited.get_cell(current->coord).data = true;
-        test_cell *next = nullptr;
-        double min_noise = 1;
-        gr.for_each_neighbour(*current, [&](test_cell &n) {
-            if (!visited.get_cell(n.coord).data && (next == nullptr || n.noise < min_noise)) {
-                next = &n;
-                min_noise = n.noise;
+    visited.get_cell(start.coord).data = true;
+
+    while (!queue.empty()) {
+        test_cell *cptr = queue.front();
+        queue.pop_front();
+
+        gr.for_each_neighbour(*cptr, [&](test_cell &nei) {
+            if (!visited.get_cell(nei.coord).data && nei.ch == start.ch) {
+                visited.get_cell(nei.coord).data = true;
+                queue.push_back(&nei);
             }
         });
-        if (next == nullptr) {
-            break;
-        } else {
-            current = next;
-        }
+
+        f(*cptr);
     }
 }
 
+void classify(grid<test_cell> &gr) {
+    int classification = 0;
+    gr.for_each([&](test_cell &c) {
+        if (c.classification == -1) {
+            flood(gr, c, [&](test_cell &fc) {
+                fc.classification = classification;
+            });
+            ++classification;
+        }
+    });
+}
 
 int main(int argc, char *argv[]) {
     srand(time(NULL));
@@ -254,26 +265,31 @@ int main(int argc, char *argv[]) {
     const int offset = 20;
     for (int i = 0; i < 200; ++i) {
         init_color(offset + i, i*5, i*5, i*5);
-        init_pair(offset + i, 0, offset + i);
+        init_pair(offset + i, offset + i, 0);
     }
     for (int i = 0; i < 20; ++i) {
-        init_pair(i, 0, i);
+        init_pair(i, i, 0);
     }
 #endif
     perlin_grid pg;
-    grid<test_cell> dg(220, 60);
-    
+    grid<test_cell> dg(140, 40);
+
     dg.for_each([&](test_cell &c) {
         c.noise = pg.get_noise(c.centre * 0.1);
-        c.data = (c.noise + 1) * 100;
+        c.data = COLOR_GREEN;
+        c.ch = '.';
     });
- 
- 
+
     dijkstra(dg);
     grow(dg, 0);
     grow(dg, 1);
     grow(dg, 2);
-    grow(dg, 3);
+
+    classify(dg);
+
+    dg.for_each([](test_cell &c) {
+        c.ch = 'a' + c.classification;
+    });
 
 #ifdef DRAW
     dg.for_each([&](test_cell &c) {
