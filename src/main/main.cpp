@@ -195,14 +195,22 @@ void flood(grid<test_cell> &gr, test_cell &start, const std::function<void(test_
     }
 }
 
-void classify(grid<test_cell> &gr) {
+class cell_group {
+    public:
+    std::list<test_cell*> cells;
+};
+
+void classify(grid<test_cell> &gr, std::list<cell_group> &groups) {
     int classification = 0;
+    groups.emplace_back();
     gr.for_each([&](test_cell &c) {
         if (c.classification == -1) {
             flood(gr, c, [&](test_cell &fc) {
                 fc.classification = classification;
+                groups.back().cells.push_back(&fc);
             });
             ++classification;
+            groups.emplace_back();
         }
     });
 }
@@ -285,10 +293,15 @@ int main(int argc, char *argv[]) {
     grow(dg, 1);
     grow(dg, 2);
 
-    classify(dg);
+    std::list<cell_group> groups;
+    classify(dg, groups);
 
     dg.for_each([](test_cell &c) {
         c.ch = 'a' + c.classification;
+    });
+
+    std::for_each(groups.front().cells.begin(), groups.front().cells.end(), [](test_cell* c) {
+        c->ch = 'x';
     });
 
 #ifdef DRAW
