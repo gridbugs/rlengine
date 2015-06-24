@@ -315,7 +315,7 @@ void tree_tick(grid<test_cell> &gr) {
                 c.tree_life = static_cast<int>(arithmetic::random_double(0, 50));
                 c.next_contents = cell_contents::TREE;
             } else {
-                if (arithmetic::random_double(0, 1) < (0.01*(20-c.dist_to_water))) {
+                if (arithmetic::random_double(0, 1) < (0.005*(40-c.dist_to_water))) {
                     c.tree_life = static_cast<int>(arithmetic::random_double(0, 50));
                     c.next_contents = cell_contents::TREE;
                 } else {
