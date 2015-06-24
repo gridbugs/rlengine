@@ -57,6 +57,9 @@ class test_cell : public cell {
     int dist_to_land = -1;
 
     cell_contents contents = cell_contents::EMPTY;
+    cell_contents next_contents = cell_contents::EMPTY;
+
+    double tree_life = 0;
 };
 
 test_cell& get_min_border(grid<test_cell> &grid) {
@@ -130,7 +133,7 @@ bool dijkstra(grid<test_cell> &gr) {
                 }
 
             } else {
-                if (arithmetic::random_double(0, 1) < 0.02) {
+                if (ends.empty() || arithmetic::random_double(0, 1) < 0.01) {
                     ends.push_back(current);
                 }
             }
@@ -267,6 +270,91 @@ void place_trees(grid<test_cell> &gr) {
         if (!c.is_water && arithmetic::random_double(0, 1) < 0.1) {
             c.contents = cell_contents::TREE;
             c.ch = '&';
+            c.tree_life = static_cast<int>(arithmetic::random_double(0, 50));
+        }
+    });
+}
+
+void tree_tick(grid<test_cell> &gr) {
+    gr.for_each([&](test_cell &c) {
+        if (c.is_water) {
+            return;
+        }
+
+        int count = 0;
+        gr.for_each_neighbour(c, [&](test_cell &nei) {
+            if (nei.contents == cell_contents::TREE) {
+                ++count;
+            }
+            if (nei.contents == cell_contents::DEAD_TREE) {
+                if (arithmetic::random_double(0, 1) < 0.3) {
+    //                ++count;
+                }
+            }
+        });
+        if (c.contents == cell_contents::TREE) {
+            c.tree_life -= c.dist_to_water * arithmetic::random_double(0, 1) * 10;
+            if (c.tree_life <= 0) {
+                if (arithmetic::random_double(0, 1) < 0.05) {
+                    c.next_contents = cell_contents::DEAD_TREE;
+                } else {
+                    c.next_contents = cell_contents::EMPTY;
+                }
+            } else {
+                if (count >= 2 && count <= 3) {
+                    c.next_contents = cell_contents::TREE;
+                } else {
+                    if (arithmetic::random_double(0, 1) < (0.01*c.dist_to_water)) {
+//                        c.next_contents = cell_contents::EMPTY;
+                        c.tree_life -= c.dist_to_water * 100 * arithmetic::random_double(0, 1);
+                    }
+                }
+            }
+        } else if (c.contents == cell_contents::EMPTY) {
+            if (count >= 3 && count <= 3) {
+                c.tree_life = static_cast<int>(arithmetic::random_double(0, 50));
+                c.next_contents = cell_contents::TREE;
+            } else {
+                if (arithmetic::random_double(0, 1) < (0.01*(20-c.dist_to_water))) {
+                    c.tree_life = static_cast<int>(arithmetic::random_double(0, 50));
+                    c.next_contents = cell_contents::TREE;
+                } else {
+                    c.next_contents = cell_contents::EMPTY;
+                }
+            }
+        } else if (c.contents == cell_contents::DEAD_TREE) {
+            c.next_contents = cell_contents::EMPTY;
+        }
+    });
+
+    gr.for_each([](test_cell &c) {
+        if (c.is_water) {
+            return;
+        }
+        c.contents = c.next_contents;
+    });
+}
+
+void update_chars(grid<test_cell> &gr) {
+    gr.for_each([](test_cell &c) {
+        if (c.is_water) {
+            return;
+        }
+        switch (c.contents) {
+        case cell_contents::TREE:
+            c.ch = '&';
+            c.data = COLOR_GREEN;
+            break;
+        case cell_contents::EMPTY:
+            c.ch = '.';
+            c.data = COLOR_GREEN;
+            break;
+        case cell_contents::DEAD_TREE:
+            c.ch = '&';
+            c.data = COLOR_YELLOW;
+            break;
+        default:
+            c.ch = '.';
         }
     });
 }
@@ -391,6 +479,12 @@ int main(int argc, char *argv[]) {
 
     place_trees(dg);
 
+    for (int i = 0; i < 200; ++i) {
+        tree_tick(dg);
+    }
+    
+    update_chars(dg);
+
 #ifdef DRAW
     dg.for_each([&](test_cell &c) {
         wmove(stdscr, c.y_coord, c.x_coord);
@@ -400,8 +494,8 @@ int main(int argc, char *argv[]) {
 
     });
 
-    wgetch(stdscr);
 
+    wgetch(stdscr);
     endwin();
 #endif
     return 0;
