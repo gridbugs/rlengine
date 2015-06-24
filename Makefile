@@ -11,7 +11,7 @@ CXX_TEST_BIN=$(CXX_TEST_OBJ:.o=)
 CXX=g++
 CXXFLAGS=-g -Werror -Wall -std=c++14
 ENGINE_CXXFLAGS=-Iinclude
-LDLIBS=-lncurses
+LDLIBS=-lncursesw
 
 ENGINE_OBJS=$(addprefix $(OBJDIR)/, $(CXX_ENGINE_SRC:.cpp=.o))
 

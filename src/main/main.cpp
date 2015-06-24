@@ -35,6 +35,12 @@ void f(int low, int high, int r, int g, int b) {
     }
 }
 
+enum class cell_contents {
+    TREE,
+    DEAD_TREE,
+    EMPTY
+};
+
 class test_cell : public cell {
     public:
     test_cell(const int j, const int i) : cell(j, i) {};
@@ -44,6 +50,13 @@ class test_cell : public cell {
     int generation = -1;
     test_cell *core = nullptr;
     int classification = -1;
+
+    bool is_water = false;
+
+    int dist_to_water = -1;
+    int dist_to_land = -1;
+
+    cell_contents contents = cell_contents::EMPTY;
 };
 
 test_cell& get_min_border(grid<test_cell> &grid) {
@@ -202,15 +215,58 @@ class cell_group {
 
 void classify(grid<test_cell> &gr, std::list<cell_group> &groups) {
     int classification = 0;
-    groups.emplace_back();
     gr.for_each([&](test_cell &c) {
         if (c.classification == -1) {
+            groups.emplace_back();
             flood(gr, c, [&](test_cell &fc) {
                 fc.classification = classification;
                 groups.back().cells.push_back(&fc);
             });
             ++classification;
-            groups.emplace_back();
+        }
+    });
+}
+
+void compute_distances(grid<test_cell> &gr) {
+    std::list<test_cell*> water_dist_queue;
+    std::list<test_cell*> land_dist_queue;
+    gr.for_each([&](test_cell &c) {
+        if (c.is_water) {
+            c.dist_to_water = 0;
+            water_dist_queue.push_back(&c);
+        } else {
+            c.dist_to_land = 0;
+            land_dist_queue.push_back(&c);
+        }
+    });
+    while (!water_dist_queue.empty()) {
+        test_cell *c = water_dist_queue.front();
+        water_dist_queue.pop_front();
+        gr.for_each_neighbour(*c, [&](test_cell &nei) {
+            if (nei.dist_to_water == -1) {
+                nei.dist_to_water = c->dist_to_water + 1;
+                water_dist_queue.push_back(&nei);
+            }
+        });
+    }
+    while (!land_dist_queue.empty()) {
+        test_cell *c = land_dist_queue.front();
+        land_dist_queue.pop_front();
+        gr.for_each_neighbour(*c, [&](test_cell &nei) {
+            if (nei.dist_to_land == -1) {
+                nei.dist_to_land = c->dist_to_land + 1;
+                land_dist_queue.push_back(&nei);
+            }
+        });
+    }
+
+}
+
+void place_trees(grid<test_cell> &gr) {
+    gr.for_each([](test_cell &c) {
+        if (!c.is_water && arithmetic::random_double(0, 1) < 0.1) {
+            c.contents = cell_contents::TREE;
+            c.ch = '&';
         }
     });
 }
@@ -296,13 +352,44 @@ int main(int argc, char *argv[]) {
     std::list<cell_group> groups;
     classify(dg, groups);
 
+    cell_group *water_group = nullptr;
+    std::for_each(groups.begin(), groups.end(), [&](cell_group &g) {
+        if (g.cells.front()->ch == '~') {
+            water_group = &g;
+        }
+    });
+#ifdef SHOWGROUPS
     dg.for_each([](test_cell &c) {
         c.ch = 'a' + c.classification;
     });
-
-    std::for_each(groups.front().cells.begin(), groups.front().cells.end(), [](test_cell* c) {
-        c->ch = 'x';
+#endif
+    
+    std::for_each(water_group->cells.begin(), water_group->cells.end(), 
+        [&](test_cell *c) {
+        c->is_water = true;
+        c->ch = '~';
     });
+    
+    compute_distances(dg);
+#ifdef SHOWDISTS
+    dg.for_each([](test_cell &c) {
+        if (c.is_water) {
+            if (c.dist_to_land > 0 && c.dist_to_land <= 26) {
+                c.ch = 'a' + c.dist_to_land - 1;
+            } else {
+                c.ch = '~';
+            }
+        } else {
+            if (c.dist_to_water > 0 && c.dist_to_water <= 26) {
+                c.ch = 'a' + c.dist_to_water - 1;
+            } else {
+                c.ch = '.';
+            }
+        }
+    });
+#endif
+
+    place_trees(dg);
 
 #ifdef DRAW
     dg.for_each([&](test_cell &c) {
