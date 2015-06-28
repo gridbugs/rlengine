@@ -42,6 +42,8 @@ enum class cell_contents {
     EMPTY
 };
 
+class cell_group;
+
 class test_cell : public cell {
     public:
     test_cell(const int j, const int i) : cell(j, i) {};
@@ -53,7 +55,12 @@ class test_cell : public cell {
     int classification = -1;
 
     bool is_water = false;
+    bool is_water_edge = false;
+    bool is_water_hard_edge = false;
     bool is_open = true;
+    bool is_enclosed = false;
+    bool is_wall = false;
+    bool is_hard_wall = false;
 
     int dist_to_water = -1;
     int dist_to_land = -1;
@@ -67,6 +74,13 @@ class test_cell : public cell {
     int space_down;
     int space_left;
     int space_right;
+
+    int expand_dist = -1;
+
+    bool is_bridge_candidate = false;
+    direction::direction_t bridge_direction;
+
+    cell_group *group = nullptr;
 };
 
 test_cell& get_min_border(grid<test_cell> &grid) {
@@ -118,6 +132,7 @@ bool dijkstra(grid<test_cell> &gr) {
     search_grid.get_cell(start->coord).visited = true;
 
     std::list<test_cell*> ends;
+    bool ret = false;
 
     while (!pq.empty()) {
         search_node n = pq.top();
@@ -137,6 +152,7 @@ bool dijkstra(grid<test_cell> &gr) {
                     gr.get_cell(tmp->coord).core = &gr.get_cell(tmp->coord);
                     gr.get_cell(tmp->coord).ch = '~';
                     tmp = tmp->parent;
+                    ret = true;
                 }
 
             } else {
@@ -172,7 +188,7 @@ bool dijkstra(grid<test_cell> &gr) {
         }
     });
 
-    return true;
+    return ret;
 }
 
 void grow(grid<test_cell> &gr, int gen) {
@@ -218,9 +234,33 @@ void flood(grid<test_cell> &gr, test_cell &start, const std::function<void(test_
     }
 }
 
+void mark_water_edge(grid<test_cell> &gr) {
+    gr.for_each([&](test_cell &c) {
+        if (c.is_water) {
+            gr.for_each_neighbour(c, [&](test_cell &nei) {
+                if (!nei.is_water) {
+                    c.is_water_edge = true;
+                }
+            });
+            gr.for_each_cardinal_neighbour(c, [&](test_cell &nei) {
+                if (!nei.is_water) {
+                    c.is_water_hard_edge = true;
+                }
+            });
+            if (c.is_water_hard_edge) {
+                c.ch = '=';
+            } else if (c.is_water_edge) {
+                c.ch = '~';
+            }
+        }
+    });
+}
+
 class cell_group {
     public:
+    int classification;
     std::list<test_cell*> cells;
+    std::vector<bool> connectable_groups;
 };
 
 void classify(grid<test_cell> &gr, std::list<cell_group> &groups) {
@@ -228,12 +268,20 @@ void classify(grid<test_cell> &gr, std::list<cell_group> &groups) {
     gr.for_each([&](test_cell &c) {
         if (c.classification == -1) {
             groups.emplace_back();
+            groups.back().classification = classification;
             flood(gr, c, [&](test_cell &fc) {
                 fc.classification = classification;
                 groups.back().cells.push_back(&fc);
+                fc.group = &groups.back();
             });
             ++classification;
         }
+    });
+    
+    std::for_each(groups.begin(), groups.end(), [&](cell_group &gi) {
+        std::for_each(groups.begin(), groups.end(), [&](cell_group &gj) {
+            gi.connectable_groups.push_back(false);   
+        });
     });
 }
 
@@ -562,9 +610,145 @@ void expand_rect(grid<test_cell> &gr, rectangle &r) {
 
 }
 
+bool test_water_edge(grid<test_cell> &gr, test_cell &c, direction::direction_t a, direction::direction_t b) {
+    return gr.with_neighbour<bool, false>(c, a, [](test_cell &n) {return n.is_water_hard_edge;}) &&
+           gr.with_neighbour<bool, false>(c, b, [](test_cell &n) {return n.is_water_hard_edge;});
+
+}
+
+void find_edge_candidates(grid<test_cell> &gr) {
+    gr.for_each([&](test_cell &c) {
+        if (c.is_water_hard_edge) {
+            if (test_water_edge(gr, c, direction::east, direction::west)) {
+                c.is_bridge_candidate = true;
+                if (gr.with_neighbour<bool, false>(c, direction::north, [](test_cell &n) {return n.is_water;})) {
+                    c.bridge_direction = direction::north;
+                } else {
+                    c.bridge_direction = direction::south;
+                }
+            } else if (test_water_edge(gr, c, direction::north, direction::south)) {
+                c.is_bridge_candidate = true;
+                if (gr.with_neighbour<bool, false>(c, direction::east, [](test_cell &n) {return n.is_water;})) {
+                    c.bridge_direction = direction::east;
+                } else {
+                    c.bridge_direction = direction::west;
+                }
+            }
+        }
+
+        if (c.is_bridge_candidate) {
+            char ch = '=';
+            switch (c.bridge_direction) {
+            case direction::north:
+                ch = '^';
+                break;
+            case direction::south:
+                ch = 'v';
+                break;
+            case direction::east:
+                ch = '>';
+                break;
+            case direction::west:
+                ch = '<';
+                break;
+            default:
+                break;
+            }
+            c.ch = ch;
+        }
+    });
+}
+
+bool is_connected_bridge_candidate(grid<test_cell> &gr, test_cell &cand) {
+    test_cell *ptr = &cand;
+
+    while (ptr && ptr->is_water) {
+        if (ptr->is_bridge_candidate && direction::is_opposite(ptr->bridge_direction, cand.bridge_direction)) {
+            return true;
+        }
+        ptr = gr.get_neighbour(*ptr, cand.bridge_direction);
+    }
+    return false;
+}
+
+void connect_bridge_candidates(grid<test_cell> &gr) {
+    gr.for_each([&](test_cell &c) {
+        if (c.is_bridge_candidate && is_connected_bridge_candidate(gr, c)) {
+            test_cell *far_side = &c;
+            while (far_side->is_water) {
+                far_side->ch = '+';
+                far_side = gr.get_neighbour(*far_side, c.bridge_direction);
+            }
+            test_cell *near_side = gr.get_neighbour(c, direction::get_opposite(c.bridge_direction));
+            near_side->group->connectable_groups[far_side->classification] = true;
+        }
+    });
+}
+
+void grow_wall(grid<test_cell> &gr, rectangle &r, int amount) {
+    std::list<test_cell*> queue;
+    std::list<test_cell*> enclosure;
+    r.for_each(gr, [&](test_cell &c) {
+        c.expand_dist = 0;
+        c.is_enclosed = true;
+        queue.push_back(&c);
+        enclosure.push_back(&c);
+    });
+    int current = 0;
+    while (true) {
+        test_cell *ptr = queue.front();
+        queue.pop_front();
+        current = ptr->expand_dist + 1;
+
+        if (current > amount) {
+            break;
+        }
+
+        gr.for_each_cardinal_neighbour(*ptr, [&](test_cell &nei) {
+            if (!nei.is_water && !nei.is_enclosed) {
+                nei.expand_dist = current;
+                nei.is_enclosed = true;
+                queue.push_back(&nei);
+                enclosure.push_back(&nei);
+            }
+        });
+    }
+
+    std::for_each(enclosure.begin(), enclosure.end(), [&](test_cell *c) {
+        c->ch = c->expand_dist + '0';
+        c->data = COLOR_WHITE;
+        int count = 0;
+        gr.for_each_neighbour(*c, [&](test_cell &nei) {
+            if (nei.is_enclosed) {
+                ++count;
+            }
+        });
+        c->is_wall = count != 8;
+        
+        count = 0;
+        gr.for_each_cardinal_neighbour(*c, [&](test_cell &nei) {
+            if (nei.is_enclosed) {
+                ++count;
+            }
+        });
+        c->is_hard_wall = count != 4;
+
+        if (c->is_hard_wall) {
+            c->ch = '#';
+        } else if (c->is_wall) {
+            c->ch = 'X';
+        } else {
+            c->ch = '.';
+        }
+    });
+
+}
+
 int main(int argc, char *argv[]) {
     long int seed = time(NULL);
 //    long int seed = 1435465862;
+//    long int seed = 1435475695;
+    std::cout << seed << std::endl;
     srand(seed);
 //    srand(0);
 #if 0
@@ -631,13 +815,17 @@ int main(int argc, char *argv[]) {
     perlin_grid pg;
     grid<test_cell> dg(140, 40);
 
-    dg.for_each([&](test_cell &c) {
-        c.noise = pg.get_noise(c.centre * 0.1);
-        c.data = COLOR_GREEN;
-        c.ch = '.';
-    });
+    bool has_water = false;
+    while (!has_water) {
+        pg.clear();
+        dg.for_each([&](test_cell &c) {
+            c.noise = pg.get_noise(c.centre * 0.1);
+            c.data = COLOR_GREEN;
+            c.ch = '.';
+        });
 
-    dijkstra(dg);
+        has_water = dijkstra(dg);
+    }
     grow(dg, 0);
     grow(dg, 1);
     grow(dg, 2);
@@ -708,32 +896,20 @@ int main(int argc, char *argv[]) {
 
     rectangle &rect = *rectptr;
 
-    rect.for_each(dg, [&](test_cell &c) {
-        c.contents = cell_contents::EMPTY;
-        c.next_contents = cell_contents::EMPTY;
-        c.tree_life = 0;
+    grow_wall(dg, rect, 4);
+
+    mark_water_edge(dg);
+
+    find_edge_candidates(dg);
+
+    connect_bridge_candidates(dg);
+
+
+    dg.for_each([&](test_cell &c) {
+        if (!c.is_water) {
+            c.ch = '0' + c.classification;
+        }
     });
-    
-   // rect.shrink(4);
-
-    rect.for_each(dg, [&](test_cell &c) {
-        c.data = COLOR_WHITE;
-        c.is_open = false;
-    });
-    rect.for_each_border(dg, [&](test_cell &c) {
-        c.ch = '#';
-    });
-    rect.for_each_internal(dg, [&](test_cell &c) {
-        c.ch = '.';
-    });
-
-
-    for (int i = 0; i < 5; ++i) {
-        tree_tick(dg);
-    }
-
-    update_chars(dg);
-
 #ifdef DRAW
     dg.for_each([&](test_cell &c) {
         wmove(stdscr, c.y_coord, c.x_coord);
@@ -743,10 +919,15 @@ int main(int argc, char *argv[]) {
 
     });
 
-    wprintw(stdscr, "%d ", seed);
-    test_cell &aa = dg[39][39];
-    wprintw(stdscr, "%d %d %d %d", aa.space_left, aa.space_up, 
-                    rect.bottomright.x, rect.bottomright.y);
+    wmove(stdscr, 41, 0);
+    std::vector<bool> &l = groups.front().connectable_groups;
+    int i = 0;
+    std::for_each(l.begin(), l.end(), [&](bool b) {
+        if (b) {
+            wprintw(stdscr, "%d ", i);
+        }
+        ++i;
+    });
 
     wgetch(stdscr);
     endwin();

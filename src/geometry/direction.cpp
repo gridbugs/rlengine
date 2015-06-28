@@ -86,3 +86,22 @@ static const std::string string_table[n_directions + 1] = {
 std::ostream &operator<<(std::ostream &out, const direction_t dir) {
     return out << string_table[dir];
 }
+
+static const direction::direction_t opposites[n_directions] = {
+    [north] = south,
+    [east] = west,
+    [south] = north,
+    [west] = east,
+    [northeast] = southwest,
+    [southeast] = northwest,
+    [southwest] = northeast,
+    [northwest] = northeast
+};
+
+bool direction::is_opposite(direction_t a, direction_t b) {
+    return opposites[a] == b;
+}
+
+direction::direction_t direction::get_opposite(direction_t d) {
+    return opposites[d];
+}

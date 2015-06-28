@@ -9,7 +9,7 @@ class perlin_gradient {
     public:
     static vec2<double> get_random_unit_vector();
 
-    const vec2<double> unit_vector;
+    vec2<double> unit_vector;
     perlin_gradient() :
         unit_vector(get_random_unit_vector())
     {}
@@ -53,6 +53,12 @@ template <typename T> class signed_vector {
         }
         return zero;
     }
+
+    void clear() {
+        positive.clear();
+        negative.clear();
+        zero = T();
+    }
 };
 
 class perlin_grid {
@@ -70,6 +76,7 @@ class perlin_grid {
     public:
 
     double get_noise(const vec2<double> &p);
+    void clear();
 };
 
 #endif

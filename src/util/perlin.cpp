@@ -75,3 +75,7 @@ vec2<double> perlin_gradient::get_random_unit_vector() {
     double angle = arithmetic::random_double(0, M_PI * 2);
     return vec2<>::from_radial(angle, 1);
 }
+
+void perlin_grid::clear() {
+    gradient_grid.clear();
+}

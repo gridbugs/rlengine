@@ -29,7 +29,8 @@ namespace direction {
                                  direction_t *c0,
                                  direction_t *c1);
 
-
+    bool is_opposite(direction_t a, direction_t b);
+    direction_t get_opposite(direction_t d);
     namespace cardinal {
         typedef enum {
             north = 0,
