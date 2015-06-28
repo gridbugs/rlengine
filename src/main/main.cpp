@@ -17,6 +17,7 @@
 #include "util/arith.hpp"
 #include "assert.h"
 #include <memory>
+#include <algorithm>
 
 class basic_character : public character {
     public:
@@ -52,6 +53,7 @@ class test_cell : public cell {
     int classification = -1;
 
     bool is_water = false;
+    bool is_open = true;
 
     int dist_to_water = -1;
     int dist_to_land = -1;
@@ -138,7 +140,7 @@ bool dijkstra(grid<test_cell> &gr) {
                 }
 
             } else {
-                if (ends.empty() || arithmetic::random_double(0, 1) < 0.01) {
+                if (arithmetic::random_double(0, 1) < 0.02) {
                     ends.push_back(current);
                 }
             }
@@ -272,7 +274,7 @@ void compute_distances(grid<test_cell> &gr) {
 
 void place_trees(grid<test_cell> &gr) {
     gr.for_each([](test_cell &c) {
-        if (!c.is_water && arithmetic::random_double(0, 1) < 0.1) {
+        if (c.is_open && arithmetic::random_double(0, 1) < 0.1) {
             c.contents = cell_contents::TREE;
             c.ch = '&';
             c.tree_life = static_cast<int>(arithmetic::random_double(0, 50));
@@ -282,7 +284,7 @@ void place_trees(grid<test_cell> &gr) {
 
 void tree_tick(grid<test_cell> &gr) {
     gr.for_each([&](test_cell &c) {
-        if (c.is_water) {
+        if (!c.is_open) {
             return;
         }
 
@@ -290,11 +292,6 @@ void tree_tick(grid<test_cell> &gr) {
         gr.for_each_neighbour(c, [&](test_cell &nei) {
             if (nei.contents == cell_contents::TREE) {
                 ++count;
-            }
-            if (nei.contents == cell_contents::DEAD_TREE) {
-                if (arithmetic::random_double(0, 1) < 0.3) {
-    //                ++count;
-                }
             }
         });
         if (c.contents == cell_contents::TREE) {
@@ -310,7 +307,6 @@ void tree_tick(grid<test_cell> &gr) {
                     c.next_contents = cell_contents::TREE;
                 } else {
                     if (arithmetic::random_double(0, 1) < (0.01*c.dist_to_water)) {
-//                        c.next_contents = cell_contents::EMPTY;
                         c.tree_life -= c.dist_to_water * 100 * arithmetic::random_double(0, 1);
                     }
                 }
@@ -333,7 +329,7 @@ void tree_tick(grid<test_cell> &gr) {
     });
 
     gr.for_each([](test_cell &c) {
-        if (c.is_water) {
+        if (!c.is_open) {
             return;
         }
         c.contents = c.next_contents;
@@ -342,7 +338,7 @@ void tree_tick(grid<test_cell> &gr) {
 
 void update_chars(grid<test_cell> &gr) {
     gr.for_each([](test_cell &c) {
-        if (c.is_water) {
+        if (!c.is_open) {
             return;
         }
         switch (c.contents) {
@@ -366,35 +362,35 @@ void update_chars(grid<test_cell> &gr) {
 
 void compute_space(grid<test_cell> &gr) {
     if (gr[0][0].is_water) {
-        gr[0][0].space_up = -1;
-        gr[0][0].space_left = -1;
-    } else {
         gr[0][0].space_up = 0;
         gr[0][0].space_left = 0;
+    } else {
+        gr[0][0].space_up = 1;
+        gr[0][0].space_left = 1;
     }
     for (int i = 1; i < gr.width; ++i) {
         if (gr[0][i].is_water) {
-            gr[0][i].space_up = -1;
-            gr[0][i].space_left = -1;
-        } else {
             gr[0][i].space_up = 0;
+            gr[0][i].space_left = 0;
+        } else {
+            gr[0][i].space_up = 1;
             gr[0][i].space_left = gr[0][i-1].space_left + 1;
         }
     }
     for (int i = 1; i < gr.height; ++i) {
         if (gr[i][0].is_water) {
-            gr[i][0].space_up = -1;
-            gr[i][0].space_left = -1;
+            gr[i][0].space_up = 0;
+            gr[i][0].space_left = 0;
         } else {
             gr[i][0].space_up = gr[i-1][0].space_up + 1;
-            gr[i][0].space_left = 0;
+            gr[i][0].space_left = 1;
         }
     }
     for (int i = 1; i < gr.height; ++i) {
         for (int j = 1; j < gr.width; ++j) {
             if (gr[i][j].is_water) {
-                gr[i][j].space_up = -1;
-                gr[i][j].space_left = -1;
+                gr[i][j].space_up = 0;
+                gr[i][j].space_left = 0;
             } else {
                 gr[i][j].space_up = gr[i-1][j].space_up + 1;
                 gr[i][j].space_left = gr[i][j-1].space_left + 1;
@@ -404,38 +400,38 @@ void compute_space(grid<test_cell> &gr) {
 
     test_cell &bottom_right = gr[gr.height-1][gr.width-1];
     if (bottom_right.is_water) {
-        bottom_right.space_down = -1;
-        bottom_right.space_right = -1;
-    } else {
         bottom_right.space_down = 0;
         bottom_right.space_right = 0;
+    } else {
+        bottom_right.space_down = 1;
+        bottom_right.space_right = 1;
     }
     for (int i = gr.width-2; i >= 0; --i) {
         test_cell &c = gr[gr.height-1][i];
         if (c.is_water) {
-            c.space_down = -1;
-            c.space_right = -1;
-        } else {
             c.space_down = 0;
+            c.space_right = 0;
+        } else {
+            c.space_down = 1;
             c.space_right = gr[gr.height-1][i+1].space_right + 1;
         }
     }
     for (int i = gr.height-2; i >= 0; --i) {
         test_cell &c = gr[i][gr.width-1];
         if (c.is_water) {
-            c.space_down = -1;
-            c.space_right = -1;
+            c.space_down = 0;
+            c.space_right = 0;
         } else {
             c.space_down = gr[i+1][gr.width-1].space_down + 1;
-            c.space_right = 0;
+            c.space_right = 1;
         }
     }
     for (int i = gr.height-2; i >= 0; --i) {
         for (int j = gr.width-2; j >= 0; --j) {
             test_cell &c = gr[i][j];
             if (c.is_water) {
-                c.space_down = -1;
-                c.space_right = -1;
+                c.space_down = 0;
+                c.space_right = 0;
             } else {
                 c.space_down = gr[i+1][j].space_down + 1;
                 c.space_right = gr[i][j+1].space_right + 1;
@@ -444,8 +440,132 @@ void compute_space(grid<test_cell> &gr) {
     }
 }
 
+class rectangle {
+    public:
+    int width;
+    int height;
+    vec2<int> topleft;
+    vec2<int> bottomright;
+    rectangle(int width, int height, const vec2<int> &topleft) :
+        width(width),
+        height(height),
+        topleft(topleft),
+        bottomright(topleft + vec2<int>(width - 1, height - 1))
+    {}
+
+    void sync() {
+        bottomright = topleft + vec2<int>(width - 1, height - 1);
+    }
+
+    int get_area() {
+        return width * height;
+    }
+
+    void shrink(int x) {
+        topleft = topleft + vec2<int>(x, x);
+        width -= x*2;
+        height -= x*2;
+        sync();
+    }
+
+    void for_each(grid<test_cell> &gr, std::function<void(test_cell&)> f) {
+        for (int i = 0; i < height; ++i) {
+            for (int j = 0; j < width; ++j) {
+                f(gr.get_cell(topleft + vec2<int>(j, i)));
+            }
+        }
+    }
+    void for_each_border(grid<test_cell> &gr, std::function<void(test_cell&)> f) {
+        for (int i = 0; i < height; ++i) {
+            f(gr.get_cell(topleft + vec2<int>(0, i)));
+            f(gr.get_cell(topleft + vec2<int>(width-1, i)));
+        }
+        for (int i = 0; i < width; ++i) {
+            f(gr.get_cell(topleft + vec2<int>(i, 0)));
+            f(gr.get_cell(topleft + vec2<int>(i, height-1)));
+        }
+    }
+    void for_each_internal(grid<test_cell> &gr, std::function<void(test_cell&)> f) {
+        for (int i = 1; i < height - 1; ++i) {
+            for (int j = 1; j < width - 1; ++j) {
+                f(gr.get_cell(topleft + vec2<int>(j, i)));
+            }
+        }
+    }
+};
+
+bool rect_fits(const grid<test_cell> &gr, const rectangle &r) {
+    test_cell &topleft = gr.get_cell(r.topleft);
+    test_cell &bottomright = gr.get_cell(r.bottomright);
+    return topleft.space_right >= r.width &&
+           topleft.space_down >= r.height &&
+           bottomright.space_left >= r.width &&
+           bottomright.space_up >= r.height;
+}
+
+void with_rects(grid<test_cell> &gr, int width, int height,
+                std::function<void(rectangle&)> f) {
+
+    gr.for_each([&](test_cell &c) {
+        rectangle r(width, height, c.coord);
+        if (rect_fits(gr, r)) {
+            f(r);
+        }
+    });
+}
+
+bool contains_rect(grid<test_cell> &gr, int width, int height) {
+    for (int i = 0; i < gr.height; ++i) {
+        for (int j = 0; j < gr.width; ++j) {
+            rectangle r(width, height, gr[i][j].coord);
+            if (rect_fits(gr, r)) {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+int find_biggest_square_size_linear(grid<test_cell> &gr) {
+    for (int i = 1; i < gr.width; ++i) {
+        if (!contains_rect(gr, i, i)) {
+            return i - 1;
+        }
+    }
+    return 0;
+}
+
+std::list<rectangle> find_biggest_squares_linear(grid<test_cell> &gr) {
+    int size = find_biggest_square_size_linear(gr);
+    std::list<rectangle> ret;
+    with_rects(gr, size, size, [&](rectangle &r) {
+        ret.push_back(r);
+    });
+    return ret;
+}
+
+void expand_rect(grid<test_cell> &gr, rectangle &r) {
+    int min_space;
+
+    min_space = gr.width;
+    for (int i = 0; i < r.width; ++i) {
+        min_space = std::min(min_space, gr.get_cell(r.topleft + vec2<int>(i, r.height-1)).space_down);
+    }
+    r.height += (min_space - 1);
+    r.sync();
+    min_space = gr.height;
+    for (int i = 0; i < r.height; ++i) {
+        min_space = std::min(min_space, gr.get_cell(r.topleft + vec2<int>(r.width-1, i)).space_right);
+    }
+    r.width += (min_space - 1);
+    r.sync();
+
+}
+
 int main(int argc, char *argv[]) {
-    srand(time(NULL));
+    long int seed = time(NULL);
+//    long int seed = 1435465862;
+    srand(seed);
 //    srand(0);
 #if 0
     std::list<std::unique_ptr<active_effect>> test_list;
@@ -540,6 +660,7 @@ int main(int argc, char *argv[]) {
     std::for_each(water_group->cells.begin(), water_group->cells.end(),
         [&](test_cell *c) {
         c->is_water = true;
+        c->is_open = false;
         c->ch = '~';
     });
 
@@ -564,7 +685,7 @@ int main(int argc, char *argv[]) {
 
     place_trees(dg);
 
-    for (int i = 0; i < 200; ++i) {
+    for (int i = 0; i < 100; ++i) {
         tree_tick(dg);
     }
 
@@ -572,15 +693,46 @@ int main(int argc, char *argv[]) {
 
     compute_space(dg);
 
-    dg.for_each([](test_cell &c) {
-        int x = c.space_down;
-        if (x < 26) {
-            c.ch = 'a' + x;
-        } else {
-            c.ch = '.';
+    std::list<rectangle> rects = find_biggest_squares_linear(dg);
+
+    rectangle *rectptr = &rects.front();
+    int area = rectptr->get_area();
+    std::for_each(rects.begin(), rects.end(), [&](rectangle &r) {
+        expand_rect(dg, r);
+        int new_area = r.get_area();
+        if (new_area > area) {
+            area = new_area;
+            rectptr = &r;
         }
     });
 
+    rectangle &rect = *rectptr;
+
+    rect.for_each(dg, [&](test_cell &c) {
+        c.contents = cell_contents::EMPTY;
+        c.next_contents = cell_contents::EMPTY;
+        c.tree_life = 0;
+    });
+    
+   // rect.shrink(4);
+
+    rect.for_each(dg, [&](test_cell &c) {
+        c.data = COLOR_WHITE;
+        c.is_open = false;
+    });
+    rect.for_each_border(dg, [&](test_cell &c) {
+        c.ch = '#';
+    });
+    rect.for_each_internal(dg, [&](test_cell &c) {
+        c.ch = '.';
+    });
+
+
+    for (int i = 0; i < 5; ++i) {
+        tree_tick(dg);
+    }
+
+    update_chars(dg);
 
 #ifdef DRAW
     dg.for_each([&](test_cell &c) {
@@ -591,6 +743,10 @@ int main(int argc, char *argv[]) {
 
     });
 
+    wprintw(stdscr, "%d ", seed);
+    test_cell &aa = dg[39][39];
+    wprintw(stdscr, "%d %d %d %d", aa.space_left, aa.space_up, 
+                    rect.bottomright.x, rect.bottomright.y);
 
     wgetch(stdscr);
     endwin();
