@@ -60,6 +60,11 @@ class test_cell : public cell {
     cell_contents next_contents = cell_contents::EMPTY;
 
     double tree_life = 0;
+
+    int space_up;
+    int space_down;
+    int space_left;
+    int space_right;
 };
 
 test_cell& get_min_border(grid<test_cell> &grid) {
@@ -359,6 +364,86 @@ void update_chars(grid<test_cell> &gr) {
     });
 }
 
+void compute_space(grid<test_cell> &gr) {
+    if (gr[0][0].is_water) {
+        gr[0][0].space_up = -1;
+        gr[0][0].space_left = -1;
+    } else {
+        gr[0][0].space_up = 0;
+        gr[0][0].space_left = 0;
+    }
+    for (int i = 1; i < gr.width; ++i) {
+        if (gr[0][i].is_water) {
+            gr[0][i].space_up = -1;
+            gr[0][i].space_left = -1;
+        } else {
+            gr[0][i].space_up = 0;
+            gr[0][i].space_left = gr[0][i-1].space_left + 1;
+        }
+    }
+    for (int i = 1; i < gr.height; ++i) {
+        if (gr[i][0].is_water) {
+            gr[i][0].space_up = -1;
+            gr[i][0].space_left = -1;
+        } else {
+            gr[i][0].space_up = gr[i-1][0].space_up + 1;
+            gr[i][0].space_left = 0;
+        }
+    }
+    for (int i = 1; i < gr.height; ++i) {
+        for (int j = 1; j < gr.width; ++j) {
+            if (gr[i][j].is_water) {
+                gr[i][j].space_up = -1;
+                gr[i][j].space_left = -1;
+            } else {
+                gr[i][j].space_up = gr[i-1][j].space_up + 1;
+                gr[i][j].space_left = gr[i][j-1].space_left + 1;
+            }
+        }
+    }
+
+    test_cell &bottom_right = gr[gr.height-1][gr.width-1];
+    if (bottom_right.is_water) {
+        bottom_right.space_down = -1;
+        bottom_right.space_right = -1;
+    } else {
+        bottom_right.space_down = 0;
+        bottom_right.space_right = 0;
+    }
+    for (int i = gr.width-2; i >= 0; --i) {
+        test_cell &c = gr[gr.height-1][i];
+        if (c.is_water) {
+            c.space_down = -1;
+            c.space_right = -1;
+        } else {
+            c.space_down = 0;
+            c.space_right = gr[gr.height-1][i+1].space_right + 1;
+        }
+    }
+    for (int i = gr.height-2; i >= 0; --i) {
+        test_cell &c = gr[i][gr.width-1];
+        if (c.is_water) {
+            c.space_down = -1;
+            c.space_right = -1;
+        } else {
+            c.space_down = gr[i+1][gr.width-1].space_down + 1;
+            c.space_right = 0;
+        }
+    }
+    for (int i = gr.height-2; i >= 0; --i) {
+        for (int j = gr.width-2; j >= 0; --j) {
+            test_cell &c = gr[i][j];
+            if (c.is_water) {
+                c.space_down = -1;
+                c.space_right = -1;
+            } else {
+                c.space_down = gr[i+1][j].space_down + 1;
+                c.space_right = gr[i][j+1].space_right + 1;
+            }
+        }
+    }
+}
+
 int main(int argc, char *argv[]) {
     srand(time(NULL));
 //    srand(0);
@@ -451,13 +536,13 @@ int main(int argc, char *argv[]) {
         c.ch = 'a' + c.classification;
     });
 #endif
-    
-    std::for_each(water_group->cells.begin(), water_group->cells.end(), 
+
+    std::for_each(water_group->cells.begin(), water_group->cells.end(),
         [&](test_cell *c) {
         c->is_water = true;
         c->ch = '~';
     });
-    
+
     compute_distances(dg);
 #ifdef SHOWDISTS
     dg.for_each([](test_cell &c) {
@@ -482,8 +567,20 @@ int main(int argc, char *argv[]) {
     for (int i = 0; i < 200; ++i) {
         tree_tick(dg);
     }
-    
+
     update_chars(dg);
+
+    compute_space(dg);
+
+    dg.for_each([](test_cell &c) {
+        int x = c.space_down;
+        if (x < 26) {
+            c.ch = 'a' + x;
+        } else {
+            c.ch = '.';
+        }
+    });
+
 
 #ifdef DRAW
     dg.for_each([&](test_cell &c) {
