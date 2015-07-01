@@ -290,6 +290,10 @@ template <typename T> class grid : public simple_grid<T> {
         return cell.x_coord == 0 || cell.x_coord == this->width - 1 ||
                cell.y_coord == 0 || cell.y_coord == this->height - 1;
     }
+
+    bool is_internal_cell(const T& cell) {
+        return !this->is_border_cell(cell);
+    }
 };
 
 template <typename T>

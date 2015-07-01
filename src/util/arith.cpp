@@ -6,3 +6,6 @@ bool arithmetic::is_integer(double x) {
 double arithmetic::random_double(double min, double max) {
     return (static_cast<double>(rand())/RAND_MAX) * (max - min) + min;
 }
+int arithmetic::random_int(int min, int max) {
+    return rand() % (max - min) + min;
+}
