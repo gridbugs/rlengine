@@ -55,6 +55,10 @@ template <typename T=double> class vec2 {
         return x*v.x+y*v.y;
     }
 
+    double distance(const vec2<T> &v) const {
+        return (*this - v).length();
+    }
+
     const T &operator[](const unsigned int idx) const {
         return arr[idx];
     }

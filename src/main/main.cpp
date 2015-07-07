@@ -18,6 +18,7 @@
 #include "assert.h"
 #include <memory>
 #include <algorithm>
+#include <limits>
 
 class basic_character : public character {
     public:
@@ -50,6 +51,7 @@ class test_cell : public cell {
     int data;
     char ch = ' ';
     double noise;
+    double noise_old;
     int generation = -1;
     test_cell *core = nullptr;
     int classification = -1;
@@ -62,6 +64,7 @@ class test_cell : public cell {
     bool is_enclosed = false;
     bool is_wall = false;
     bool is_hard_wall = false;
+    bool is_water_end = false;
 
     int dist_to_water = -1;
     int dist_to_land = -1;
@@ -90,7 +93,11 @@ class test_cell : public cell {
     bool is_entrance = false;
 
     cell_group *group = nullptr;
+    bool start_candidate = true;
+    int start_distance = 0;
 };
+
+
 
 void make_bridge(grid<test_cell> &gr, test_cell &c) {
     test_cell *tmp = &c;
@@ -103,10 +110,12 @@ void make_bridge(grid<test_cell> &gr, test_cell &c) {
 test_cell& get_min_border(grid<test_cell> &grid) {
     test_cell *x = nullptr;
     double min_noise = 1;
-    grid.for_each_border([&](test_cell &c) {
-        if (x == nullptr || c.noise < min_noise) {
-            x = &c;
-            min_noise = c.noise;
+    grid.for_each([&](test_cell &c) {
+        if (grid.get_distance_to_border(c) == 5) {
+            if (x == nullptr || c.noise < min_noise) {
+                x = &c;
+                min_noise = c.noise;
+            }
         }
     });
 
@@ -118,6 +127,7 @@ class search_cell : public cell {
     search_cell(const int j, const int i) : cell(j, i) {};
     search_cell *parent = nullptr;
     bool visited = false;
+    double cost = std::numeric_limits<double>::infinity();
 };
 
 class search_node {
@@ -140,9 +150,197 @@ class search_node_comparitor {
     }
 };
 
+bool river(grid<test_cell> &gr, test_cell &start_cell, 
+    std::function<double(test_cell &current, test_cell &neighbour, direction::direction_t dir)> step_fn,
+    std::function<bool(test_cell &current)> predicate,
+    std::function<void(test_cell &river_cell)> river_fn){
+    test_cell *start = &start_cell;
+    simple_grid<search_cell> search_grid(gr.width, gr.height);
+    std::priority_queue<search_node, std::vector<search_node>, search_node_comparitor> pq;
+    pq.push(search_node(*start, 0, 0));
+    bool found = false;
+    test_cell *end = nullptr;
+
+    while (!pq.empty()) {
+        search_node n = pq.top();
+        pq.pop();
+        test_cell *current = n.tc;
+        search_cell &c = search_grid.get_cell(current->coord);
+        if (c.visited) {
+            continue;
+        }
+        c.visited = true;
+
+        if (predicate(*current)) {
+            found = true;
+            end = current;
+            break;
+        }
+        std::for_each(direction::all_directions.begin(), direction::all_directions.end(),
+            [&](direction::direction_t d) {
+
+            test_cell *nei = gr.get_neighbour(*current, d);
+            if (nei == nullptr) {
+                return;
+            }
+            search_cell &sc = search_grid.get_cell(nei->coord);
+            if (sc.visited) {
+                return;
+            }
+            double step_cost;
+            double basic_cost;
+            if (direction::is_ordinal(d)) {
+                basic_cost = 1.414;
+            } else {
+                basic_cost = 1;
+            }
+            step_cost = step_fn(*current, *nei, d);
+
+            double cost = n.cost + step_cost + basic_cost;
+            
+            if (cost < sc.cost) {
+                sc.cost = cost;
+                sc.parent = &c;
+                pq.emplace(*nei, cost, 0);
+            }
+        });
+    }
+
+    if (!found) {
+        return false;
+    }
+
+    search_cell *tmp = &search_grid.get_cell(end->coord);
+    while (tmp != nullptr) {
+        river_fn(gr.get_cell(tmp->coord));
+        tmp = tmp->parent;
+    }
+
+
+    return found;
+}
+
+test_cell *get_random_border_spaced(grid<test_cell> &gr, int space, double min, double max) {
+    std::vector<test_cell*> border;
+    gr.for_each_border([&](test_cell &c) {
+        if (c.noise > min && c.noise < max) {
+            border.push_back(&c);
+        }
+    });
+
+    test_cell *c;
+    int i = 0;
+    while (i < 100) {
+        c = border[arithmetic::random_int(0, border.size())];
+        if (c->start_candidate) {
+            break;
+        }
+        ++i;
+    }
+
+    if (i == 100) {
+        return nullptr;
+    }
+    
+    std::list<test_cell*> queue;
+    queue.push_back(c);
+    while (!queue.empty()) {
+        test_cell &next = *(queue.front());
+        if (next.start_distance >= space) {
+            break;
+        }
+        queue.pop_front();
+        gr.for_each_neighbour(next, [&](test_cell& nei) {
+            if (nei.start_distance == 0) {
+                nei.start_distance = next.start_distance + 1;
+                nei.start_candidate = false;
+                nei.ch = ',';
+                queue.push_back(&nei);
+            }
+        });
+    }
+    
+    return c;
+}
+
+bool plot_rivers(grid<test_cell> &gr) {
+
+    test_cell* start = nullptr;
+    test_cell* end = nullptr;
+
+    start = get_random_border_spaced(gr, 50, -0.1, 0.1);
+    end = get_random_border_spaced(gr, 50, -0.1, 0.1);
+
+    assert(start && end);
+    start->ch = 's';
+    end->ch = 'e';
+
+    bool found = false;
+
+    found = river(gr, *start,
+        [&](test_cell &current, test_cell &neighbour, direction::direction_t dir) {
+            double step_cost = (neighbour.noise - current.noise) * 1000;
+            int dist_to_edge = gr.get_distance_to_edge(neighbour);
+            if (dist_to_edge < 10 && neighbour.coord.distance(end->coord) > 8) {
+                int x = 10 - dist_to_edge;
+                step_cost += x * x;
+            }
+            return step_cost;
+        },
+        [&](test_cell &current) {
+            return &current == end;
+        },
+        [&](test_cell &river_cell) {
+            river_cell.ch = '#';
+        }
+    );
+
+    assert(found);
+
+    gr.for_each([&](test_cell &c) {
+        c.start_candidate = true;
+    });
+    for (int i = 0; i < arithmetic::random_int(1, 5); ++i) {
+        test_cell *c = get_random_border_spaced(gr, 0, -0.1, 0.1);
+        if (c) {
+        
+            river(gr, *c,
+                [&](test_cell &current, test_cell &neighbour, direction::direction_t dir) {
+                    double step_cost = (neighbour.noise - current.noise) * 1000;
+                    int dist_to_edge = gr.get_distance_to_edge(neighbour);
+                    if (dist_to_edge < 10 && neighbour.coord.distance(end->coord) > 8) {
+                        int x = 10 - dist_to_edge;
+                        step_cost += x * x;
+                    }
+                    return step_cost;
+                },
+                [&](test_cell &current) {
+                    return current.ch == '#';
+                },
+                [&](test_cell &river_cell) {
+                    river_cell.ch = '#';
+                }
+            );       
+        
+        
+        }
+    }
+    return true;
+}
+
+
 bool dijkstra(grid<test_cell> &gr) {
+
+    gr.for_each([&](test_cell &c) {
+        if (gr.get_distance_to_border(c) < 5) {
+            c.noise_old = c.noise;
+            c.noise = 100;
+        }
+    });
+
     simple_grid<search_cell> search_grid(gr.width, gr.height);
     test_cell *start = &get_min_border(gr);
+    start->is_water_end = true;
     test_cell *end = nullptr;
     std::priority_queue<search_node, std::vector<search_node>, search_node_comparitor> pq;
     pq.push(search_node(*start, 0, 0));
@@ -157,10 +355,13 @@ bool dijkstra(grid<test_cell> &gr) {
         test_cell *current = n.tc;
         double cost = n.cost;
         int dist = n.dist;
+//        n.visited = true;
 
-        if (gr.is_border_cell(*current) && dist > 100) {
+        if (gr.get_distance_to_border(*current) == 5 && 
+            current->coord.distance(start->coord) >= 100) {
             if (end == nullptr) {
                 end = current;
+                current->is_water_end = true;
 
                 search_cell *tmp = &search_grid.get_cell(end->coord);
                 while (tmp) {
@@ -173,7 +374,8 @@ bool dijkstra(grid<test_cell> &gr) {
                 }
 
             } else {
-                if (arithmetic::random_double(0, 1) < 0.02) {
+                if (arithmetic::random_double(0, 1) < 0.02)
+                     {
                     ends.push_back(current);
                 }
             }
@@ -193,6 +395,7 @@ bool dijkstra(grid<test_cell> &gr) {
 
     std::for_each(ends.begin(), ends.end(), [&](test_cell *cptr) {
         search_cell *tmp = &search_grid.get_cell(cptr->coord);
+        int count = 0;
         while (tmp) {
             if (gr.get_cell(tmp->coord).generation != -1) {
                 break;
@@ -202,8 +405,33 @@ bool dijkstra(grid<test_cell> &gr) {
             gr.get_cell(tmp->coord).core = &gr.get_cell(tmp->coord);
             gr.get_cell(tmp->coord).ch = '~';
             tmp = tmp->parent;
+            ++count;
+        }
+
+        if (count < 10) {
+            tmp = &search_grid.get_cell(cptr->coord);
+            while (tmp) {
+                if (gr.get_cell(tmp->coord).generation == 0) {
+                    break;
+                }
+                gr.get_cell(tmp->coord).data = COLOR_GREEN;
+                gr.get_cell(tmp->coord).generation = -1;
+                gr.get_cell(tmp->coord).core = nullptr;
+                gr.get_cell(tmp->coord).ch = 'x';
+                tmp = tmp->parent;
+            }
+            cptr->is_water_end = false;
+        } else {
+            cptr->is_water_end = true;
         }
     });
+    
+    gr.for_each([&](test_cell &c) {
+        if (gr.get_distance_to_border(c) < 5) {
+            c.noise = c.noise_old;
+        }
+    });
+
 
     return ret;
 }
@@ -223,6 +451,52 @@ void grow(grid<test_cell> &gr, int gen) {
                     }
                 }
             });
+        }
+    });
+}
+
+void continue_water_to_border(grid<test_cell> &gr, test_cell &end_point) {
+
+    test_cell *tmp = &end_point;
+    test_cell *prev = tmp;
+
+    while (gr.get_distance_to_border(*tmp) == 5) {
+        prev = tmp;
+        gr.for_each_neighbour(*tmp, [&](test_cell &nei) {
+            if (nei.ch == '~') {
+                tmp->ch = 'x';
+                tmp = &nei;
+            }
+        });
+    }
+
+    tmp = prev;
+
+    direction::direction_t dir = direction::none;
+    std::for_each(direction::all_directions.begin(), direction::all_directions.end(),
+                  [&](direction::direction_t d) {
+        test_cell *nei = gr.get_neighbour(*tmp, d);
+        if (nei && nei->ch == '~') {
+            dir = direction::get_opposite(d);
+        }
+    });
+    
+    prev = tmp;
+//    assert(prev->generation != -1);
+    tmp = gr.get_neighbour(*tmp, dir);
+    while (tmp && tmp->ch != '~') {
+        tmp->ch = '~';
+        tmp = gr.get_neighbour(*tmp, dir);
+//        tmp->generation = prev->generation;
+    }
+    prev->ch = '~';
+}
+
+void continue_water_to_border(grid<test_cell> &gr) {
+    std::list<test_cell*> ends;
+    gr.for_each([&](test_cell &c) {
+        if (c.is_water_end) {
+            continue_water_to_border(gr, c);
         }
     });
 }
@@ -323,7 +597,7 @@ void classify(grid<test_cell> &gr, std::list<cell_group> &groups) {
             ++classification;
         }
     });
-    
+
     std::for_each(groups.begin(), groups.end(), [&](cell_group &gi) {
         std::for_each(groups.begin(), groups.end(), [&](cell_group &gj) {
             gi.connectable_groups.push_back(false);
@@ -760,9 +1034,9 @@ void find_edge_candidates(grid<test_cell> &gr) {
                 }
             }
         }
-        
+
 /*
- 
+
         if (c.is_bridge_candidate) {
             char ch = '=';
             switch (c.bridge_direction) {
@@ -856,7 +1130,7 @@ void grow_wall(grid<test_cell> &gr, rectangle &r, int amount) {
             }
         });
         c->is_wall = count != 8;
-        
+
         count = 0;
         gr.for_each_cardinal_neighbour(*c, [&](test_cell &nei) {
             if (nei.is_enclosed) {
@@ -902,18 +1176,18 @@ void find_enclosure_accessable_groups(grid<test_cell> &gr, cell_group &enclosure
                 outside = gr.get_neighbour(*outside->bridge_far_side, outside->bridge_direction);
 
             }
-            
+
             c->entrance_final_outside_cell = outside;
-            
+
             cell_group &group = *(outside->group);
             while (group.classification >= seen.size()) {
                 seen.push_back(false);
             }
-            
+
             if (!seen[group.classification]) {
                 groups.push_back(&group);
             }
-            
+
             seen[group.classification] = true;
 
         }
@@ -951,13 +1225,14 @@ void choose_enclosure_entrances(grid<test_cell> &gr, cell_group &enclosure, cell
 }
 void choose_enclosure_entrances(grid<test_cell> &gr, cell_group &enclosure, std::list<cell_group*> &groups) {
     std::for_each(groups.begin(), groups.end(), [&](cell_group *group) {
-        choose_enclosure_entrances(gr, enclosure, *group);       
+        choose_enclosure_entrances(gr, enclosure, *group);
     });
 }
 
 
 int main(int argc, char *argv[]) {
     long int seed = time(NULL);
+//    long int seed = 1435989932;
 //    long int seed = 1435465862;
 //    long int seed = 1435475695;
     std::cout << seed << std::endl;
@@ -1026,6 +1301,7 @@ int main(int argc, char *argv[]) {
 #endif
     perlin_grid pg;
     grid<test_cell> dg(140, 40);
+    
 
     bool has_water = false;
     while (!has_water) {
@@ -1036,8 +1312,52 @@ int main(int argc, char *argv[]) {
             c.ch = '.';
         });
 
-        has_water = dijkstra(dg);
+        has_water = plot_rivers(dg);
     }
+#ifdef REST1
+
+    dg.for_each([&](test_cell &c) {
+        if (c.is_water_end) {
+            /*
+            int count = 0;
+            dg.for_each_neighbour(c, [&](test_cell &nei) {
+                if (nei.ch == '~') {
+                    ++count;
+                }
+            });
+            */
+
+            if (c.ch == '~') {
+                c.ch = '*';
+            } else {
+                c.is_water_end = false;
+            }
+        }
+    });
+    //continue_water_to_border(dg);   
+
+    dg.for_each([&](test_cell &c) {
+        if (c.ch == '~') {
+            c.data = COLOR_BLUE;
+        } else {
+            c.ch = '.';
+            c.data = COLOR_GREEN;
+        }
+    });
+
+    dg.for_each([&](test_cell &c) {
+        if (c.ch == '~') {
+            c.data = COLOR_BLUE;
+            c.generation = 1;
+            c.core = &c;
+        } else {
+            c.data = COLOR_GREEN;
+            c.generation = -1;
+            c.core = nullptr;
+        }
+    });
+
+
     grow(dg, 0);
     grow(dg, 1);
     grow(dg, 2);
@@ -1051,11 +1371,7 @@ int main(int argc, char *argv[]) {
             water_group = &g;
         }
     });
-#ifdef SHOWGROUPS
-    dg.for_each([](test_cell &c) {
-        c.ch = 'a' + c.classification;
-    });
-#endif
+
 
     std::for_each(water_group->cells.begin(), water_group->cells.end(),
         [&](test_cell *c) {
@@ -1156,6 +1472,8 @@ int main(int argc, char *argv[]) {
         }
     });
 */
+
+#endif
 #ifdef DRAW
     dg.for_each([&](test_cell &c) {
         wmove(stdscr, c.y_coord, c.x_coord);
@@ -1166,13 +1484,6 @@ int main(int argc, char *argv[]) {
     });
 
     wmove(stdscr, 41, 0);
-
-    std::for_each(accessable_groups.begin(), 
-                  accessable_groups.end(), 
-                  [&](cell_group *g) {
-
-        wprintw(stdscr, "%d\n\r", g->classification);
-    });
 
     wgetch(stdscr);
     endwin();

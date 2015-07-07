@@ -2,6 +2,7 @@
 #define _DIRECTIONS_HPP_
 
 #include <iostream>
+#include <array>
 
 namespace direction {
 
@@ -49,6 +50,7 @@ namespace direction {
         } direction_t;
     };
 
+    extern const std::array<direction_t, n_directions> all_directions;
 };
 
 std::ostream &operator<<(std::ostream &out, const direction::direction_t dir);

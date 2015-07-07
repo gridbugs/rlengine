@@ -95,7 +95,7 @@ static const direction::direction_t opposites[n_directions] = {
     [northeast] = southwest,
     [southeast] = northwest,
     [southwest] = northeast,
-    [northwest] = northeast
+    [northwest] = southeast
 };
 
 bool direction::is_opposite(direction_t a, direction_t b) {
@@ -105,3 +105,14 @@ bool direction::is_opposite(direction_t a, direction_t b) {
 direction::direction_t direction::get_opposite(direction_t d) {
     return opposites[d];
 }
+
+const std::array<direction_t, n_directions> direction::all_directions = {
+    north,
+    east,
+    south,
+    west,
+    northeast,
+    southeast,
+    southwest,
+    northwest
+};

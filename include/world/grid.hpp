@@ -294,6 +294,10 @@ template <typename T> class grid : public simple_grid<T> {
     bool is_internal_cell(const T& cell) {
         return !this->is_border_cell(cell);
     }
+
+    int get_distance_to_border(const T& cell) {
+        return std::min(std::min(std::min(cell.x_coord, cell.y_coord), this->width - cell.x_coord - 1), this->height - cell.y_coord - 1);
+    }
 };
 
 template <typename T>
