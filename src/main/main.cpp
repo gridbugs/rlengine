@@ -291,7 +291,8 @@ bool plot_rivers(grid<test_cell> &gr) {
             return &current == end;
         },
         [&](test_cell &river_cell) {
-            river_cell.ch = '#';
+            river_cell.ch = '~';
+            river_cell.generation = 0;
         }
     );
 
@@ -315,10 +316,11 @@ bool plot_rivers(grid<test_cell> &gr) {
                     return step_cost;
                 },
                 [&](test_cell &current) {
-                    return current.ch == '#';
+                    return current.ch == '~';
                 },
                 [&](test_cell &river_cell) {
-                    river_cell.ch = '#';
+                    river_cell.ch = '~';
+                    river_cell.generation = 1;
                 }
             );       
         
@@ -1314,7 +1316,6 @@ int main(int argc, char *argv[]) {
 
         has_water = plot_rivers(dg);
     }
-#ifdef REST1
 
     dg.for_each([&](test_cell &c) {
         if (c.is_water_end) {
@@ -1361,6 +1362,8 @@ int main(int argc, char *argv[]) {
     grow(dg, 0);
     grow(dg, 1);
     grow(dg, 2);
+#define REST1
+#ifdef REST1
 
     std::list<cell_group> groups;
     classify(dg, groups);
@@ -1450,10 +1453,16 @@ int main(int argc, char *argv[]) {
     choose_enclosure_entrances(dg, *enc_group, accessable_groups);
 
     dg.for_each([](test_cell &c) {
+
+        if (c.is_bridge_candidate) {
+            c.ch = '#';
+        }
+
         if (c.is_bridge) {
             c.ch = '=';
             c.data = COLOR_RED;
         }
+
     });
 
 /*
