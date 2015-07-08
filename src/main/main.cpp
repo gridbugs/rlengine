@@ -56,6 +56,7 @@ class test_cell : public cell {
     test_cell *core = nullptr;
     int classification = -1;
     int classification2 = -1;
+    int reclas = -1;
 
     bool is_water = false;
     bool is_water_edge = false;
@@ -82,7 +83,7 @@ class test_cell : public cell {
     int expand_dist = -1;
 
     bool is_bridge_candidate = false;
-    direction::direction_t bridge_direction;
+    direction::direction_t bridge_direction = direction::none;
     test_cell *bridge_far_side = nullptr;
     bool is_bridge = false;
 
@@ -527,6 +528,30 @@ void flood(grid<test_cell> &gr, test_cell &start, const std::function<void(test_
     }
 }
 
+void flood2(grid<test_cell> &gr, test_cell &start, const std::function<void(test_cell&)> &f) {
+    std::list<test_cell*> queue;
+    queue.push_back(&start);
+
+    simple_grid<generic_cell<bool>> visited(gr.width, gr.height);
+    visited.for_each([](generic_cell<bool> &c) {c.data = false;});
+
+    visited.get_cell(start.coord).data = true;
+
+    while (!queue.empty()) {
+        test_cell *cptr = queue.front();
+        queue.pop_front();
+
+        gr.for_each_neighbour(*cptr, [&](test_cell &nei) {
+            if (!visited.get_cell(nei.coord).data && !nei.is_water && !nei.is_enclosed && !nei.is_wall) {
+                visited.get_cell(nei.coord).data = true;
+                queue.push_back(&nei);
+            }
+        });
+
+        f(*cptr);
+    }
+}
+
 void flood_enclosure(grid<test_cell> &gr, test_cell &start, const std::function<void(test_cell&)> &f) {
     std::list<test_cell*> queue;
     queue.push_back(&start);
@@ -601,6 +626,33 @@ void classify(grid<test_cell> &gr, std::list<cell_group> &groups) {
     });
 
     std::for_each(groups.begin(), groups.end(), [&](cell_group &gi) {
+        std::for_each(groups.begin(), groups.end(), [&](cell_group &gj) {
+            gi.connectable_groups.push_back(false);
+            gi.potential_bridges.emplace_back();
+        });
+    });
+}
+
+void reclassify(grid<test_cell> &gr, std::list<cell_group> &groups) {
+    int classification = 0;
+    gr.for_each([&](test_cell &c) {
+        if (c.reclas == -1 && !c.is_water && !c.is_enclosed && !c.is_wall) {
+            groups.emplace_back();
+            groups.back().classification = classification;
+            flood2(gr, c, [&](test_cell &fc) {
+                fc.reclas = classification;
+                groups.back().cells.push_back(&fc);
+                fc.group = &groups.back();
+            });
+            ++classification;
+        }
+    });
+
+    std::for_each(groups.begin(), groups.end(), [&](cell_group &gi) {
+
+        gi.connectable_groups.clear();
+        gi.potential_bridges.clear();
+
         std::for_each(groups.begin(), groups.end(), [&](cell_group &gj) {
             gi.connectable_groups.push_back(false);
             gi.potential_bridges.emplace_back();
@@ -1092,7 +1144,27 @@ void connect_bridge_candidates(grid<test_cell> &gr) {
         }
     });
 }
-
+void reconnect_bridge_candidates(grid<test_cell> &gr) {
+    gr.for_each([&](test_cell &c) {
+        if (c.is_bridge_candidate && is_connected_bridge_candidate(gr, c)) {
+            test_cell *far_side = &c;
+            while (far_side->is_water) {
+//                far_side->ch = '+';
+                c.bridge_far_side = far_side;
+                far_side = gr.get_neighbour(*far_side, c.bridge_direction);
+            }
+            test_cell *near_side = gr.get_neighbour(c, direction::get_opposite(c.bridge_direction));
+            if (far_side->reclas != -1 && near_side->reclas != -1) {
+                near_side->group->connectable_groups[far_side->reclas] = true;
+                near_side->group->potential_bridges[far_side->reclas].push_back(&c);
+            } else {
+                c.is_bridge_candidate = false;
+            }
+        } else {
+            c.is_bridge_candidate = false;
+        }
+    });
+}
 void grow_wall(grid<test_cell> &gr, rectangle &r, int amount) {
     std::list<test_cell*> queue;
     std::list<test_cell*> enclosure;
@@ -1231,6 +1303,29 @@ void choose_enclosure_entrances(grid<test_cell> &gr, cell_group &enclosure, std:
     });
 }
 
+
+void choose_bridges(grid<test_cell> &gr, std::list<cell_group> &groups) {
+//    std::for_each(groups.begin(), groups.end(), [&](cell_group &group) {
+    for (auto it = groups.begin(); it != groups.end(); ++it) {
+        for (unsigned int i = 0; i < it->potential_bridges.size(); ++i) {
+//        std::for_each(it->potential_bridges.begin(), it->potential_bridges.end(), [&](std::list<test_cell*> &bridges) {
+            std::list<test_cell*> &bridges = it->potential_bridges[i];
+            if (bridges.empty()) {
+                continue;
+            }
+            std::vector<test_cell*> bridge_vec{std::begin(bridges), std::end(bridges)};
+            test_cell *c = bridge_vec[arithmetic::random_int(0, bridge_vec.size())];
+            make_bridge_from_cell(gr, *c);
+            test_cell *other_side = gr.get_neighbour(*(c->bridge_far_side), c->bridge_direction);
+            other_side->group->potential_bridges[it->classification].clear();
+//            c->ch = '0' + i;
+//
+//            c->bridge_far_side->group->potential_bridges.r();//[group.classification].clear();
+        }       
+//        });
+    }
+//    });
+}
 
 int main(int argc, char *argv[]) {
     long int seed = time(NULL);
@@ -1452,11 +1547,13 @@ int main(int argc, char *argv[]) {
 
     choose_enclosure_entrances(dg, *enc_group, accessable_groups);
 
-    dg.for_each([](test_cell &c) {
+    std::list<cell_group> groups2;
+    reclassify(dg, groups2);
+    reconnect_bridge_candidates(dg);
+    
+    choose_bridges(dg, groups2);
 
-        if (c.is_bridge_candidate) {
-            c.ch = '#';
-        }
+    dg.for_each([](test_cell &c) {
 
         if (c.is_bridge) {
             c.ch = '=';
@@ -1466,6 +1563,12 @@ int main(int argc, char *argv[]) {
     });
 
 /*
+    dg.for_each([](test_cell &c) {
+        if (c.reclas != -1) {
+            c.ch = '0' + c.reclas;
+        }
+    });
+   
     std::for_each(groups.begin(), groups.end(), [&](cell_group &g) {
         if (!g.is_enclosure_adjacent) {
             std::for_each(g.cells.begin(), g.cells.end(), [&](test_cell *c) {
